@@ -816,6 +816,94 @@ class MapStd( PrepObj ):
       ret = ( data / self._invRMS ) + self._mean
     return ret
 
+class StackedAutoEncoder( PrepObj ):
+  """
+    Remove data mean and set unitary standard deviation.
+  """
+
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_mean', '_invRMS'})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {'_mean','_invRMS'})
+
+  def __init__(self, d = {}, **kw):
+    d.update( kw ); del kw
+    PrepObj.__init__( self, d )
+    checkForUnusedVars(d, self._warning )
+    del d
+    #self._mean = np.array( [], dtype=npCurrent.dtype )
+    #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
+
+    ####self.paramametros de nosso interesse
+
+  def mean(self):
+    return self._mean
+  
+  def rms(self):
+    return 1 / self._invRMS
+
+  def params(self):
+    return self.mean(), self.rms()
+
+  def takeParams(self, trnData):
+
+  ###trainlayer
+
+    """
+      Calculate mean and rms for transformation.
+    """
+    # Put all classes information into only one representation
+    # TODO Make transformation invariant to each class mass.
+    import copy
+    data = copy.deepcopy(trnData)
+    if isinstance(data, (tuple, list,)):
+      data = np.concatenate( data, axis=npCurrent.odim )
+    self._mean = np.mean( data, axis=npCurrent.odim, dtype=data.dtype ).reshape( 
+            npCurrent.access( pidx=data.shape[npCurrent.pdim],
+                              oidx=1 ) )
+    data = data - self._mean
+    tmpArray = np.sqrt( np.mean( np.square( data ), axis=npCurrent.odim ) ).reshape( 
+                npCurrent.access( pidx=data.shape[npCurrent.pdim],
+                                  oidx=1 ) )
+    tmpArray[tmpArray==0] = 1
+    self._invRMS = 1 / tmpArray
+    return self._apply(trnData)
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+    return "StackedAutoEncoder"
+
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return "sae"
+
+  def _apply(self, data):
+
+    ###get data projection
+    if not self._mean.size or not self._invRMS.size:
+      self._fatal("Attempted to apply MapStd before taking its parameters.")
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      for cdata in data:
+        ret.append( ( cdata - self._mean ) * self._invRMS )
+    else:
+      ret = ( data - self._mean ) * self._invRMS
+    return ret
+
+  def _undo(self, data):
+    if not self._mean.size or not self._invRMS.size:
+      self._fatal("Attempted to undo MapStd before taking its parameters.")
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      for i, cdata in enumerate(data):
+        ret.append( ( cdata / self._invRMS ) + self._mean )
+    else:
+      ret = ( data / self._invRMS ) + self._mean
+    return ret
+
+
 class MapStd_MassInvariant( MapStd ):
   """
     Remove data mean and set unitary standard deviation but "invariant" to each
