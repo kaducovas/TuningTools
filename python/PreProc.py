@@ -11,6 +11,24 @@ from RingerCore import ( Logger, LoggerStreamable, checkForUnusedVars
 from TuningTools.coreDef import npCurrent
 import numpy as np
 
+
+import os
+import sys
+import pickle
+import time
+
+from keras.utils import np_utils
+from keras.models import load_model
+
+import sklearn.metrics
+from sklearn.externals import joblib
+
+from TuningTools import SAE_TrainParameters as trnparams
+from TuningTools.StackedAutoEncoders import StackedAutoEncoders
+
+import multiprocessing
+
+
 class PreProcArchieve( Logger ):
   """
   Context manager for Pre-Processing archives
@@ -852,6 +870,36 @@ class StackedAutoEncoder( PrepObj ):
     """
     # Put all classes information into only one representation
     # TODO Make transformation invariant to each class mass.
+	
+	trn_params = trnparams.NeuralClassificationTrnParams(n_inits=1,
+                                                         hidden_activation='tanh', # others tanh, relu, sigmoid, linear
+                                                         output_activation='linear',
+                                                         n_epochs=50,  #500
+                                                         patience=10,  #30
+                                                         batch_size=4, #256
+                                                         verbose=False)
+
+	# Train Process
+	SAE = StackedAutoEncoders(params = trn_params,
+							  development_flag = development_flag,
+							  n_folds = n_folds,
+							  save_path = results_path,
+							  CVO = CVO)
+
+	# Choose layer to be trained
+	layer = 9
+
+	hidden_neurons = range(400,0,-50) + [2]
+	print hidden_neurons
+	# Functions defined to be used by multiprocessing.Pool()
+	def trainNeuron(ineuron):
+		for ifold in range(n_folds):
+			SAE.trainLayer(data=all_data,
+						   trgt=all_trgt,
+						   ifold=ifold,
+						   hidden_neurons=hidden_neurons + [ineuron],
+						   layer = layer) 
+	
     import copy
     data = copy.deepcopy(trnData)
     if isinstance(data, (tuple, list,)):
