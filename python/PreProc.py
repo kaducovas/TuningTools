@@ -836,17 +836,26 @@ class MapStd( PrepObj ):
 
 class StackedAutoEncoder( PrepObj ):
   """
-    Remove data mean and set unitary standard deviation.
+    Train the encoders in order to stack them as pre-processing afterwards.
   """
 
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_mean', '_invRMS'})
   _cnvObj = RawDictCnv(toProtectedAttrs = {'_mean','_invRMS'})
 
-  def __init__(self, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='tanh',n_epochs=50,patience=10,batch_size=4,hidden_neurons=[100,80,60],layer=1, d = {}, **kw):
     d.update( kw ); del kw
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     del d
+    self._n_inits = n_inits
+    self._hidden_activation = hidden_activation
+    self._output_activation = output_activation
+    self._n_epochs = n_epochs
+    self._patience = patience
+    self._batch_size = batch_size
+    self._hidden_neurons = hidden_neurons 
+    self._layer=_layer    
+
     #self._mean = np.array( [], dtype=npCurrent.dtype )
     #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
 
@@ -871,13 +880,13 @@ class StackedAutoEncoder( PrepObj ):
     # Put all classes information into only one representation
     # TODO Make transformation invariant to each class mass.
 	
-	trn_params = trnparams.NeuralClassificationTrnParams(n_inits=1,
-                                                         hidden_activation='tanh', # others tanh, relu, sigmoid, linear
-                                                         output_activation='linear',
-                                                         n_epochs=50,  #500
-                                                         patience=10,  #30
-                                                         batch_size=4, #256
-                                                         verbose=False)
+	trn_params = trnparams.NeuralClassificationTrnParams(self._n_inits=1,
+                                                         self._hidden_activation='tanh', # others tanh, relu, sigmoid, linear
+                                                         self._output_activation='linear',
+                                                         self._n_epochs=50,  #500
+                                                         self._patience=10,  #30
+                                                         self._batch_size=4, #256
+                                                         self._verbose=False)
 
 	# Train Process
 	SAE = StackedAutoEncoders(params = trn_params,
