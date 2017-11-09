@@ -1,7 +1,7 @@
 __all__ = ['PreProcArchieve', 'PrepObj', 'Projection',  'RemoveMean', 'RingerRp',
            'UndoPreProcError', 'UnitaryRMS', 'FirstNthPatterns', 'KernelPCA',
            'MapStd', 'MapStd_MassInvariant', 'NoPreProc', 'Norm1', 'PCA',
-           'PreProcChain', 'PreProcCollection', 'RingerEtaMu']
+           'PreProcChain', 'PreProcCollection', 'RingerEtaMu','StackedAutoEncoder']
 
 from RingerCore import ( Logger, LoggerStreamable, checkForUnusedVars
                        , save, load, LimitedTypeList, LoggingLevel, LoggerRawDictStreamer
@@ -842,7 +842,7 @@ class StackedAutoEncoder( PrepObj ):
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params'})
   _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params'})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=10,batch_size=4,hidden_neurons=[100,80,60],layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=2,batch_size=200,hidden_neurons=[100,80,60],layer=3, d = {}, **kw):
     d.update( kw ); del kw
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
@@ -863,12 +863,18 @@ class StackedAutoEncoder( PrepObj ):
 
   def SAE(self):
     return self._SAE
+
+  def weights(self):
+    return self._weights
+
+  def model(self):
+    return self._model
   
   def trn_params(self):
     return self._trn_params
 
   def params(self):
-    return self.SAE(), self.trn_params()
+    return self.SAE(), self.trn_params(),self.weights(), self.model()
 
   def takeParams(self, trnData):
 
@@ -882,6 +888,8 @@ class StackedAutoEncoder( PrepObj ):
 
     import copy
     data = copy.deepcopy(trnData)
+    data = [d[:100] for d in data]
+	
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
  
@@ -891,13 +899,12 @@ class StackedAutoEncoder( PrepObj ):
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
     if not os.path.exists(trn_params_folder):
-        trn_params = trnparams.NeuralClassificationTrnParams(self._n_inits,
-                                                             self._hidden_activation,
-                                                             self._output_activation,
-                                                             self._n_epochs,
-                                                             self._patienc,
-                                                             self._batch_size,
-                                                             verbose=False)
+        trn_params = trnparams.NeuralClassificationTrnParams(n_inits=self._n_inits,
+                                                             hidden_activation=self._hidden_activation,
+                                                             output_activation=self._output_activation,
+                                                             n_epochs=self._n_epochs,
+                                                             patience=self._patience,
+                                                             batch_size=self._batch_size)
     trn_params.save(trn_params_folder)
 
     self._trn_params = trn_params
@@ -920,9 +927,9 @@ class StackedAutoEncoder( PrepObj ):
 
     SAE.trainLayer(data=data,
                    trgt=data,
-                   ifold=1,
+                   ifold=0,
                    hidden_neurons=self._hidden_neurons,
-                   layer = layer)
+                   layer = self._layer)
     
     self._info(self._SAE)
     

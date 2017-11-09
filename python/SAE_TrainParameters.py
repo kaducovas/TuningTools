@@ -29,11 +29,11 @@ class TrnParams(object):
 
 # classification
 
-def ClassificationFolds(folder, n_folds=2, trgt=None, dev=False, verbose=False):
+def ClassificationFolds(folder, n_folds=1, trgt=None, dev=False, verbose=True):
 
-    if n_folds < 2:
-        print 'Invalid number of folds'
-        return -1
+    #if n_folds < 2:
+        #print 'Invalid number of folds'
+        #return -1
 
     if not dev:
         file_name = '%s/%i_folds_cross_validation.jbl'%(folder,n_folds)
