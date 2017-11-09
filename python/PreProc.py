@@ -897,7 +897,7 @@ class StackedAutoEncoder( PrepObj ):
                                                              self._n_epochs,
                                                              self._patienc,
                                                              self._batch_size,
-                                                             self._verbose=False)
+                                                             verbose=False)
     trn_params.save(trn_params_folder)
 
     self._trn_params = trn_params
