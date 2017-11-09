@@ -1153,7 +1153,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( MapStd(level = self.level) ) )#Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass

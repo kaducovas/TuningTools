@@ -842,7 +842,7 @@ class StackedAutoEncoder( PrepObj ):
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_mean', '_invRMS'})
   _cnvObj = RawDictCnv(toProtectedAttrs = {'_mean','_invRMS'})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='tanh',n_epochs=50,patience=10,batch_size=4,hidden_neurons=[100,80,60],layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=10,batch_size=4,hidden_neurons=[100,80,60],layer=1, d = {}, **kw):
     d.update( kw ); del kw
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
@@ -854,7 +854,7 @@ class StackedAutoEncoder( PrepObj ):
     self._patience = patience
     self._batch_size = batch_size
     self._hidden_neurons = hidden_neurons 
-    self._layer=_layer    
+    self._layer= layer    
 
     #self._mean = np.array( [], dtype=npCurrent.dtype )
     #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
@@ -888,9 +888,10 @@ class StackedAutoEncoder( PrepObj ):
                                                          self._batch_size=4, #256
                                                          self._verbose=False)
 
+  results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
 	# Train Process
 	SAE = StackedAutoEncoders(params = trn_params,
-							  development_flag = development_flag,
+							  development_flag = False,
 							  n_folds = n_folds,
 							  save_path = results_path,
 							  CVO = CVO)
