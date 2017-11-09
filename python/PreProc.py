@@ -923,9 +923,10 @@ class StackedAutoEncoder( PrepObj ):
                    ifold=1,
                    hidden_neurons=self._hidden_neurons,
                    layer = layer)
-
-   self._info(self._SAE) 
-   return self._apply(trnData)   
+    
+    self._info(self._SAE)
+    
+    return self._apply(trnData)   
 
 
 
