@@ -839,8 +839,8 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_mean', '_invRMS'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_mean','_invRMS'})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params'})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params'})
 
   def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=10,batch_size=4,hidden_neurons=[100,80,60],layer=1, d = {}, **kw):
     d.update( kw ); del kw
@@ -861,69 +861,73 @@ class StackedAutoEncoder( PrepObj ):
 
     ####self.paramametros de nosso interesse
 
-  def mean(self):
-    return self._mean
+  def SAE(self):
+    return self._SAE
   
-  def rms(self):
-    return 1 / self._invRMS
+  def trn_params(self):
+    return self._trn_params
 
   def params(self):
-    return self.mean(), self.rms()
+    return self.SAE(), self.trn_params()
 
   def takeParams(self, trnData):
 
   ###trainlayer
 
     """
-      Calculate mean and rms for transformation.
+      Perform the layerwise algorithm to train the SAE
     """
-    # Put all classes information into only one representation
-    # TODO Make transformation invariant to each class mass.
-	
-	trn_params = trnparams.NeuralClassificationTrnParams(self._n_inits=1,
-                                                         self._hidden_activation='tanh', # others tanh, relu, sigmoid, linear
-                                                         self._output_activation='linear',
-                                                         self._n_epochs=50,  #500
-                                                         self._patience=10,  #30
-                                                         self._batch_size=4, #256
-                                                         self._verbose=False)
+    
+    # TODO...
 
-  results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
-	# Train Process
-	SAE = StackedAutoEncoders(params = trn_params,
-							  development_flag = False,
-							  n_folds = n_folds,
-							  save_path = results_path,
-							  CVO = CVO)
-
-	# Choose layer to be trained
-	layer = 9
-
-	hidden_neurons = range(400,0,-50) + [2]
-	print hidden_neurons
-	# Functions defined to be used by multiprocessing.Pool()
-	def trainNeuron(ineuron):
-		for ifold in range(n_folds):
-			SAE.trainLayer(data=all_data,
-						   trgt=all_trgt,
-						   ifold=ifold,
-						   hidden_neurons=hidden_neurons + [ineuron],
-						   layer = layer) 
-	
     import copy
     data = copy.deepcopy(trnData)
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
-    self._mean = np.mean( data, axis=npCurrent.odim, dtype=data.dtype ).reshape( 
-            npCurrent.access( pidx=data.shape[npCurrent.pdim],
-                              oidx=1 ) )
-    data = data - self._mean
-    tmpArray = np.sqrt( np.mean( np.square( data ), axis=npCurrent.odim ) ).reshape( 
-                npCurrent.access( pidx=data.shape[npCurrent.pdim],
-                                  oidx=1 ) )
-    tmpArray[tmpArray==0] = 1
-    self._invRMS = 1 / tmpArray
-    return self._apply(trnData)
+ 
+    results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
+    trn_params_folder = results_path+'trnparams.jbl'
+
+    if os.path.exists(trn_params_folder):
+        os.remove(trn_params_folder)
+    if not os.path.exists(trn_params_folder):
+        trn_params = trnparams.NeuralClassificationTrnParams(self._n_inits,
+                                                             self._hidden_activation,
+                                                             self._output_activation,
+                                                             self._n_epochs,
+                                                             self._patienc,
+                                                             self._batch_size,
+                                                             self._verbose=False)
+    trn_params.save(trn_params_folder)
+
+    self._trn_params = trn_params
+
+    self._info(trn_params.get_params_str())
+
+    # Train Process
+    SAE = StackedAutoEncoders(params = trn_params,
+                              development_flag = False,
+                              n_folds = 1,
+                              save_path = results_path,
+                              )
+
+    self._SAE = SAE
+
+    # Choose layer to be trained
+    layer = self._layer
+
+    self._info(self._hidden_neurons)
+
+    SAE.trainLayer(data=data,
+                   trgt=data,
+                   ifold=1,
+                   hidden_neurons=self._hidden_neurons,
+                   layer = layer)
+
+   self._info(self._SAE) 
+   return self._apply(trnData)   
+
+
 
   def __str__(self):
     """
@@ -940,26 +944,26 @@ class StackedAutoEncoder( PrepObj ):
   def _apply(self, data):
 
     ###get data projection
-    if not self._mean.size or not self._invRMS.size:
-      self._fatal("Attempted to apply MapStd before taking its parameters.")
+    #if not self._mean.size or not self._invRMS.size:
+    #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
       for cdata in data:
-        ret.append( ( cdata - self._mean ) * self._invRMS )
+        ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=1))
     else:
-      ret = ( data - self._mean ) * self._invRMS
+      ret = self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=1)
     return ret
 
-  def _undo(self, data):
-    if not self._mean.size or not self._invRMS.size:
-      self._fatal("Attempted to undo MapStd before taking its parameters.")
-    if isinstance(data, (tuple, list,)):
-      ret = []
-      for i, cdata in enumerate(data):
-        ret.append( ( cdata / self._invRMS ) + self._mean )
-    else:
-      ret = ( data / self._invRMS ) + self._mean
-    return ret
+  # def _undo(self, data):
+    # if not self._mean.size or not self._invRMS.size:
+      # self._fatal("Attempted to undo MapStd before taking its parameters.")
+    # if isinstance(data, (tuple, list,)):
+      # ret = []
+      # for i, cdata in enumerate(data):
+        # ret.append( ( cdata / self._invRMS ) + self._mean )
+    # else:
+      # ret = ( data / self._invRMS ) + self._mean
+    # return ret
 
 
 class MapStd_MassInvariant( MapStd ):
