@@ -100,7 +100,7 @@ class StackedAutoEncoders:
         if layer > len(hidden_neurons):
             print "[-] Error: The parameter layer must be less or equal to the size of list hidden_neurons"
             return 1
-        proj_all_data = self.normalizeData(data=data, ifold=ifold)
+        proj_all_data = data #self.normalizeData(data=data, ifold=ifold)
         if layer == 1:
             neurons_str = self.getNeuronsString(data, hidden_neurons[:layer])
             previous_model_str = '%s/%s/%s_%i_folds_%s_%s_neurons'%(self.save_path,
@@ -119,7 +119,7 @@ class StackedAutoEncoders:
                 self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:layer], layer=layer, folds_sweep=True)
 
             layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
-
+            print "Loading Model: "+file_name
             get_layer_output = K.function([layer_model.layers[0].input],
                                           [layer_model.layers[1].output])
             # Projection of layer
@@ -143,7 +143,7 @@ class StackedAutoEncoders:
                     self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:ilayer], layer=ilayer, folds_sweep=True)
 
                 layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
-
+                print "Loading Model: "+file_name
                 get_layer_output = K.function([layer_model.layers[0].input],
                                               [layer_model.layers[1].output])
                 # Projection of layer
@@ -178,7 +178,9 @@ class StackedAutoEncoders:
                                                            self.prefix_str, self.n_folds,
                                                            self.params_str, neurons_str)
         if not self.development_flag:
+          
             file_name = '%s_fold_%i_model.h5'%(model_str,ifold)
+            print file_name
             if os.path.exists(file_name):
                 if self.trn_params.params['verbose']:
                     print 'File %s exists'%(file_name)
@@ -228,6 +230,7 @@ class StackedAutoEncoders:
                 model.add(Activation(self.trn_params.params['output_activation']))
             elif layer > 1:
                 for ilayer in range(1,layer):
+                    print hidden_neurons[:ilayer]
                     neurons_str = self.getNeuronsString(data, hidden_neurons[:ilayer])
                     previous_model_str = '%s/%s/%s_%i_folds_%s_%s_neurons'%(self.save_path,
                                                                             self.analysis_str,
@@ -270,7 +273,7 @@ class StackedAutoEncoders:
                           metrics=self.trn_params.params['metrics'])
 
             # Train model
-            earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
+            earlyStopping = callbacks.EarlyStopping(monitor='loss',
                                                     patience=self.trn_params.params['patience'],
                                                     verbose=self.trn_params.params['train_verbose'],
                                                     mode='auto')
@@ -280,9 +283,9 @@ class StackedAutoEncoders:
                                       batch_size=self.trn_params.params['batch_size'],
                                       callbacks=[earlyStopping],
                                       verbose=self.trn_params.params['verbose'])
-            if np.min(init_trn_desc.history['val_loss']) < best_loss:
+            if np.min(init_trn_desc.history['loss']) < best_loss:
                 best_init = i_init
-                best_loss = np.min(init_trn_desc.history['val_loss'])
+                best_loss = np.min(init_trn_desc.history['loss'])
                 classifier = model
                 trn_desc['epochs'] = init_trn_desc.epoch
 
@@ -292,10 +295,10 @@ class StackedAutoEncoders:
                     else:
                         metric = self.trn_params.params['metrics'][imetric]
                     trn_desc[metric] = init_trn_desc.history[metric]
-                    trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
+                    #trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
 
                 trn_desc['loss'] = init_trn_desc.history['loss']
-                trn_desc['val_loss'] = init_trn_desc.history['val_loss']
+                #trn_desc['val_loss'] = init_trn_desc.history['val_loss']
 
         # save model
         if not self.development_flag:

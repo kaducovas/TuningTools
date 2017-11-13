@@ -957,9 +957,9 @@ class StackedAutoEncoder( PrepObj ):
     if isinstance(data, (tuple, list,)):
       ret = []
       for cdata in data:
-        ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=1))
+        ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0))
     else:
-      ret = self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=1)
+      ret = self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0)
     return ret
 
   # def _undo(self, data):
