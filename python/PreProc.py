@@ -839,10 +839,10 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params'})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params','_trn_desc','_model'})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params','_trn_desc','_model'})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=2,batch_size=200,hidden_neurons=[100,80,60],layer=3, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=30,batch_size=200,hidden_neurons=[80],layer=1, d = {}, **kw):
     d.update( kw ); del kw
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
@@ -854,18 +854,37 @@ class StackedAutoEncoder( PrepObj ):
     self._patience = patience
     self._batch_size = batch_size
     self._hidden_neurons = hidden_neurons 
-    self._layer= layer    
+    self._layer= layer
+    self._sort = None
+    self._etBinIdx = None
+    self._etaBinIdx = None
 
     #self._mean = np.array( [], dtype=npCurrent.dtype )
     #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
 
     ####self.paramametros de nosso interesse
 
+  #def __call__(self, data, revert = False,sort,etBinIdx,etaBinIdx):
+  #  """
+  #    The revert should be used to undo the pre-processing.
+  #  """
+  #  if revert:
+  #    try:
+  #      self._debug('Reverting %s...', self.__class__.__name__)
+  #      data = self._undo(data)
+  #    except AttributeError:
+  #      self._fatal("It is impossible to revert PreProc ")#%s" % \
+  #      #    self.__class__.___name__)
+  #  else:
+  #    self._info('SAE Applying %s...', self.__class__.__name__)
+  #    data = self._apply(data,sort,etBinIdx,etaBinIdx)
+  #  return data
+
   def SAE(self):
     return self._SAE
 
-  def weights(self):
-    return self._weights
+  def trn_desc(self):
+    return self._trn_desc
 
   def model(self):
     return self._model
@@ -874,9 +893,9 @@ class StackedAutoEncoder( PrepObj ):
     return self._trn_params
 
   def params(self):
-    return self.SAE(), self.trn_params(),self.weights(), self.model()
+    return self.SAE(), self.trn_params(),self.trn_desc(), self.model()
 
-  def takeParams(self, trnData):
+  def takeParams(self, trnData,sort,etBinIdx, etaBinIdx):
 
   ###trainlayer
 
@@ -885,10 +904,13 @@ class StackedAutoEncoder( PrepObj ):
     """
     
     # TODO...
-
+    self._sort = sort
+    self._etBinIdx = etBinIdx
+    self._etaBinIdx = etaBinIdx
     import copy
     data = copy.deepcopy(trnData)
     data = [d[:100] for d in data]
+    self._batch_size = min(data[0].shape[0],data[1].shape[0])
 	
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
@@ -925,12 +947,13 @@ class StackedAutoEncoder( PrepObj ):
 
     self._info(self._hidden_neurons)
 
-    SAE.trainLayer(data=data,
-                   trgt=data,
-                   ifold=0,
-                   hidden_neurons=self._hidden_neurons,
-                   layer = self._layer)
-    
+    f, model, trn_desc = SAE.trainLayer(data=data,
+                                        trgt=data,
+                                        ifold=0,
+                                        hidden_neurons=self._hidden_neurons,
+                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
+    self._trn_desc = trn_desc
+    self._model = model
     self._info(self._SAE)
     
     return self._apply(trnData)   
@@ -941,25 +964,29 @@ class StackedAutoEncoder( PrepObj ):
     """
       String representation of the object.
     """
-    return "StackedAutoEncoder"
+    return ("AutoEncoder_%d" % self._hidden_neurons[0])
 
   def shortName(self):
     """
       Short string representation of the object.
     """
-    return "sae"
+    return ("AE_%d" % self._hidden_neurons[0])
 
   def _apply(self, data):
-
+    self._info(self._sort)
+    self._info(self._etBinIdx)
+    self._info(self._etaBinIdx)
     ###get data projection
     #if not self._mean.size or not self._invRMS.size:
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
+      data = [d[:100] for d in data]
       for cdata in data:
-        ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0))
+	#self._info(cdata.shape)
+        ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
     else:
-      ret = self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0)
+      ret = self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx)
     return ret
 
   # def _undo(self, data):
@@ -1357,7 +1384,7 @@ class PreProcChain ( Logger ):
     _LimitedTypeList____init__(self, *args)
     Logger.__init__(self, kw)
 
-  def __call__(self, data, revert = False):
+  def __call__(self, data, revert = False,sort=None,etBinIdx=None,etaBinIdx=None):
     """
       Apply/revert pre-processing chain.
     """
@@ -1365,6 +1392,9 @@ class PreProcChain ( Logger ):
       self._warning("No pre-processing available in this chain.")
       return
     for pp in self:
+      #if pp.shortName()[:2] == 'AE':
+      #  data = pp(data,revert,sort,etBinIdx,etaBinIdx)
+      #else:
       data = pp(data, revert)
     return data
 
@@ -1398,7 +1428,7 @@ class PreProcChain ( Logger ):
         return False
     return True
 
-  def takeParams(self, trnData):
+  def takeParams(self, trnData,sort=None,etBinIdx=None, etaBinIdx=None):
     """
       Take pre-processing parameters for all objects in chain. 
     """
@@ -1406,7 +1436,11 @@ class PreProcChain ( Logger ):
       self._warning("No pre-processing available in this chain.")
       return
     for pp in self:
-      trnData = pp.takeParams(trnData)
+      if pp.shortName()[:2] == 'AE':
+        trnData = pp.takeParams(trnData,sort,etBinIdx, etaBinIdx)
+      else: 
+        trnData = pp.takeParams(trnData)
+    return trnData
 
   def concatenate(self, trnData, extraData):
     """
