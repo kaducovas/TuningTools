@@ -9,5 +9,7 @@ doc/.ipynb_checkpoints/*
 *.npz
 *.root
 *.log
+*.h5
+*.jbl
 cmt/boost_test.cxx.o
 scripts/jenkins/report_et0_eta0/
