@@ -1,0 +1,13 @@
+createTuningJobFiles.py all \
+              -oJConf config_SAE \
+              --nInits 100 \
+              --neuronBounds 10 10 \
+              -outCross crossValid_SAE_jackkinfe \
+              --method "JackKnife" \
+              --nBoxes 10 \
+              --nTrain 9 \
+              --nSorts 10 \
+              -outPP ppFile_StackedAutoEncoder \
+              -pp_nEt 2 \
+              -pp_nEta 0 \
+              -ppCol "StackedAutoEncoder()"

@@ -839,8 +839,8 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params','_trn_desc','_model'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params','_trn_desc','_model'})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params','_trn_desc','_weights'})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params','_trn_desc','_weights'})
 
   def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=30,batch_size=200,hidden_neurons=[80],layer=1, d = {}, **kw):
     d.update( kw ); del kw
@@ -886,14 +886,14 @@ class StackedAutoEncoder( PrepObj ):
   def trn_desc(self):
     return self._trn_desc
 
-  def model(self):
-    return self._model
+  def weights(self):
+    return self._weights
   
   def trn_params(self):
     return self._trn_params
 
   def params(self):
-    return self.SAE(), self.trn_params(),self.trn_desc(), self.model()
+    return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
 
   def takeParams(self, trnData,sort,etBinIdx, etaBinIdx):
 
@@ -909,7 +909,7 @@ class StackedAutoEncoder( PrepObj ):
     self._etaBinIdx = etaBinIdx
     import copy
     data = copy.deepcopy(trnData)
-    data = [d[:100] for d in data]
+    #data = [d[:100] for d in data]
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 	
     if isinstance(data, (tuple, list,)):
@@ -953,7 +953,7 @@ class StackedAutoEncoder( PrepObj ):
                                         hidden_neurons=self._hidden_neurons,
                                         layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
     self._trn_desc = trn_desc
-    self._model = model
+    self._weights = model
     self._info(self._SAE)
     
     return self._apply(trnData)   
@@ -981,7 +981,7 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      data = [d[:100] for d in data]
+      #data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
