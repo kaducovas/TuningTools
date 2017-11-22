@@ -842,22 +842,28 @@ class StackedAutoEncoder( PrepObj ):
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params','_trn_desc','_weights'})
   _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params','_trn_desc','_weights'})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=30,batch_size=200,hidden_neurons=[80],layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
+    from RingerCore import retrieve_kw
+    self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
-    del d
     self._n_inits = n_inits
     self._hidden_activation = hidden_activation
     self._output_activation = output_activation
     self._n_epochs = n_epochs
     self._patience = patience
-    self._batch_size = batch_size
-    self._hidden_neurons = hidden_neurons 
+    self._batch_size = batch_size 
     self._layer= layer
-    self._sort = None
-    self._etBinIdx = None
-    self._etaBinIdx = None
+    del d
+    self._sort = ''
+    self._etBinIdx = ''
+    self._etaBinIdx = ''
+    self._SAE = ''
+    self._trn_params = ''
+    self._trn_desc = ''
+    self._weights = ''
+
 
     #self._mean = np.array( [], dtype=npCurrent.dtype )
     #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
@@ -909,7 +915,7 @@ class StackedAutoEncoder( PrepObj ):
     self._etaBinIdx = etaBinIdx
     import copy
     data = copy.deepcopy(trnData)
-    #data = [d[:100] for d in data]
+    data = [d[:100] for d in data]
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 	
     if isinstance(data, (tuple, list,)):
@@ -981,7 +987,7 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      #data = [d[:100] for d in data]
+      data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
