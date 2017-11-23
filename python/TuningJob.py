@@ -1155,7 +1155,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[40])] ) )#Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1354,19 +1354,21 @@ class TuningJob(Logger):
           del patterns # Keep only one data representation
 
           # Take ppChain parameters on training data:
+          self._info(len(trnData))
+          self._info(trnData[0].shape)
+          self._info(trnData[1].shape)
           self._info('Tuning pre-processing chain (%s)...', ppChain)
-          trainData = ppChain.takeParams( trnData )
+          trnData = ppChain.takeParams( trnData,sort,etBinIdx, etaBinIdx)
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
-          #self._debug('Applying pp chain to train dataset...')
+          #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )
-          self._debug('Applying pp chain to validation dataset...')
+          self._info('Applying pp chain to validation dataset...')
           valData = ppChain( valData ) 
-          self._debug('Applying pp chain to test dataset...')
+          self._info('Applying pp chain to test dataset...')
           tstData = ppChain( tstData )
-          self._debug('Done applying the pre-processing chain to all sets!')
-
+          self._info('Done applying the pre-processing chain to all sets!')
 
           # Retrieve resulting data shape
           if merged:
@@ -1448,7 +1450,7 @@ class TuningJob(Logger):
             outputDir
             ,'{outputFileBase}.{ppStr}.{neuronStr}.{sortStr}.{initStr}.{saveBinStr}.pic'.format( 
                       outputFileBase = outputFileBase, 
-                      ppStr = 'pp-' + ppChain.shortName()[:12], # Truncate on 12th char
+                      ppStr = 'pp-' + ppChain.shortName(), # Truncate on 12th char
                       neuronStr = neuronBounds.formattedString('hn'), 
                       sortStr = sortBounds.formattedString('s'),
                       initStr = initBounds.formattedString('i'),
