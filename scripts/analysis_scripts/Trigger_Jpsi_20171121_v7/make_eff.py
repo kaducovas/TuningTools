@@ -1,6 +1,4 @@
 import numpy as np
-import intertools
-
 
 tight20170713 = np.array(
 
@@ -40,41 +38,33 @@ veryloose20170713 = np.array(
   
 
 def mergeEffTable(eff = 'tight'):
-
-  if eff == 'tight':
-    val = tight20170713
-
-  elif eff == 'medium':
-    val = medium20170713
-
-  elif eff == 'loose':
-    val = loose20170713
-
-  elif eff == 'veryloose':
-    val = veryloose20170713
+    if eff == 'tight':
+        val = tight20170713
+    elif eff == 'medium':
+        val = medium20170713
+    elif eff == 'loose':
+        val = loose20170713
+    elif eff == 'veryloose':
+        val = veryloose20170713
   
-  shape = val.shape
-   shorterEtaEffTable = np.zeros(shape=(shape[0],4))
-
-  for et_index, eta_index in intertools.product(range(shape[0]), range(4):
-      if eta_index == 0:
-        # merge 0 -> .6 -> .8
-        shorterEtaEffTable[et_index, eta_index] = (val[et_index, 0]*.6 + val[et_index, 1]*.2) / .8
-
-      if eta_index == 1:
-        # merge 1.15 -> 1.37 -> 1.52
-        shorterEtaEffTable[et_index, eta_index] = (val[et_index, 2]*.22 + val[et_index, 3]*.15) / .37
-
-      if eta_index == 2:
-        # 1.37 -> 1.52
-        shorterEtaEffTable[et_index, eta_index] = val[et_index, 4]
-  
-      if eta_index == 3:
-        # merge 1.52 -> 1.8 -> 2.47
-        shorterEtaEffTable = (val[et_index, 5]*.29 + val[et_index, 6]*.2 + val[et_index, 7]*.46) / .95
-
-  return shorterEtaEffTable
-
+    shorterEtaEffTable = np.zeros(shape=(len(etBins),len(etaBins)))
+    for eta_index in range(len(etaBins)):
+        for et_index in range(len(etBins)):
+            if eta_index == 0:
+                # merge 0 -> .6 -> .8
+                shorterEtaEffTable[et_index, eta_index] = (val[et_index, 0]*.6 + val[et_index, 1]*.2) / .8
+            if eta_index == 1:
+                # merge 1.15 -> 1.37 -> 1.52
+                shorterEtaEffTable[et_index, eta_index] = (val[et_index, 2]*.22 + val[et_index, 3]*.15) / .37
+            if eta_index == 2:
+                # 1.37 -> 1.52
+                shorterEtaEffTable[et_index, eta_index] = val[et_index, 4]
+            if eta_index == 3:
+                # merge 1.52 -> 1.8 -> 2.47
+                shorterEtaEffTable[et_index,eta_index] = (val[et_index, 5]*.29 + val[et_index, 6]*.2 + val[et_index, 7]*.46) / .95
+            else:
+                shorterEtaEffTable[et_index,eta_index] = val[et_index,eta_index]
+    return shorterEtaEffTable
 
 def transformToEffCalo (eff = 'tight'):   
 
@@ -89,8 +79,7 @@ def transformToEffCalo (eff = 'tight'):
 
     elif eff == 'veryloose':
       val = mergeEffTable(eff)
-    
-    return val + (np.ones_like(val) - val) / 2
+    return val + 0.5*(np.ones_like(val) - val) 
 
 
 
