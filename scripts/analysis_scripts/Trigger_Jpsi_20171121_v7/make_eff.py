@@ -79,7 +79,7 @@ def transformToEffCalo (eff = 'tight'):
 
     elif eff == 'veryloose':
       val = mergeEffTable(eff)
-    return val + 0.5*(np.ones_like(val) - val) 
+    return val + 0.5*(np.ones_like(val)*100 - val) 
 
 
 
