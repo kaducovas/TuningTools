@@ -1,5 +1,8 @@
 import numpy as np
 
+etBins       = [3, 7, 10, 15]
+etaBins      = [0, 0.8, 1.37, 1.54, 2.37, 2.47]
+
 tight20170713 = np.array(
 
     [[0.484,0.492,0.340,0.316,0.272,0.400,0.384,0.234,0.139], # 4 GeV 
@@ -79,7 +82,7 @@ def transformToEffCalo (eff = 'tight'):
 
     elif eff == 'veryloose':
       val = mergeEffTable(eff)
-    return val + 0.5*(np.ones_like(val)*100 - val) 
+    return val + np.minimum(0.5*(np.ones_like(val)*100. - val),val) 
 
 
 
