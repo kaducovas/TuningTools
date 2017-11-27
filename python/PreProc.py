@@ -17,11 +17,19 @@ import sys
 import pickle
 import time
 
+import sklearn.metrics
+from sklearn.externals import joblib
+
+#print sys.path
+#sys.path.remove('/scratch/22061a/common-cern/pyenv/versions/2.7.9/lib/python2.7/site-packages')
+import tensorflow
+import keras
 from keras.utils import np_utils
 from keras.models import load_model
 
-import sklearn.metrics
-from sklearn.externals import joblib
+print 'PreProc '+keras.__version__
+#import sklearn.metrics
+#from sklearn.externals import joblib
 
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.StackedAutoEncoders import StackedAutoEncoders
@@ -890,10 +898,10 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params','_trn_desc','_weights'})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE','_trn_params','_trn_desc','_weights'})
   _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params','_trn_desc','_weights'})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=500,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -966,14 +974,14 @@ class StackedAutoEncoder( PrepObj ):
     self._etaBinIdx = etaBinIdx
     import copy
     data = copy.deepcopy(trnData)
-    data = [d[:100] for d in data]
+    #data = [d[:100] for d in data]
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 	
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
  
-    results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
-    trn_params_folder = results_path+'trnparams.jbl'
+    results_path = "/scratch/22061a/caducovas/StackedAutoEncoder_preproc/"
+    trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'.jbl'
 
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
@@ -1038,7 +1046,7 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      data = [d[:100] for d in data]
+      #data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))

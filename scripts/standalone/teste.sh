@@ -1,5 +1,4 @@
-runTuning.py -d /home/wsfreund/CERN-DATA/Offline/tuningData/mc16calo_v1/mc16_13TeV.sgn.truth.bkg.truth.offline.binned.calo.npz \
-    --output-level INFO \
+runTuning.py -d /scratch/22061a/caducovas/mc16_13TeV.sgn.truth.bkg.truth.offline.binned.calo.npz \
     --neuronBounds 16 16 \
     --initBounds 0 1 \
     --sortBounds 0 1 \

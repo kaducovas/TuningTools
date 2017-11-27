@@ -68,7 +68,7 @@ class NeuralClassificationTrnParams(TrnParams):
                  norm='mapstd',
                  verbose=True,
                  train_verbose=True,
-                 n_epochs=10,
+                 n_epochs=500,
                  learning_rate=0.001,
                  beta_1 = 0.9,
                  beta_2 = 0.999,
