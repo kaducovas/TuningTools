@@ -1354,18 +1354,18 @@ class TuningJob(Logger):
           del patterns # Keep only one data representation
 
           # Take ppChain parameters on training data:
-          self._info(len(trnData))
-          self._info(trnData[0].shape)
-          self._info(trnData[1].shape)
+          #self._info(len(trnData))
+          #self._info(trnData[0].shape)
+          #self._info(trnData[1].shape)
           self._info('Tuning pre-processing chain (%s)...', ppChain)
-          trnData = ppChain.takeParams( trnData,sort,etBinIdx, etaBinIdx)
+          trnData,valData = ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx)
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
           #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )
           self._info('Applying pp chain to validation dataset...')
-          valData = ppChain( valData ) 
+          #valData = ppChain( valData ) 
           self._info('Applying pp chain to test dataset...')
           tstData = ppChain( tstData )
           self._info('Done applying the pre-processing chain to all sets!')

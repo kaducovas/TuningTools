@@ -960,7 +960,7 @@ class StackedAutoEncoder( PrepObj ):
   def params(self):
     return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
 
-  def takeParams(self, trnData,sort,etBinIdx, etaBinIdx):
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx):
 
   ###trainlayer
 
@@ -972,13 +972,24 @@ class StackedAutoEncoder( PrepObj ):
     self._sort = sort
     self._etBinIdx = etBinIdx
     self._etaBinIdx = etaBinIdx
+    print 'Training Data Shape: '+str(trnData[0].shape)
+    print 'Validation Data Shape: '+str(valData[0].shape)
+
     import copy
     data = copy.deepcopy(trnData)
+    val_Data = copy.deepcopy(valData)
+
     data = [d[:100] for d in data]
+    val_Data = [d[:100] for d in val_Data]
+
+
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 	
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
+    if isinstance(val_Data, (tuple, list,)):
+      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )  
+ 
  
     results_path = "/scratch/22061a/caducovas/StackedAutoEncoder_preproc/"
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'.jbl'
@@ -1013,7 +1024,7 @@ class StackedAutoEncoder( PrepObj ):
     self._info(self._hidden_neurons)
 
     f, model, trn_desc = SAE.trainLayer(data=data,
-                                        trgt=data,
+                                        trgt=val_Data,
                                         ifold=0,
                                         hidden_neurons=self._hidden_neurons,
                                         layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
@@ -1493,7 +1504,7 @@ class PreProcChain ( Logger ):
         return False
     return True
 
-  def takeParams(self, trnData,sort=None,etBinIdx=None, etaBinIdx=None):
+  def takeParams(self,trnData,valData,sort=None,etBinIdx=None, etaBinIdx=None):
     """
       Take pre-processing parameters for all objects in chain. 
     """
@@ -1502,10 +1513,12 @@ class PreProcChain ( Logger ):
       return
     for pp in self:
       if pp.shortName()[:2] == 'AE':
-        trnData = pp.takeParams(trnData,sort,etBinIdx, etaBinIdx)
+        trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx)
+        valData = pp(valData, False)
       else: 
         trnData = pp.takeParams(trnData)
-    return trnData
+        valData = pp(valData, False)
+    return trnData,valData
 
   def concatenate(self, trnData, extraData):
     """

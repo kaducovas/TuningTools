@@ -285,7 +285,7 @@ class StackedAutoEncoders:
                           metrics=self.trn_params.params['metrics'])
 
             # Train model
-            earlyStopping = callbacks.EarlyStopping(monitor='loss',
+            earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
                                                     patience=self.trn_params.params['patience'],
                                                     verbose=self.trn_params.params['train_verbose'],
                                                     mode='auto')
@@ -294,10 +294,12 @@ class StackedAutoEncoders:
                                       nb_epoch=self.trn_params.params['n_epochs'],
                                       batch_size=self.trn_params.params['batch_size'],
                                       callbacks=[earlyStopping],
-                                      verbose=self.trn_params.params['verbose'])
-            if np.min(init_trn_desc.history['loss']) < best_loss:
+                                      verbose=self.trn_params.params['verbose'], 
+                                      validation_data=(trgt,
+                                                       trgt)
+            if np.min(init_trn_desc.history['val_loss']) < best_loss:
                 best_init = i_init
-                best_loss = np.min(init_trn_desc.history['loss'])
+                best_loss = np.min(init_trn_desc.history['val_loss'])
                 classifier = model
                 trn_desc['epochs'] = init_trn_desc.epoch
 
@@ -310,7 +312,7 @@ class StackedAutoEncoders:
                     #trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
 
                 trn_desc['loss'] = init_trn_desc.history['loss']
-                #trn_desc['val_loss'] = init_trn_desc.history['val_loss']
+                trn_desc['val_loss'] = init_trn_desc.history['val_loss']
 
         # save model
         if not self.development_flag:
