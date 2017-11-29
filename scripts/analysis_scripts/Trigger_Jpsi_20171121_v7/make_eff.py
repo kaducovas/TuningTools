@@ -3,6 +3,8 @@ import numpy as np
 etBins       = [3, 7, 10, 15]
 etaBins      = [0, 0.8, 1.37, 1.54, 2.37, 2.47]
 
+eta_weights = np.loadtxt('eta_weights.txt')
+
 tight20170713 = np.array(
 
     [[0.484,0.492,0.340,0.316,0.272,0.400,0.384,0.234,0.139], # 4 GeV 
@@ -40,7 +42,7 @@ veryloose20170713 = np.array(
     )*100.0
   
 
-def mergeEffTable(eff = 'tight'):
+def mergeEffTable(eff = 'tight',geo_mean = False):
     if eff == 'tight':
         val = tight20170713
     elif eff == 'medium':
@@ -50,40 +52,63 @@ def mergeEffTable(eff = 'tight'):
     elif eff == 'veryloose':
         val = veryloose20170713
   
-    shorterEtaEffTable = np.zeros(shape=(len(etBins),len(etaBins)))
-    for eta_index in range(len(etaBins)):
-        for et_index in range(len(etBins)):
-            if eta_index == 0:
+    shorterEtaEffTable = np.zeros(shape=(len(etBins),len(etaBins)-1))
+    if geo_mean == True:
+        print 'Doing Weight Geometric Mean...'
+        for eta_index in range(len(etaBins)-1):
+            for et_index in range(len(etBins)):
+                if eta_index == 0:
                 # merge 0 -> .6 -> .8
-                shorterEtaEffTable[et_index, eta_index] = (val[et_index, 0]*.6 + val[et_index, 1]*.2) / .8
-            if eta_index == 1:
+                    shorterEtaEffTable[et_index, eta_index] = (val[et_index, 0]**eta_weights[0] * val[et_index, 1]**eta_weights[1])**(1/(eta_weights[0]+eta_weights[1]))
+                if eta_index == 1:
                 # merge 1.15 -> 1.37 -> 1.52
-                shorterEtaEffTable[et_index, eta_index] = (val[et_index, 2]*.22 + val[et_index, 3]*.15) / .37
-            if eta_index == 2:
+                    shorterEtaEffTable[et_index, eta_index] = (val[et_index, 2]**eta_weights[2] * val[et_index, 3]**eta_weights[3]) ** (1/(eta_weights[2]+eta_weights[3]))
+                if eta_index == 2:
                 # 1.37 -> 1.52
-                shorterEtaEffTable[et_index, eta_index] = val[et_index, 4]
-            if eta_index == 3:
+                    shorterEtaEffTable[et_index, eta_index] = val[et_index, 4]
+                if eta_index == 3:
                 # merge 1.52 -> 1.8 -> 2.47
-                shorterEtaEffTable[et_index,eta_index] = (val[et_index, 5]*.29 + val[et_index, 6]*.2 + val[et_index, 7]*.46) / .95
-            else:
-                shorterEtaEffTable[et_index,eta_index] = val[et_index,eta_index]
+                    shorterEtaEffTable[et_index,eta_index] = (val[et_index, 5]**eta_weights[5] * val[et_index, 6]**eta_weights[6] * val[et_index, 7]**eta_weights[7]) ** (1/(eta_weights[5]+eta_weights[6]+eta_weights[7]))
+                else:
+                    shorterEtaEffTable[et_index,eta_index] = val[et_index,8]
+        return shorterEtaEffTable
+    
+    else:                
+        print 'Doing Weight Aritimetic Mean...'
+        for eta_index in range(len(etaBins)-1):
+            for et_index in range(len(etBins)):
+                if eta_index == 0:
+                # merge 0 -> .6 -> .8
+                    shorterEtaEffTable[et_index, eta_index] = (val[et_index, 0]*eta_weights[0] + val[et_index, 1]*eta_weights[1]) / (eta_weights[0]+eta_weights[1])
+                if eta_index == 1:
+                # merge 1.15 -> 1.37 -> 1.52
+                    shorterEtaEffTable[et_index, eta_index] = (val[et_index, 2]*eta_weights[2] + val[et_index, 3]*eta_weights[3]) / (eta_weights[2]+eta_weights[3])
+                if eta_index == 2:
+                # 1.37 -> 1.52
+                    shorterEtaEffTable[et_index, eta_index] = val[et_index, 4]
+                if eta_index == 3:
+                # merge 1.52 -> 1.8 -> 2.47
+                    shorterEtaEffTable[et_index,eta_index] = (val[et_index, 5]*eta_weights[5] + val[et_index, 6]*eta_weights[6] + val[et_index, 7]*eta_weights[7]) / (eta_weights[5]+eta_weights[6]+eta_weights[7])
+                else:
+                    shorterEtaEffTable[et_index,eta_index] = val[et_index,8]
     return shorterEtaEffTable
 
-def transformToEffCalo (eff = 'tight'):   
+
+def transformToEffCalo (eff = 'tight',geo_mean = False):   
 
     if eff == 'tight':
-      val = mergeEffTable(eff)
-
+        val = mergeEffTable(eff,geo_mean)
+        
     elif eff == 'medium':
-      val = mergeEffTable(eff)
-
+        val = mergeEffTable(eff,geo_mean)
+        
     elif eff == 'loose':
-      val = mergeEffTable(eff)
-
+        val = mergeEffTable(eff,geo_mean)
+        
     elif eff == 'veryloose':
-      val = mergeEffTable(eff)
-    return val + np.minimum(0.5*(np.ones_like(val)*100. - val),val) 
+        val = mergeEffTable(eff,geo_mean)
 
+    return val + np.minimum((np.ones_like(val)*100 - val)*.5,.5*val)
 
 
 
