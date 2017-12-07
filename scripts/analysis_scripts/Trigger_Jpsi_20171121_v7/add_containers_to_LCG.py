@@ -28,46 +28,46 @@ def add_rules(ds):
 ########################################################################################
 
 effFiles = [
-			'Jpsi_sample.tight-eff.npz',
-			'Jpsi_sample.medium-eff.npz',
-			'Jpsi_sample.loose-eff.npz',
-			'Jpsi_sample.veryloose-eff.npz'	
+			'sample.Jpsi.20172911.tight-eff.npz',
+			'sample.Jpsi.20172911.medium-eff.npz',
+			'sample.Jpsi.20172911.loose-eff.npz',
+			'sample.Jpsi.20172911.veryloose-eff.npz'	
 					]
 
 patternsFiles = [
-			'Jpsi_sample.npz'			
+			'sample.Jpsi.20172911.npz'			
 				]
 
-configFileDS = 'Jpsi.config.n5to20.JK.inits_100by100'
+configFileDS = 'sample.Jpsi.20172911.v2.config.n5to20.JK.inits_100by100'
 
-crossFile = 'crossValid.pic.gz'
+crossFile = 'crossValid.20172911.pic.gz'
 
-ppFile = 'ppFile.pic.gz'
+ppFile = 'ppFile.20172911.pic.gz'
 
 
 ########################################################################################
 
 
-#add_container( ppFile, 'user.mverissi.'+ppFile)
-#add_rules( 'user.mverissi.'+ppFile)
+#add_container( ppFile, 'user.mverissi.new.'+ppFile)
+#add_rules( 'user.mverissi.new.'+ppFile)
 
-#add_container( crossFile, 'user.mverissi.'+crossFile)
-#add_rules( 'user.mverissi.'+crossFile)
+#add_container( crossFile, 'user.mverissi.new.'+crossFile)
+#add_rules( 'user.mverissi.new.'+crossFile)
 
 #for ds in effFiles:
-#  add_container( ds, 'user.mverissi.'+ds)
-#  add_rules( 'user.mverissi.'+ds)
+#  add_container( ds, 'user.mverissi.new.'+ds)
+#  add_rules( 'user.mverissi.new.'+ds)
 
-#files = glob.glob(configFileDS+'/*')
-#for idx, f in enumerate(files):
-#  print 'Attaching ',idx+1,'/',len(files)
-#  add_container( f, 'user.mverissi.'+configFileDS )
-#add_rules( 'user.mverissi.'+configFileDS)
+files = glob.glob(configFileDS+'/*')
+for idx, f in enumerate(files):
+  print 'Attaching ',idx+1,'/',len(files)
+  add_container( f, 'user.mverissi.new.v2.'+configFileDS )
+add_rules( 'user.mverissi.new.v2.'+configFileDS)
 
 
-for ds in patternsFiles:
-  add_container( ds, 'user.mverissi.'+ds)
-  add_rules( 'user.mverissi.'+ds)
+#for ds in patternsFiles:
+#  add_container( ds, 'user.mverissi.new.'+ds)
+#  add_rules( 'user.mverissi.new.'+ds)
 
 
 #add_container( 'ppFile_mu0_norm1.pic.gz' , 'user.jodafons.ppFile_mu0_norm1.pic.gz' )

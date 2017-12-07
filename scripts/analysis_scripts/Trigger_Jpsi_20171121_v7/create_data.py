@@ -19,7 +19,7 @@ basePathCERN = '/afs/cern.ch/user/m/mverissi/private/DATA'
 basePath     = '/home/jodafons/CERN-DATA/data/mc16_13TeV'
 sgnInputFile = 'user.jodafons.mc16_13TeV.423200.Pythia8B_A14_CTEQ6L1_Jpsie3e3.Physval.s5005_GLOBAL'
 bkgInputFile = 'user.jodafons.mc16_13TeV.361237.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic.Physval.s5007_GLOBAL'
-outputFile   = 'Jpsi_sample'
+outputFile   = 'sample.Jpsi.20172911'
 treePath     = ["*/HLT/Physval/Egamma/probes",
                 "*/HLT/Physval/Egamma/fakes"]
 
@@ -29,8 +29,8 @@ from TuningTools import createData
 from RingerCore  import LoggingLevel
 from TuningTools.dataframe import Dataframe
 
-createData( sgnFileList      = os.path.join( basePathCERN, sgnInputFile ),
-            bkgFileList      = os.path.join( basePathCERN, bkgInputFile ),
+createData( sgnFileList      = os.path.join( basePath, sgnInputFile ),
+            bkgFileList      = os.path.join( basePath, bkgInputFile ),
             ringerOperation  = RingerOperation.Trigger,
             referenceSgn     = Reference.Off_Likelihood, # probes passed by vloose
             referenceBkg     = Reference.Off_Likelihood, # electrons/any reproved by very loose
@@ -55,7 +55,11 @@ from RingerCore import traverse
 from TuningTools import BenchmarkEfficiencyArchieve
  
 refname_list= ['veryloose','loose','medium','tight']
-pdrefs_list = [myveryloose, myloose, mymedium, mytight]
+pdrefs_list = [make_eff.transformToEffCalo(eff = refname_list[0]),
+               make_eff.transformToEffCalo(eff = refname_list[1]),
+               make_eff.transformToEffCalo(eff = refname_list[2]),
+               make_eff.transformToEffCalo(eff = refname_list[3])]
+
 pfrefs_list = [0.07,0.05,0.03,0.01]
 
 

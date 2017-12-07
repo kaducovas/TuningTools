@@ -6,7 +6,7 @@ from TuningTools.PreProc import *
 import logging
 
 start = timer()
-DatasetLocationInput = '/afs/cern.ch/user/m/mverissi/Jpsi_sample.npz'
+DatasetLocationInput = '/home/micael.verissimo/RingerProject/root/TuningTools/scripts/analysis_scripts/Trigger_Jpsi_20171121_v7/sample.Jpsi.20172911.npz'
 
 ppCol = PreProcChain( RingerEtaMu() ) 
 #ppCol = PreProcChain( RingerRp(alpha=0.5,beta=0.5) ) 
@@ -16,21 +16,21 @@ from TuningTools.TuningJob import fixPPCol
 
 tuningJob = TuningJob()
 tuningJob( DatasetLocationInput, 
-           neuronBoundsCol = [5, 5], 
+           neuronBoundsCol = [5, 20], 
            sortBoundsCol = [0, 10],
-           initBoundsCol = 10, 
+           initBoundsCol = 100, 
            epochs = 5000,
            showEvo = 10,
            doMultiStop = True,
            maxFail = 100,
            #ppCol = ppCol,
            level = 10,
-           etBins = 0,
-           etaBins = 2,
-           #crossValidFile='crossValid.pic.gz',
-           #ppFile='ppFile_norm1.pic.gz',
+           etBins = 2,
+           etaBins = 0,
+           crossValidFile='/home/micael.verissimo/RingerProject/root/TuningTools/scripts/analysis_scripts/Trigger_Jpsi_20171121_v7/crossValid.20172911.pic.gz',
+           ppFile='/home/micael.verissimo/RingerProject/root/TuningTools/scripts/analysis_scripts/Trigger_Jpsi_20171121_v7/ppFile.20172911.pic.gz',
            #confFileList='config.n5to20.jackKnife.inits_100by100/job.hn0009.s0000.il0000.iu0099.pic.gz',
-           refFile='/afs/cern.ch/user/m/mverissi/Jpsi_sample.tight-eff.npz',
+           refFile='/home/micael.verissimo/RingerProject/root/TuningTools/scripts/analysis_scripts/Trigger_Jpsi_20171121_v7/sample.Jpsi.20172911.tight-eff.npz',
            )
 
 
