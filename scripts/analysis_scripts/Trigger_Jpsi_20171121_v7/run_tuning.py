@@ -16,9 +16,9 @@ from TuningTools.TuningJob import fixPPCol
 
 tuningJob = TuningJob()
 tuningJob( DatasetLocationInput, 
-           neuronBoundsCol = [5, 20], 
-           sortBoundsCol = [0, 10],
-           initBoundsCol = 100, 
+           neuronBoundsCol = [5, 5], 
+           sortBoundsCol = [0, 1],
+           initBoundsCol = 10, 
            epochs = 5000,
            showEvo = 10,
            doMultiStop = True,
