@@ -5,7 +5,7 @@ python runGRIDtuning.py \
  -pp user.mverissi.new.ppFile.20172911.pic.gz \
  -x user.mverissi.new.crossValid.20172911.pic.gz \
  -r user.mverissi.new.sample.Jpsi.20172911.tight-eff.npz \
- -o user.mverissi.new.output.20173011 \
+ -o user.mverissi.new.output.20170712 \
  --eta-bin 0 4 \
  --et-bin 0 2 \
  --excludedSite ANALY_BNL_MCORE \
