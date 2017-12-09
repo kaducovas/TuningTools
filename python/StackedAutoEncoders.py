@@ -218,7 +218,7 @@ class StackedAutoEncoders:
         #norm_data = data
 
         best_init = 0
-        best_loss = 999
+        best_loss = 9999999
 
         classifier = []
         trn_desc = {}
@@ -296,23 +296,25 @@ class StackedAutoEncoders:
                                       callbacks=[earlyStopping],
                                       verbose=self.trn_params.params['verbose'], 
                                       validation_data=(trgt,
-                                                       trgt)
+                                                       trgt))
             if np.min(init_trn_desc.history['val_loss']) < best_loss:
                 best_init = i_init
                 best_loss = np.min(init_trn_desc.history['val_loss'])
                 classifier = model
                 trn_desc['epochs'] = init_trn_desc.epoch
 
-                for imetric in range(len(self.trn_params.params['metrics'])):
-                    if self.trn_params.params['metrics'][imetric] == 'accuracy':
-                        metric = 'acc'
-                    else:
-                        metric = self.trn_params.params['metrics'][imetric]
-                    trn_desc[metric] = init_trn_desc.history[metric]
-                    #trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
+                #for imetric in range(len(self.trn_params.params['metrics'])):
+                #    if self.trn_params.params['metrics'][imetric] == 'kullback_leibler_divergence':
+                #        metric = kullback_leibler_divergence
+                #    else:
+                #        metric = self.trn_params.params['metrics'][imetric]
+                #    trn_desc[metric] = init_trn_desc.history[metric]
+                #    trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
 
                 trn_desc['loss'] = init_trn_desc.history['loss']
-                trn_desc['val_loss'] = init_trn_desc.history['val_loss']
+                trn_desc['val_losS'] = init_trn_desc.history['val_loss']
+                trn_desc['kullback_leibler_divergence'] = init_trn_desc.history['kullback_leibler_divergence']
+                trn_desc['val_kullback_leibler_divergence'] = init_trn_desc.history['val_kullback_leibler_divergence']
 
         # save model
         if not self.development_flag:

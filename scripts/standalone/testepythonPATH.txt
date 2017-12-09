@@ -1,0 +1,1 @@
+/scratch/22061a/common-cern/pyenv/versions/2.7.9//lib/python2.7/lib-dynload:/scratch/22061a/common-cern/root/v6-04-16/lib:/home/users/caducovas/RingerProject/root/RootCore/lib/generic/:/sw/apps/intel17/advisor_2017.1.3.510716/pythonapi:/home/users/caducovas/RingerProject/root/RootCore/python:/scratch/22061a/common-cern/pyenv/versions/2.7.9//lib/python2.7

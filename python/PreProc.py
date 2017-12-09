@@ -898,8 +898,8 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE','_trn_params','_trn_desc','_weights'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params','_trn_desc','_weights'})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_weights'})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {'_weights'})
 
   def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
@@ -945,20 +945,20 @@ class StackedAutoEncoder( PrepObj ):
   #    data = self._apply(data,sort,etBinIdx,etaBinIdx)
   #  return data
 
-  def SAE(self):
-    return self._SAE
+  #def SAE(self):
+  #  return self._SAE
 
-  def trn_desc(self):
-    return self._trn_desc
+  #def trn_desc(self):
+  #  return self._trn_desc
 
-  def weights(self):
-    return self._weights
+  #def weights(self):
+  #  return self._weights
   
-  def trn_params(self):
-    return self._trn_params
+  #def trn_params(self):
+  #  return self._trn_params
 
-  def params(self):
-    return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
+  #def params(self):
+  #  return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
 
   def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx):
 
@@ -972,8 +972,8 @@ class StackedAutoEncoder( PrepObj ):
     self._sort = sort
     self._etBinIdx = etBinIdx
     self._etaBinIdx = etaBinIdx
-    print 'Training Data Shape: '+str(trnData[0].shape)
-    print 'Validation Data Shape: '+str(valData[0].shape)
+    self._info('Training Data Shape: '+str(trnData[0].shape))
+    self._info('Validation Data Shape: '+str(valData[0].shape))
 
     import copy
     data = copy.deepcopy(trnData)
@@ -990,8 +990,10 @@ class StackedAutoEncoder( PrepObj ):
     if isinstance(val_Data, (tuple, list,)):
       val_Data = np.concatenate( val_Data, axis=npCurrent.odim )  
  
- 
+    import numpy
+    
     results_path = "/scratch/22061a/caducovas/StackedAutoEncoder_preproc/"
+    numpy.save(results_path+'val_Data',val_Data)
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'.jbl'
 
     if os.path.exists(trn_params_folder):
@@ -1049,9 +1051,9 @@ class StackedAutoEncoder( PrepObj ):
     return ("AE_%d" % self._hidden_neurons[0])
 
   def _apply(self, data):
-    self._info(self._sort)
-    self._info(self._etBinIdx)
-    self._info(self._etaBinIdx)
+    #self._info(pp.shortName())
+    #self._info(self._etBinIdx)
+    #self._info(self._etaBinIdx)
     ###get data projection
     #if not self._mean.size or not self._invRMS.size:
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
