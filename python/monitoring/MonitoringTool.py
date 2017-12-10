@@ -108,7 +108,7 @@ class TuningMonitoringTool( Logger ):
     tuningReport = kw.pop('tuningReport', 'tuningReport' ) 
     doBeamer     = kw.pop('doBeamer'    , True           )
     shortSlides  = kw.pop('shortSlides' , False          )
-    debug        = kw.pop('debug'       , False          )
+    debug        = kw.pop('debug'       , True          )
     overwrite    = kw.pop('overwrite'   , False          )
     
     basepath=output
@@ -221,24 +221,24 @@ class TuningMonitoringTool( Logger ):
 
           obj.best = csummary[neuronName][sortName]['infoTstBest']['init']  
           obj.worst = csummary[neuronName][sortName]['infoTstWorst']['init'] 
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort))
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_det_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='det')
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort))
+          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_det_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='det')
+          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
+          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
 
           plotObjects['allBestTstSorts'].append(  obj.getBestObject() )
           obj.best =  csummary[neuronName][sortName]['infoOpBest']['init']   
           obj.worst = csummary[neuronName][sortName]['infoOpWorst']['init']  
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort))
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_det_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='det')
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
-#          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
+          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort))
+          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_det_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='det')
+          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
+          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
 
 
           
           plotObjects['allBestOpSorts'].append( obj.getBestObject() )
-          #plotObjects['allWorstTstSorts'].append( copy.deepcopy(tstObj.getBest() )
-          #plotObjects['allWorstOpSorts'].append(  copy.deepcopy(opObj.getBest()  )
+          plotObjects['allWorstTstSorts'].append(copy.deepcopy(tstObj.getBest()))
+          plotObjects['allWorstOpSorts'].append(copy.deepcopy(opObj.getBest()))
           infoObjects['allInfoOpBest_'+neuronName].append( copy.deepcopy(csummary[neuronName][sortName]['infoOpBest']) )
           #Release memory
           del obj
@@ -248,8 +248,8 @@ class TuningMonitoringTool( Logger ):
         
         plotObjects['allBestTstSorts'].setBoundValues(  infoObj.sortBounds(neuron) )
         plotObjects['allBestOpSorts'].setBoundValues(   infoObj.sortBounds(neuron) )
-        #plotObjects['allWorstTstSorts'].setIdxCorrection( infoObj.sortBounds(neuron) )
-        #plotObjects['allWorstOpSorts'].setIdxCorrection(  infoObj.sortBounds(neuron) )
+        plotObjects['allWorstTstSorts'].setIdxCorrection( infoObj.sortBounds(neuron) )
+        plotObjects['allWorstOpSorts'].setIdxCorrection(  infoObj.sortBounds(neuron) )
 
         # Best and worst sorts for this neuron configuration
         plotObjects['allBestTstSorts'].best =   csummary[neuronName]['infoTstBest']['sort']  
