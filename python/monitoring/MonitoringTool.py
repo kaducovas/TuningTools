@@ -198,12 +198,11 @@ class TuningMonitoringTool( Logger ):
           obj.setBoundValues(initBounds)
           obj.best = csummary[neuronName][sortName]['infoTstBest']['init']  
           obj.worst = csummary[neuronName][sortName]['infoTstWorst']['init'] 
-<<<<<<< HEAD
+
           #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort))
-          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_det_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='det')
-          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
-          PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
-=======
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_det_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='det')
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
           #    outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort))
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
@@ -211,8 +210,7 @@ class TuningMonitoringTool( Logger ):
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
           #    outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
-          #    outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
->>>>>>> bca650b97fef5d56f25d7121ac9a6691feff2ff2
+          #    outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')2
 
           plotObjects['allBestTstSorts'].append(  obj.getBestObject() )
           obj.best =  csummary[neuronName][sortName]['infoOpBest']['init']   
@@ -227,8 +225,8 @@ class TuningMonitoringTool( Logger ):
           #    outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
 
           plotObjects['allBestOpSorts'].append( obj.getBestObject() )
-          plotObjects['allWorstTstSorts'].append(copy.deepcopy(tstObj.getBest()))
-          plotObjects['allWorstOpSorts'].append(copy.deepcopy(opObj.getBest()))
+          #plotObjects['allWorstTstSorts'].append(copy.deepcopy(tstObj.getBest()))
+          #plotObjects['allWorstOpSorts'].append(copy.deepcopy(opObj.getBest()))
           infoObjects['allInfoOpBest_'+neuronName].append( copy.deepcopy(csummary[neuronName][sortName]['infoOpBest']) )
           #Release memory
           del obj
@@ -238,8 +236,8 @@ class TuningMonitoringTool( Logger ):
         
         plotObjects['allBestTstSorts'].setBoundValues(  infoObj.sortBounds(neuron) )
         plotObjects['allBestOpSorts'].setBoundValues(   infoObj.sortBounds(neuron) )
-        plotObjects['allWorstTstSorts'].setIdxCorrection( infoObj.sortBounds(neuron) )
-        plotObjects['allWorstOpSorts'].setIdxCorrection(  infoObj.sortBounds(neuron) )
+        #plotObjects['allWorstTstSorts'].setIdxCorrection( infoObj.sortBounds(neuron) )
+        #plotObjects['allWorstOpSorts'].setIdxCorrection(  infoObj.sortBounds(neuron) )
 
         # Best and worst sorts for this neuron configuration
         plotObjects['allBestTstSorts'].best =   csummary[neuronName]['infoTstBest']['sort']  
