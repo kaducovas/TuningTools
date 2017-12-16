@@ -839,10 +839,10 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_SAE', '_trn_params','_trn_desc','_weights'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_SAE','_trn_params','_trn_desc','_weights'})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=50,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=10,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -922,7 +922,7 @@ class StackedAutoEncoder( PrepObj ):
       data = np.concatenate( data, axis=npCurrent.odim )
  
     results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
-    trn_params_folder = results_path+'trnparams.jbl'
+    trn_params_folder = results_path+'trnparams_sort_0.jbl'
 
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
