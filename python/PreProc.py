@@ -1007,6 +1007,179 @@ class StackedAutoEncoder( PrepObj ):
     # return ret
 
 
+class AutoEncoder( PrepObj ):
+  """
+    Train the encoders in order to stack them as pre-processing afterwards.
+  """
+
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {})
+
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=6,patience=10,batch_size=200,layer=1, d = {}, **kw):
+    d.update( kw ); del kw
+    from RingerCore import retrieve_kw
+    self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
+    PrepObj.__init__( self, d )
+    checkForUnusedVars(d, self._warning )
+    self._n_inits = n_inits
+    self._hidden_activation = hidden_activation
+    self._output_activation = output_activation
+    self._n_epochs = n_epochs
+    self._patience = patience
+    self._batch_size = batch_size 
+    self._layer= layer
+    del d
+    self._sort = ''
+    self._etBinIdx = ''
+    self._etaBinIdx = ''
+    self._SAE = ''
+    self._trn_params = ''
+    self._trn_desc = ''
+    self._weights = ''
+
+
+    #self._mean = np.array( [], dtype=npCurrent.dtype )
+    #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
+
+    ####self.paramametros de nosso interesse
+
+  #def __call__(self, data, revert = False,sort,etBinIdx,etaBinIdx):
+  #  """
+  #    The revert should be used to undo the pre-processing.
+  #  """
+  #  if revert:
+  #    try:
+  #      self._debug('Reverting %s...', self.__class__.__name__)
+  #      data = self._undo(data)
+  #    except AttributeError:
+  #      self._fatal("It is impossible to revert PreProc ")#%s" % \
+  #      #    self.__class__.___name__)
+  #  else:
+  #    self._info('SAE Applying %s...', self.__class__.__name__)
+  #    data = self._apply(data,sort,etBinIdx,etaBinIdx)
+  #  return data
+
+  def SAE(self):
+    return self._SAE
+
+  def trn_desc(self):
+    return self._trn_desc
+
+  def weights(self):
+    return self._weights
+  
+  def trn_params(self):
+    return self._trn_params
+
+  def params(self):
+    return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
+
+  def takeParams(self, trnData,sort,etBinIdx, etaBinIdx):
+
+  ###trainlayer
+
+    """
+      Perform the layerwise algorithm to train the SAE
+    """
+    
+    # TODO...
+    self._sort = sort
+    self._etBinIdx = etBinIdx
+    self._etaBinIdx = etaBinIdx
+    import copy
+    data = copy.deepcopy(trnData)
+    data = [d[:100] for d in data]
+    self._batch_size = min(data[0].shape[0],data[1].shape[0])
+	
+    if isinstance(data, (tuple, list,)):
+      data = np.concatenate( data, axis=npCurrent.odim )
+ 
+    results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
+    trn_params_folder = results_path+'trnparams_sort_0.jbl'
+
+    if os.path.exists(trn_params_folder):
+        os.remove(trn_params_folder)
+    if not os.path.exists(trn_params_folder):
+        trn_params = trnparams.NeuralClassificationTrnParams(n_inits=self._n_inits,
+                                                             hidden_activation=self._hidden_activation,
+                                                             output_activation=self._output_activation,
+                                                             n_epochs=self._n_epochs,
+                                                             patience=self._patience,
+                                                             batch_size=self._batch_size)
+    trn_params.save(trn_params_folder)
+
+    self._trn_params = trn_params
+
+    self._info(trn_params.get_params_str())
+
+    # Train Process
+    SAE = StackedAutoEncoders(params = trn_params,
+                              development_flag = False,
+                              n_folds = 1,
+                              save_path = results_path,
+                              )
+
+    self._SAE = SAE
+
+    # Choose layer to be trained
+    layer = self._layer
+
+    self._info(self._hidden_neurons)
+
+    f, model, trn_desc = SAE.trainLayer(data=data,
+                                        trgt=data,
+                                        ifold=0,
+                                        hidden_neurons=self._hidden_neurons,
+                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
+    self._trn_desc = trn_desc
+    self._weights = model
+    self._info(self._SAE)
+    
+    return self._apply(trnData)   
+
+
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+    return ("AutoEncoder_%d" % self._hidden_neurons[0])
+
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return ("AE_%d" % self._hidden_neurons[0])
+
+  def _apply(self, data):
+    self._info(self._sort)
+    self._info(self._etBinIdx)
+    self._info(self._etaBinIdx)
+    ###get data projection
+    #if not self._mean.size or not self._invRMS.size:
+    #  self._fatal("Attempted to apply MapStd before taking its parameters.")
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      data = [d[:100] for d in data]
+      for cdata in data:
+	#self._info(cdata.shape)
+        ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
+    else:
+      ret = self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx)
+    return ret
+
+  # def _undo(self, data):
+    # if not self._mean.size or not self._invRMS.size:
+      # self._fatal("Attempted to undo MapStd before taking its parameters.")
+    # if isinstance(data, (tuple, list,)):
+      # ret = []
+      # for i, cdata in enumerate(data):
+        # ret.append( ( cdata / self._invRMS ) + self._mean )
+    # else:
+      # ret = ( data / self._invRMS ) + self._mean
+    # return ret
+
+
 class MapStd_MassInvariant( MapStd ):
   """
     Remove data mean and set unitary standard deviation but "invariant" to each

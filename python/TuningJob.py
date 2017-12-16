@@ -1153,7 +1153,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level = self.level,hidden_neurons=[100]),StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[60])] ) )#Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),AutoEncoder(level = self.level,hidden_neurons=[100]),AutoEncoder(level = self.level,hidden_neurons=[80]),AutoEncoder(level = self.level,hidden_neurons=[60])] ) ) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
