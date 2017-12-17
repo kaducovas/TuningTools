@@ -1011,6 +1011,8 @@ class TuningJob(Logger):
         - doMultiStop (FastNet prop) [True]: Tune classifier using P_D, P_F and
           SP when set to True. Uses only SP when set to False.
     """
+    from RingerCore import OMP_NUM_THREADS
+    self._info( 'OMP_NUM_THREADS is set to: %d', OMP_NUM_THREADS )
     import gc, os.path
     from copy import deepcopy
     ### Retrieve configuration from input values:
@@ -1153,7 +1155,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),AutoEncoder(level = self.level,hidden_neurons=[100]),AutoEncoder(level = self.level,hidden_neurons=[80]),AutoEncoder(level = self.level,hidden_neurons=[60])] ) ) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [StackedAutoEncoder(level = self.level,hidden_neurons=[80]) ]) ) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1245,7 +1247,9 @@ class TuningJob(Logger):
         if operationPoint is None:
           operationPoint = refFile.operation if refFile is not None else tdArchieve[0].operation
         #NOTE: We assume that every data has the same version
-        efficiencyKey, refLabel = getEfficiencyKeyAndLabel( dataLocation[0], operationPoint )
+        efficiencyKey,refLabel = getEfficiencyKeyAndLabel( dataLocation[0], operationPoint )
+        ##FIXME: There are some confusion here, this must be review by @wsfreund.
+        #efficiencyKey = RingerOperation.tostring( efficiencyKey )
         try:
           benchmarks = (refFile.signalEfficiencies[efficiencyKey],
                         refFile.backgroundEfficiencies[efficiencyKey])
@@ -1265,7 +1269,7 @@ class TuningJob(Logger):
         except (AttributeError, KeyError):
           crossBenchmarks = (tdArchieve[0].signalCrossEfficiencies[efficiencyKey], 
                              tdArchieve[0].backgroundCrossEfficiencies[efficiencyKey])
-      except KeyError:
+      except (AttributeError, KeyError, TypeError):
         self._info("Cross-validation benchmark efficiencies is not available.")
         crossBenchmarks = None
         tuningWrapper.useTstEfficiencyAsRef = False
@@ -1350,18 +1354,22 @@ class TuningJob(Logger):
           del patterns # Keep only one data representation
 
           # Take ppChain parameters on training data:
-          self._info(len(trnData))
-          self._info(trnData[0].shape)
-          self._info(trnData[1].shape)
+          #self._info(len(trnData))
+          #self._info(trnData[0].shape)
+          #self._info(trnData[1].shape)
           self._info('Tuning pre-processing chain (%s)...', ppChain)
-          trnData = ppChain.takeParams( trnData,sort,etBinIdx, etaBinIdx)
+          trnData,valData = ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx)
           self._debug('Done tuning pre-processing chain!')
-          self._info('Applying pre-processing chain to all sets...')
+          self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
           #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )
           self._info('Applying pp chain to validation dataset...')
+<<<<<<< HEAD
           valData = ppChain( valData ) 
+=======
+          #valData = ppChain( valData ) 
+>>>>>>> e756ef63b64aba1e5da5da6d3b083cd5e1e80fa6
           self._info('Applying pp chain to test dataset...')
           tstData = ppChain( tstData )
           self._info('Done applying the pre-processing chain to all sets!')
@@ -1540,7 +1548,7 @@ def getEfficiencyKeyAndLabel( filePath, operationPoint ):
     effVersion = BenchmarkEfficiencyArchieve.load( filePath, retrieveVersion=True)
   from TuningTools.dataframe.EnumCollection import RingerOperation
   efficiencyKey = RingerOperation.retrieve(operationPoint)
-  if tdVersion >= 7 or effVersion>=1:
+  if tdVersion >= 7 or effVersion>1:
     refLabel = RingerOperation.tostring( efficiencyKey )
   else:
     # Retrieve efficiency
@@ -1570,6 +1578,9 @@ def _compatibility_version6_dicts():
            , RingerOperation.Offline_CutBased_Tight      : 'CutBasedTight'
            , RingerOperation.Offline_CutBased            : ['CutBasedLoose','CutBasedMedium','CutBasedTight']
            }
+  elif dataframeConf() is Dataframe.PhysVal_v2:
+    return { RingerOperation.Trigger                     : 'Efficiency'}
+
   elif dataframeConf() is Dataframe.SkimmedNtuple:
     return { RingerOperation.L2Calo                  : None
            , RingerOperation.L2                      : None

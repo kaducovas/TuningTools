@@ -528,21 +528,32 @@ class BenchmarkEfficiencyArchieveRDC( RawDictCnv ):
     if 'version' in npData:
       # Treat versions 1 -> 5
       obj._readVersion = npData['version']
+    if not '__version' in npData and not 'version' in npData and any(['backgroundPatterns_' in k for k in npData]):
+      obj._readVersion = np.array(5)
+      obj._etBins = npCurrent.fp_array( npData['etBins'] if 'etBins' in npData else npCurrent.array([]) )
+      self._warning("Reading TuningDataArchieve version 5, it may be that current eta information is invalid. If you face issues when accessing eta information, please contact the developers.")
+      obj._etaBins = npCurrent.fp_array( [0, 0.8, 1.37, 1.54, 2.5] )
+      from TuningTools.dataframe import RingerOperation 
+      obj._operation = RingerOperation.L2Calo
     
     if self.loadEfficiencies:
-      if obj._readVersion <= np.array(5):
+      if obj._readVersion <= np.array(5) and not any(['backgroundPatterns_' in k for k in npData]):
         self.sgnEffKey, self.bkgEffKey  = 'signal_efficiencies', 'background_efficiencies'
         self.sgnCrossEffKey, self.bkgCrossEffKey = 'signal_cross_efficiencies','background_cross_efficiencies',
     if obj._readVersion < np.array(6):
-      obj._etBins = npCurrent.fp_array( npData['et_bins'] if 'et_bins' in npData else npCurrent.array([]) )
-      obj._etaBins = npCurrent.fp_array( npData['eta_bins'] if 'eta_bins' in npData else npCurrent.array([]) )
+      if 'et_bins' in npData:
+        obj._etBins = npCurrent.fp_array( npData['et_bins'] if 'et_bins' in npData else npCurrent.array([]) )
+        obj._etaBins = npCurrent.fp_array( npData['eta_bins'] if 'eta_bins' in npData else npCurrent.array([]) )
+      else:
+        obj._etBins = npCurrent.fp_array( npData['etBins'] if 'etBins' in npData else npCurrent.array([]) )
+        obj._etaBins = npCurrent.fp_array( npData['etaBins'] if 'etaBins' in npData else npCurrent.array([]) ) if not any(['backgroundPatterns_' in k for k in npData]) else npCurrent.array([0, 0.8, 1.37, 1.54, 2.5])
       obj._nEtBins  = obj.etBins.size - 1 if obj.etBins.size - 1 > 0 else 0
       obj._nEtaBins = obj.etaBins.size - 1 if obj.etaBins.size - 1 > 0 else 0
       obj._isEtDependent = obj.etBins.size > 0
       obj._isEtaDependent = obj.etaBins.size > 0
-      if obj._readVersion < np.array(4):
-        from TuningTools.dataframe import RingerOperation 
-        obj._operation = RingerOperation.EFCalo
+    if obj._readVersion < np.array(4):
+      from TuningTools.dataframe import RingerOperation 
+      obj._operation = RingerOperation.EFCalo
     # Check if requested bins are ok
     self.checkBins(obj.isEtaDependent, obj.isEtDependent, obj.nEtaBins, obj.nEtBins)
     if self.loadEfficiencies:
@@ -551,7 +562,20 @@ class BenchmarkEfficiencyArchieveRDC( RawDictCnv ):
       except KeyError:
         self._logger.error("Signal efficiencies information is not available!")
       try:
-        obj._backgroundEfficiencies = self.retrieveRawEff(npData[self.bkgEffKey], self.etBinIdx, self.etaBinIdx)
+        if obj._readVersion == np.array(5) and any(['backgroundPatterns_' in k for k in npData]):
+          from collections import OrderedDict
+          if self.etBinIdx is not None:
+            obj._backgroundEfficiencies = OrderedDict([(branch, BranchEffCollector( branch, branch, self.etBinIdx, self.etaBinIdx, ), ) for branch in ('L2CaloAccept', 'L2ElAccept', 'EFCaloAccept', 'HLTAccept',) ])
+          else:
+            obj._backgroundEfficiencies = OrderedDict([(branch, [[BranchEffCollector( branch, branch, etidx, etaidx, ) for etidx in xrange(obj._nEtBins)] for etaidx in xrange(obj._nEtaBins)], ) for branch in ('L2CaloAccept', 'L2ElAccept', 'EFCaloAccept', 'HLTAccept',) ])
+          for b in obj._backgroundEfficiencies.itervalues(): 
+            if isinstance(b,list):
+              from RingerCore import straverse
+              for bb in straverse(b): bb.setEfficiency( 5. )
+            else:
+              b.setEfficiency( 5. )
+        else:
+          obj._backgroundEfficiencies = self.retrieveRawEff(npData[self.bkgEffKey], self.etBinIdx, self.etaBinIdx)
       except KeyError:
         self._logger.error("Background efficiencies information is not available!")
       if self.loadCrossEfficiencies:
@@ -717,15 +741,24 @@ class BenchmarkEfficiencyArchieve( LoggerStreamable ):
         try:
           version = secureExtractNpItem( rawObj['version'] )
         except KeyError:
-          lLoger.fatal('Cannot retrieve version on numpy file.')
+          if any(['backgroundPatterns_' in k for k in rawObj]):
+            version = np.array(5)
+          else:
+            lLogger.fatal('Cannot retrieve version on numpy file.')
       ret = None
       if retrieveBinsInfo:
         if version >= np.array(6):
           ret = secureExtractNpItem( rawObj['isEtDependent'] ), secureExtractNpItem( rawObj['isEtaDependent'] ), \
                 secureExtractNpItem( rawObj['nEtBins'] ),       secureExtractNpItem( rawObj['nEtaBins'] )
         else:
-          etBins = npCurrent.fp_array( rawObj['et_bins'] if 'et_bins' in rawObj else npCurrent.array([]) )
-          etaBins = npCurrent.fp_array( rawObj['eta_bins'] if 'eta_bins' in rawObj else npCurrent.array([]) )
+          if version >= np.array(5) and any(['backgroundPatterns_' in k for k in rawObj]):
+            etBins = npCurrent.fp_array( rawObj['etBins'] if 'etBins' in rawObj else npCurrent.array([]) )
+            # NOTE: Do we need to better handle this?
+            #etaBins = npCurrent.fp_array( rawObj['etaBins'] if 'etaBins' in rawObj else npCurrent.array([]) )
+            etaBins = npCurrent.fp_array( [0, 0.8, 1.37, 1.54, 2.5] )
+          else:
+            etBins = npCurrent.fp_array( rawObj['et_bins'] if 'et_bins' in rawObj else npCurrent.array([]) )
+            etaBins = npCurrent.fp_array( rawObj['eta_bins'] if 'eta_bins' in rawObj else npCurrent.array([]) )
           nEtBins  = etBins.size - 1 if etBins.size - 1 > 0 else 0
           nEtaBins = etaBins.size - 1 if etaBins.size - 1 > 0 else 0
           isEtDependent = etBins.size > 0
@@ -802,7 +835,10 @@ class TuningDataArchieveRDC( BenchmarkEfficiencyArchieveRDC ):
     if obj._readVersion <= np.array(4):
       sgnBaseKey, bkgBaseKey = 'signal_rings', 'background_rings'
     elif obj._readVersion == np.array(5):
-      sgnBaseKey, bkgBaseKey = 'signal_patterns', 'background_patterns'
+      if any(['backgroundPatterns_' in k for k in npData]):
+        sgnBaseKey, bkgBaseKey = 'signalPatterns', 'backgroundPatterns'
+      else:
+        sgnBaseKey, bkgBaseKey = 'signal_patterns', 'background_patterns'
     else:
       sgnBaseKey, bkgBaseKey = 'signalPatterns', 'backgroundPatterns'
     # Check the efficiencies base keys:
@@ -1409,9 +1445,10 @@ class CreateData(Logger):
     #useBins = True if nEtBins > 1 or nEtaBins > 1 else False
 
     #FIXME: problems to only one bin. print eff doest work as well
-    useBins=True
+    useBins=True; getRates=True
     # Checking the efficiency values
-    if efficiencyValues is not NotSet:
+    if isinstance(efficiencyValues, np.ndarray) or efficiencyValues not in (None, NotSet):
+      getRates=False
       if len(efficiencyValues) == 2 and (type(efficiencyValues[0]) is int or float):
         efficiencyValues = nEtBins * [ nEtaBins * [efficiencyValues] ]
       else:
@@ -1450,13 +1487,14 @@ class CreateData(Logger):
     #  reader.bookHistograms(monTool)
     #  kwargs['monitoring'] = monTool
 
-    if efficiencyTreePath[0] == treePath[0]:
+    if efficiencyTreePath[0] == treePath[0] or getRates == False:
       self._info('Extracting signal dataset information')
       npSgn, npBaseSgn, sgnEff, sgnCrossEff  = reader(sgnFileList,
                                                  ringerOperation,
                                                  filterType = FilterType.Signal,
                                                  reference = referenceSgn,
                                                  treePath = treePath[0],
+                                                 getRates = getRates,
                                                  **kwargs)
       if npSgn.size: self.__printShapes(npSgn, 'Signal')
     else:
@@ -1482,13 +1520,14 @@ class CreateData(Logger):
                                              getRatesOnly = True,
                                              **kwargs)
 
-    if efficiencyTreePath[1] == treePath[1]:
+    if efficiencyTreePath[1] == treePath[1] or getRates == False:
       self._info('Extracting background dataset information')
       npBkg, npBaseBkg, bkgEff, bkgCrossEff  = reader(bkgFileList,
                                                  ringerOperation,
                                                  filterType = FilterType.Background,
                                                  reference = referenceBkg,
                                                  treePath = treePath[1],
+                                                 getRates = getRates,
                                                  **kwargs)
     else:
       if not getRatesOnly:
@@ -1509,19 +1548,21 @@ class CreateData(Logger):
                                              filterType = FilterType.Background,
                                              reference = referenceBkg,
                                              treePath = efficiencyTreePath[1],
-                                             getRatesOnly= True,
+                                             getRatesOnly=True,
                                              **kwargs)
     if npBkg.size: self.__printShapes(npBkg, 'Background')
 
     # Rewrite all effciency values
-    if efficiencyValues is not NotSet:
+    if isinstance(efficiencyValues, np.ndarray) or efficiencyValues not in (None, NotSet):
       for etBin in range(nEtBins):
         for etaBin in range(nEtaBins):
           for key in sgnEff.iterkeys():
-            #sgnEff[key][etBin][etaBin] = efficiencyValues[etBin][etaBin][0]
             sgnEff[key][etBin][etaBin].setEfficiency(efficiencyValues[etBin][etaBin][0])
           for key in bkgEff.iterkeys():
             bkgEff[key][etBin][etaBin].setEfficiency(efficiencyValues[etBin][etaBin][1])
+          self._info( "Set bin (et%d:,eta:%d) target efficiency to (Pd:%f,Pf:%f)", etBin, etaBin
+                    , sgnEff[key][etBin][etaBin].efficiency
+                    , bkgEff[key][etBin][etaBin].efficiency )
     
     cls = TuningDataArchieve if not getRatesOnly else BenchmarkEfficiencyArchieve
     kwin = {'etaBins':                     etaBins

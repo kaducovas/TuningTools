@@ -17,11 +17,19 @@ import sys
 import pickle
 import time
 
+import sklearn.metrics
+from sklearn.externals import joblib
+
+#print sys.path
+#sys.path.remove('/scratch/22061a/common-cern/pyenv/versions/2.7.9/lib/python2.7/site-packages')
+import tensorflow
+import keras
 from keras.utils import np_utils
 from keras.models import load_model
 
-import sklearn.metrics
-from sklearn.externals import joblib
+print 'PreProc '+keras.__version__
+#import sklearn.metrics
+#from sklearn.externals import joblib
 
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.StackedAutoEncoders import StackedAutoEncoders
@@ -699,6 +707,13 @@ class RingerRp( Norm1 ):
     self._alpha = alpha
     self._beta = beta
     #Layers resolution
+    #PS      = 0.025 * np.arange(1,8)
+    #EM1     = 0.003125 * np.arange(1,64)
+    #EM2     = 0.025 * np.arange(1,8)
+    #EM3     = 0.05 * np.arange(1,8)
+    #HAD1    = 0.1 * np.arange(1,4)
+    #HAD2    = 0.1 * np.arange(1,4)
+    #HAD3    = 0.2 * np.arange(1,4)
     PS      = 0.025 * np.arange(8)
     EM1     = 0.003125 * np.arange(64)
     EM2     = 0.025 * np.arange(8)
@@ -725,13 +740,7 @@ class RingerRp( Norm1 ):
     """
       Calculate pre-processing parameters.
     """
-    if isinstance(data, (tuple, list,)):
-      norms = []
-      for cdata in data:
-        norms.append( np.power( cdata, self._alpha ) )
-    else:
-      norms = np.power(data, self._alpha)
-    return Norm1._Norm1__retrieveNorm(self, norms)
+    return Norm1._Norm1__retrieveNorm(self, data)
 
   def rVec(self):
     """
@@ -739,19 +748,69 @@ class RingerRp( Norm1 ):
     """
     return self._rVec
 
+#array([  0.00000000e+00,   8.15707375e-04,  -1.10010558e-03,
+#         4.47313348e-03,  -3.97166889e-03,   6.39257906e-03,
+#         6.54621050e-03,   4.77211224e-03,   0.00000000e+00,
+#         2.11066343e-02,   1.80540066e-02,   6.83453772e-03,
+#         4.41724900e-03,   1.64411089e-03,   1.15571858e-03,
+#         1.44910149e-03,   1.63055456e-03,   5.98416897e-04,
+#         6.79160818e-04,   5.41001151e-04,   1.09213439e-03,
+#         5.80448133e-04,  -5.42422466e-04,  -1.03258807e-03,
+#        -1.13338057e-03,   2.36474923e-04,   4.88943188e-04,
+#        -9.18365316e-04,   8.67576513e-04,  -4.77118243e-04,
+#        -1.93166343e-04,  -4.25095845e-04,  -3.32333409e-04,
+#         8.03846226e-04,   9.86088635e-05,  -2.34487306e-04,
+#         9.99490381e-04,   2.20256252e-03,   2.03745579e-03,
+#         1.77585275e-03,   1.58940803e-03,   1.73320470e-03,
+#         4.69416118e-04,   7.04462989e-04,  -2.59370463e-05,
+#         5.32700913e-04,  -1.34548778e-03,  -7.31210283e-04,
+#        -7.96360662e-04,  -1.30150875e-03,   8.97139136e-04,
+#         8.90310446e-04,  -5.41164773e-04,   5.86333394e-04,
+#         1.66354538e-03,  -4.91637446e-04,  -1.42299489e-03,
+#         7.11409026e-04,   6.05857407e-04,  -1.24913862e-03,
+#        -3.88187502e-04,  -7.03075377e-04,  -1.28103315e-03,
+#        -4.57881652e-05,   1.85933823e-04,  -1.82768883e-04,
+#        -1.53428817e-04,   9.02294065e-04,   8.74958467e-04,
+#        -1.02110242e-03,   9.73318354e-04,   6.48773566e-04,
+#         0.00000000e+00,   7.45570883e-02,   1.83086284e-02,
+#         1.42294550e-02,   1.23070702e-02,   1.14151677e-02,
+#         5.50619932e-03,   3.57280398e-04,   0.00000000e+00,
+#         2.06541806e-03,   1.05943729e-03,   3.96153657e-03,
+#         6.60419464e-03,   1.94086856e-03,  -2.14856467e-03,
+#        -1.65478513e-03,  -0.00000000e+00,  -6.19104016e-04,
+#         1.81093253e-03,   0.00000000e+00,   0.00000000e+00,
+#         5.59639127e-04,  -1.18495105e-03,   0.00000000e+00,
+#        -0.00000000e+00,   1.52364664e-03,   9.87489126e-04,
+#         0.00000000e+00], dtype=float32)
+
   def _apply(self, data):
+    # FIXME This is here just as a temporary workaround, Layers resolution
+    #PS      = 0.025 * np.arange(1,8)
+    #EM1     = 0.003125 * np.arange(1,64)
+    #EM2     = 0.025 * np.arange(1,8)
+    #EM3     = 0.05 * np.arange(1,8)
+    #HAD1    = 0.1 * np.arange(1,4)
+    #HAD2    = 0.1 * np.arange(1,4)
+    #HAD3    = 0.2 * np.arange(1,4)
+    #rings   = np.concatenate((PS,EM1,EM2,EM3,HAD1,HAD2,HAD3))
+    #self._rVec = np.power( rings, self._beta )
     self._info('(alpha, beta) = (%f,%f)', self._alpha, self._beta)
-    norms = self.__retrieveNorm(data)
+    mask = np.ones(100, dtype=bool)
+    mask[np.cumsum([0,8,64,8,8,4,4])] = False
     if isinstance(data, (tuple, list,)):
       ret = []
       for i, cdata in enumerate(data):
-        ret.append(( (cdata/abs(cdata)) \
-          * (np.power( abs(cdata), self._alpha ) * self._rVec) \
-          / norms[i][ npCurrent.access( pdim=':', odim=np.newaxis) ] \
-                   ).astype( np.float32 ))
+        rpEnergy = np.sign(cdata)*np.power( abs(cdata), self._alpha )
+        #rpEnergy = rpEnergy[ npCurrent.access( pidx=mask, oidx=':') ]
+        norms = self.__retrieveNorm(rpEnergy)
+        rpRings = ( ( rpEnergy * self._rVec ) / norms[i][ npCurrent.access( pidx=':', oidx=np.newaxis) ] ).astype( npCurrent.fp_dtype )
+        ret.append(rpRings)
     else:
-      ret = (np.power( data, self._alpha ) * self._rVec) \
-          / norms[ npCurrent.access( pdim=':', odim=np.newaxis) ]
+      rpEnergy = np.sign(data)*np.power( abs(cdata), self._alpha )
+      #rpEnergy = rpEnergy[ npCurrent.access( pidx=mask, oidx=':') ]
+      norms = self.__retrieveNorm(rpEnergy)
+      rpRings = ( ( rpEnergy * self._rVec ) / norms[i][ npCurrent.access( pidx=':', oidx=np.newaxis) ] ).astype( npCurrent.fp_dtype )
+      ret = rpRings
     return ret
 
 class MapStd( PrepObj ):
@@ -839,10 +898,17 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
+<<<<<<< HEAD
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {})
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
   def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=10,batch_size=200,layer=1, d = {}, **kw):
+=======
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_weights'})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {'_weights'})
+
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=30,batch_size=200,layer=1, d = {}, **kw):
+>>>>>>> e756ef63b64aba1e5da5da6d3b083cd5e1e80fa6
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -886,22 +952,22 @@ class StackedAutoEncoder( PrepObj ):
   #    data = self._apply(data,sort,etBinIdx,etaBinIdx)
   #  return data
 
-  def SAE(self):
-    return self._SAE
+  #def SAE(self):
+  #  return self._SAE
 
-  def trn_desc(self):
-    return self._trn_desc
+  #def trn_desc(self):
+  #  return self._trn_desc
 
-  def weights(self):
-    return self._weights
+  #def weights(self):
+  #  return self._weights
   
-  def trn_params(self):
-    return self._trn_params
+  #def trn_params(self):
+  #  return self._trn_params
 
-  def params(self):
-    return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
+  #def params(self):
+  #  return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
 
-  def takeParams(self, trnData,sort,etBinIdx, etaBinIdx):
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx):
 
   ###trainlayer
 
@@ -913,14 +979,25 @@ class StackedAutoEncoder( PrepObj ):
     self._sort = sort
     self._etBinIdx = etBinIdx
     self._etaBinIdx = etaBinIdx
+    self._info('Training Data Shape: '+str(trnData[0].shape))
+    self._info('Validation Data Shape: '+str(valData[0].shape))
+
     import copy
     data = copy.deepcopy(trnData)
+    val_Data = copy.deepcopy(valData)
+
     data = [d[:100] for d in data]
+    val_Data = [d[:100] for d in val_Data]
+
+
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 	
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
+    if isinstance(val_Data, (tuple, list,)):
+      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )  
  
+<<<<<<< HEAD
     results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
     trn_params_folder = results_path+'trnparams_sort_0.jbl'
 
@@ -1095,7 +1172,7 @@ class AutoEncoder( PrepObj ):
       data = np.concatenate( data, axis=npCurrent.odim )
  
     results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
-    trn_params_folder = results_path+'trnparams_sort_0.jbl'
+    trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'.jbl'
 
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
@@ -1127,12 +1204,12 @@ class AutoEncoder( PrepObj ):
     self._info(self._hidden_neurons)
 
     f, model, trn_desc = SAE.trainLayer(data=data,
-                                        trgt=data,
+                                        trgt=val_Data,
                                         ifold=0,
                                         hidden_neurons=self._hidden_neurons,
                                         layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
     self._trn_desc = trn_desc
-    self._weights = model
+    self._weights = model.get_weights()
     self._info(self._SAE)
     
     return self._apply(trnData)   
@@ -1152,9 +1229,9 @@ class AutoEncoder( PrepObj ):
     return ("AE_%d" % self._hidden_neurons[0])
 
   def _apply(self, data):
-    self._info(self._sort)
-    self._info(self._etBinIdx)
-    self._info(self._etaBinIdx)
+    #self._info(pp.shortName())
+    #self._info(self._etBinIdx)
+    #self._info(self._etaBinIdx)
     ###get data projection
     #if not self._mean.size or not self._invRMS.size:
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
@@ -1607,7 +1684,7 @@ class PreProcChain ( Logger ):
         return False
     return True
 
-  def takeParams(self, trnData,sort=None,etBinIdx=None, etaBinIdx=None):
+  def takeParams(self,trnData,valData,sort=None,etBinIdx=None, etaBinIdx=None):
     """
       Take pre-processing parameters for all objects in chain. 
     """
@@ -1616,10 +1693,12 @@ class PreProcChain ( Logger ):
       return
     for pp in self:
       if pp.shortName()[:2] == 'AE':
-        trnData = pp.takeParams(trnData,sort,etBinIdx, etaBinIdx)
+        trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx)
+        valData = pp(valData, False)
       else: 
         trnData = pp.takeParams(trnData)
-    return trnData
+        valData = pp(valData, False)
+    return trnData,valData
 
   def concatenate(self, trnData, extraData):
     """

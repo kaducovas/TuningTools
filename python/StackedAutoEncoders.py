@@ -12,6 +12,10 @@ from sklearn.externals import joblib
 from sklearn import preprocessing
 from sklearn import metrics
 
+#import sys
+#sys.path.remove('/scratch/22061a/common-cern/pyenv/versions/2.7.9/lib/python2.7/site-packages')
+#import tensorflow
+import keras
 from keras.models import Sequential
 from keras.regularizers import l1, l2
 from keras.layers.core import Dense, Activation, Dropout
@@ -20,7 +24,7 @@ import keras.callbacks as callbacks
 from keras.utils import np_utils
 from keras.models import load_model
 from keras import backend as K
-from keras import losses
+#from keras import losses
 
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.MetricsLosses import kullback_leibler_divergence
@@ -69,7 +73,8 @@ class StackedAutoEncoders:
             self.lossFunction = kullback_leibler_divergence
         else:
             self.lossFunction = self.trn_params.params['loss']
-        losses.custom_loss = self.lossFunction
+        #from keras import losses
+        #losses.custom_loss = self.lossFunction
     '''
         Method that creates a string in the format: (InputDimension)x(1º Layer Dimension)x...x(Nº Layer Dimension)
     '''
@@ -213,7 +218,7 @@ class StackedAutoEncoders:
         #norm_data = data
 
         best_init = 0
-        best_loss = 999
+        best_loss = 9999999
 
         classifier = []
         trn_desc = {}
@@ -229,9 +234,9 @@ class StackedAutoEncoders:
             #proj_all_data = norm_data
             proj_all_data = data
             if layer == 1:
-                model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1], kernel_initializer="uniform"))
+                model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1]))
                 model.add(Activation(self.trn_params.params['hidden_activation']))
-                model.add(Dense(data.shape[1], kernel_initializer="uniform"))
+                model.add(Dense(data.shape[1]))
                 model.add(Activation(self.trn_params.params['output_activation']))
             elif layer > 1:
                 for ilayer in range(1,layer):
@@ -261,7 +266,7 @@ class StackedAutoEncoders:
                     # Projection of layer
                     proj_all_data = get_layer_output([proj_all_data])[0]
 
-                model.add(Dense(hidden_neurons[layer-1], input_dim=proj_all_data.shape[1], kernel_initializer="uniform"))
+                model.add(Dense(hidden_neurons[layer-1], input_dim=proj_all_data.shape[1]))
                 model.add(Activation(self.trn_params.params['hidden_activation']))
                 if regularizer == "dropout":
                     model.add(Dropout(regularizer_param))
@@ -269,7 +274,7 @@ class StackedAutoEncoders:
                     model.regularizers = [l1(regularizer_param)]
                 elif regularizer == "l2":
                     model.regularizers = [l2(regularizer_param)]
-                model.add(Dense(proj_all_data.shape[1], kernel_initializer="uniform"))
+                model.add(Dense(proj_all_data.shape[1]))
                 model.add(Activation(self.trn_params.params['output_activation']))
                 #norm_data = proj_all_data
                 data = proj_all_data
@@ -280,32 +285,36 @@ class StackedAutoEncoders:
                           metrics=self.trn_params.params['metrics'])
 
             # Train model
-            earlyStopping = callbacks.EarlyStopping(monitor='loss',
+            earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
                                                     patience=self.trn_params.params['patience'],
                                                     verbose=self.trn_params.params['train_verbose'],
                                                     mode='auto')
 
             init_trn_desc = model.fit(data, data,
-                                      epochs=self.trn_params.params['n_epochs'],
+                                      nb_epoch=self.trn_params.params['n_epochs'],
                                       batch_size=self.trn_params.params['batch_size'],
                                       callbacks=[earlyStopping],
-                                      verbose=self.trn_params.params['verbose'])
-            if np.min(init_trn_desc.history['loss']) < best_loss:
+                                      verbose=self.trn_params.params['verbose'], 
+                                      validation_data=(trgt,
+                                                       trgt))
+            if np.min(init_trn_desc.history['val_loss']) < best_loss:
                 best_init = i_init
-                best_loss = np.min(init_trn_desc.history['loss'])
+                best_loss = np.min(init_trn_desc.history['val_loss'])
                 classifier = model
                 trn_desc['epochs'] = init_trn_desc.epoch
 
-                for imetric in range(len(self.trn_params.params['metrics'])):
-                    if self.trn_params.params['metrics'][imetric] == 'accuracy':
-                        metric = 'acc'
-                    else:
-                        metric = self.trn_params.params['metrics'][imetric]
-                    trn_desc[metric] = init_trn_desc.history[metric]
-                    #trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
+                #for imetric in range(len(self.trn_params.params['metrics'])):
+                #    if self.trn_params.params['metrics'][imetric] == 'kullback_leibler_divergence':
+                #        metric = kullback_leibler_divergence
+                #    else:
+                #        metric = self.trn_params.params['metrics'][imetric]
+                #    trn_desc[metric] = init_trn_desc.history[metric]
+                #    trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
 
                 trn_desc['loss'] = init_trn_desc.history['loss']
-                #trn_desc['val_loss'] = init_trn_desc.history['val_loss']
+                trn_desc['val_losS'] = init_trn_desc.history['val_loss']
+                trn_desc['kullback_leibler_divergence'] = init_trn_desc.history['kullback_leibler_divergence']
+                trn_desc['val_kullback_leibler_divergence'] = init_trn_desc.history['val_kullback_leibler_divergence']
 
         # save model
         if not self.development_flag:
@@ -473,7 +482,7 @@ class StackedAutoEncoders:
                 model.add(Activation(self.trn_params.params['hidden_activation']))
 
             # Add Output Layer
-            model.add(Dense(trgt_sparse.shape[1], kernel_initializer="uniform"))
+            model.add(Dense(trgt_sparse.shape[1]))
             model.add(Activation('softmax'))
 
             model.compile(loss=self.trn_params.params['loss'],

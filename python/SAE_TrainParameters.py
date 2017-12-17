@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.externals import joblib
 from sklearn import model_selection
 from sklearn.model_selection import StratifiedKFold
+from TuningTools.MetricsLosses import kullback_leibler_divergence
 
 class TrnParams(object):
     """
@@ -68,7 +69,7 @@ class NeuralClassificationTrnParams(TrnParams):
                  norm='mapstd',
                  verbose=True,
                  train_verbose=True,
-                 n_epochs=10,
+                 n_epochs=500,
                  learning_rate=0.001,
                  beta_1 = 0.9,
                  beta_2 = 0.999,
@@ -80,7 +81,7 @@ class NeuralClassificationTrnParams(TrnParams):
                  batch_size=4,
                  hidden_activation='tanh',
                  output_activation='linear',
-                 metrics=['accuracy'],
+                 metrics=['kullback_leibler_divergence'],
                  loss='mean_squared_error',
                  optmizerAlgorithm='SGD'
                 ):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, subprocess as sp, time
+import os, sys, subprocess as sp, time, re
 from TuningTools.parsers import ( ArgumentParser, ioGridParser, loggerParser
                                 , createDataParser, TuningToolGridNamespace
                                 , tuningJobParser )
@@ -14,6 +14,7 @@ from RingerCore import ( printArgs, NotSet, conditionalOption, Holder
                        , BooleanOptionRetrieve, clusterManagerConf
                        , EnumStringOptionRetrieve, OptionRetrieve, SubOptionRetrieve 
                        , getFiles, progressbar, ProjectGit, RingerCoreGit 
+                       , BooleanStr,appendToFileName
                        )
 
 preInitLogger = Logger.getModuleLogger( __name__ )
@@ -21,11 +22,11 @@ preInitLogger = Logger.getModuleLogger( __name__ )
 def printVersion(configureObj, moduleType = 'package'):
   if not configureObj.is_clean(): 
     f = preInitLogger.warning
-    s = 'NOT clean'
+    s = 'NOT '
   else:
     f = preInitLogger.info
-    s = 'clean'
-  f('Using %s %s: %s', s, moduleType, configureObj.tag)
+    s = ''
+  f('%susing clean %s: %s', s, moduleType, configureObj.tag)
 printVersion( ProjectGit, moduleType = 'project')
 printVersion( RingerCoreGit )
 printVersion( TuningToolsGit )
@@ -50,7 +51,10 @@ if clusterManagerConf() is ClusterManager.Panda:
                                  , grid__nFilesPerJob         = 1
                                  , grid__forceStaged          = True
                                  , grid__forceStagedSecondary = True
+                                 , grid__nCore = None
                                  )
+
+
   ## Create dedicated arguments for the panda job:
   # WARNING: Groups can be used to replace conflicting options -o/-d and so on
   parentReqParser.add_argument('-d','--dataDS', required = True, metavar='DATA',
@@ -75,6 +79,18 @@ if clusterManagerConf() is ClusterManager.Panda:
   parentCrossParser.add_argument('-xs','--subsetDS', default = None, 
       metavar='subsetDS', required = False, action='store', nargs='+',
       help = """The cross-validation subset file container.""")
+  miscParser = parentParser.add_argument_group("Misc configuration", '')
+  miscParser.add_argument('-mt','--multi-thread', required = False,
+      type=BooleanStr, 
+      help = """Whether to run multi-thread job or single-thread. Default is
+      single-thread.""")
+  miscParser.add_argument('--cores', required = False,
+      type=int, default=8,
+      help = """If multi-thread option is used, then this option can be used to
+      specify the number of cores the job will require.""")
+  miscParser.add_argument('--multi-files', action='store_true',default=False, 
+      required=False,
+      help= """Use this option if your input dataDS was split into one file per bin.""")
   clusterParser = ioGridParser
   namespaceObj = TuningToolGridNamespace('prun')
 elif clusterManagerConf() in (ClusterManager.PBS, ClusterManager.LSF,):
@@ -106,6 +122,10 @@ elif clusterManagerConf() in (ClusterManager.PBS, ClusterManager.LSF,):
                 will be one job for each file on this container.""")
   parentReqParser.add_argument('-o','--outputDir', action='store', required = True,
       help = """Output directory path. When not specified, output will be created in PWD.""")
+elif clusterManagerConf() in (None,NotSet):
+  preInitLogger.fatal("""Could not identify an available ClusterManager to use,
+      either specify it manually via --cluster-manager or make sure that you
+      have set your environment accordingly (e.g. setup panda).""") 
 else:
   preInitLogger.fatal("%s cluster manager is not yet implemented.", 
                       clusterManagerConf(), 
@@ -128,6 +148,7 @@ parentBinningParser.add_argument('--eta-bins', nargs='+', default = None, type =
         help = """ The eta bins to use within grid job. Check et-bins
             help for more information.  """)
 
+
 ## We finally create the main parser
 parser = ArgumentParser(description = 'Tune discriminators using input data on the GRID',
     parents = [tuningJobParser, parentParser, clusterParser, loggerParser],
@@ -143,9 +164,16 @@ mainLogger.write = mainLogger.info
 printArgs( args, mainLogger.debug )
 
 if clusterManagerConf() is ClusterManager.Panda: 
-
+  if args.eta_bins is None:
+    mainLogger.fatal( "Currently runGRIDtuning cannot automatically retrieve eta bins available.", NotImplementedError)
+  if args.et_bins is None:
+    mainLogger.fatal( "Currently runGRIDtuning cannot automatically retrieve et bins available.", NotImplementedError)
   setrootcore = 'source ./setrootcore.sh'
-  setrootcore_opts = '--grid --ncpus=1 --no-color;'
+  if args.multi_thread and args.cores < 2:
+    mainLogger.fatal("Requested multi-thread job and the number of requested cores are lower than 2.")
+  setrootcore_opts = '--grid --ncpus={CORES} --no-color;'.format( CORES = args.cores if args.multi_thread else 1 )
+  if args.multi_thread:
+    args.set_job_submission_option('nCore', args.cores)
   tuningJob = '\$ROOTCOREBIN/user_scripts/TuningTools/standalone/runTuning.py'
   dataStr, configStr, ppStr, crossFileStr = '%DATA', '%IN', '%PP', '%CROSSVAL'
   refStr = subsetStr = None
@@ -154,11 +182,13 @@ if clusterManagerConf() is ClusterManager.Panda:
     args.set_job_submission_option('nFiles', 10)
 
   # Fix secondaryDSs string:
+  dataDS = args.dataDS[0] if not args.multi_files else appendToFileName(args.dataDS[0],'_et%d_eta%d' % (args.et_bins[0], args.eta_bins[0]))
   args.append_to_job_submission_option( 'secondaryDSs'
                                       , SecondaryDatasetCollection ( 
-                                        [ SecondaryDataset( key = "DATA",     nFilesPerJob = 1, container = args.dataDS[0],       reusable = True)
-                                        , SecondaryDataset( key = "PP",       nFilesPerJob = 1, container = args.ppFileDS[0],     reusable = True)
-                                        , SecondaryDataset( key = "CROSSVAL", nFilesPerJob = 1, container = args.crossValidDS[0], reusable = True)
+                                        [ 
+                                          SecondaryDataset( key = "DATA",     nFilesPerJob = 1, container = dataDS,       reusable = True) ,
+                                          SecondaryDataset( key = "PP",       nFilesPerJob = 1, container = args.ppFileDS[0],     reusable = True) ,
+                                          SecondaryDataset( key = "CROSSVAL", nFilesPerJob = 1, container = args.crossValidDS[0], reusable = True) ,
                                         ] ) 
                                       )
 
@@ -241,6 +271,12 @@ for etBin, etaBin in progressbar( product( args.et_bins(),
           # Swap outtar with intar
           args.set_job_submission_option('inTarBall', args.get_job_submission_option('outTarBall') )
           args.set_job_submission_option('outTarBall', None )
+
+  if clusterManagerConf() is ClusterManager.Panda: 
+    if args.multi_files:
+      secondaryDSs = args.get_job_submission_option( 'secondaryDSs' )
+      secondaryDSs[0].container = re.sub(r'_et\d+_eta\d+',r'_et%d_eta%d' % (etBin, etaBin), secondaryDSs[0].container )
+  
   args.setExec("""{setrootcore} {setrootcore_opts}
                   {tuningJob} 
                     --data {DATA}
@@ -276,6 +312,7 @@ for etBin, etaBin in progressbar( product( args.et_bins(),
                            setrootcore_opts = setrootcore_opts,
                            tuningJob        = tuningJob,
                            DATA             = dataStr,
+                           #DATA             = appendToFileName(dataStr,('et%d_eta%d')%(etBin,etaBin)) if args.multi_files else dataStr,
                            CONFIG           = configStr,
                            PP               = ppStr,
                            CROSS            = crossFileStr,
