@@ -1365,11 +1365,7 @@ class TuningJob(Logger):
           #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )
           self._info('Applying pp chain to validation dataset...')
-<<<<<<< HEAD
-          valData = ppChain( valData ) 
-=======
           #valData = ppChain( valData ) 
->>>>>>> e756ef63b64aba1e5da5da6d3b083cd5e1e80fa6
           self._info('Applying pp chain to test dataset...')
           tstData = ppChain( tstData )
           self._info('Done applying the pre-processing chain to all sets!')

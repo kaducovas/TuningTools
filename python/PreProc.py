@@ -898,17 +898,10 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-<<<<<<< HEAD
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {})
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
   def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=10,batch_size=200,layer=1, d = {}, **kw):
-=======
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_weights'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_weights'})
-
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=30,batch_size=200,layer=1, d = {}, **kw):
->>>>>>> e756ef63b64aba1e5da5da6d3b083cd5e1e80fa6
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -997,9 +990,8 @@ class StackedAutoEncoder( PrepObj ):
     if isinstance(val_Data, (tuple, list,)):
       val_Data = np.concatenate( val_Data, axis=npCurrent.odim )  
  
-<<<<<<< HEAD
     results_path = "/home/caducovas/RingerProject/root/TuningTools/scripts/standalone/StackedAutoEncoder_preproc/"
-    trn_params_folder = results_path+'trnparams_sort_0.jbl'
+    trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'.jbl'
 
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
@@ -1036,8 +1028,9 @@ class StackedAutoEncoder( PrepObj ):
                                         hidden_neurons=self._hidden_neurons,
                                         layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
     self._trn_desc = trn_desc
-    self._weights = model
-    self._info(self._SAE)
+    self._weights = model.get_weights()
+    self._trn_params = model.get_config()
+    #self._info(self._SAE)
     
     return self._apply(trnData)   
 
@@ -1698,6 +1691,9 @@ class PreProcChain ( Logger ):
       else: 
         trnData = pp.takeParams(trnData)
         valData = pp(valData, False)
+    pp._SAE = ''
+    #pp._weights= ''
+    #pp._trn_params = ''
     return trnData,valData
 
   def concatenate(self, trnData, extraData):
