@@ -898,10 +898,10 @@ class StackedAutoEncoder( PrepObj ):
     Train the encoders in order to stack them as pre-processing afterwards.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_weights'})
-  _cnvObj = RawDictCnv(toProtectedAttrs = {'_weights'})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=500,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -979,8 +979,8 @@ class StackedAutoEncoder( PrepObj ):
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
 
-    data = [d[:100] for d in data]
-    val_Data = [d[:100] for d in val_Data]
+    #data = [d[:100] for d in data]
+    #val_Data = [d[:100] for d in val_Data]
 
 
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
@@ -993,7 +993,7 @@ class StackedAutoEncoder( PrepObj ):
     import numpy
     
     results_path = "/scratch/22061a/caducovas/StackedAutoEncoder_preproc/"
-    numpy.save(results_path+'val_Data',val_Data)
+    numpy.save(results_path+'val_Data_sort_'+str(self._sort),val_Data)
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'.jbl'
 
     if os.path.exists(trn_params_folder):
@@ -1032,7 +1032,8 @@ class StackedAutoEncoder( PrepObj ):
                                         layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
     self._trn_desc = trn_desc
     self._weights = model.get_weights()
-    self._info(self._SAE)
+    self._trn_params = model.get_config()
+    #self._info(self._SAE)
     
     return self._apply(trnData)   
 
@@ -1059,7 +1060,7 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      data = [d[:100] for d in data]
+      #data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
@@ -1520,6 +1521,7 @@ class PreProcChain ( Logger ):
       else: 
         trnData = pp.takeParams(trnData)
         valData = pp(valData, False)
+    pp._SAE = ''
     return trnData,valData
 
   def concatenate(self, trnData, extraData):
