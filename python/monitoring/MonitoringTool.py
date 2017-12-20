@@ -242,7 +242,7 @@ class TuningMonitoringTool( Logger ):
         # Best and worst sorts for this neuron configuration
         plotObjects['allBestTstSorts'].best =   csummary[neuronName]['infoTstBest']['sort']  
         plotObjects['allBestTstSorts'].worst =  csummary[neuronName]['infoTstWorst']['sort'] 
-        plotObjects['allBestOpSorts'].best =    csummary[neuronName]['infoOpBest']['sort']   
+        plotObjects['allBestOpSorts'].best =    csummary[neuronName]['infoOpBest']['sort'] 
         plotObjects['allBestOpSorts'].worst =   csummary[neuronName]['infoOpWorst']['sort']  
 
         # Hold the information from the best and worst discriminator for this neuron 
@@ -284,7 +284,8 @@ class TuningMonitoringTool( Logger ):
                                     best = plotObjects['allBestTstSorts'].best, 
                                     worst = plotObjects['allBestTstSorts'].worst,
                                     label = label,
-                                    refValue = refVal
+                                    refValue = refVal,
+                                    reference = reference,
                                     )
         
 
@@ -301,7 +302,8 @@ class TuningMonitoringTool( Logger ):
                                     best = plotObjects['allBestOpSorts'].best, 
                                     worst = plotObjects['allBestOpSorts'].worst,
                                     label = label,
-                                    refValue = refVal
+                                    refValue = refVal,
+                                    reference = reference,
                                     )
 
 
@@ -311,7 +313,10 @@ class TuningMonitoringTool( Logger ):
         fname3 = PlotDiscriminants(plotObjects['allBestOpSorts'],
                                   best = plotObjects['allBestOpSorts'].best, 
                                   worst = plotObjects['allBestOpSorts'].worst,
-                                  outname = outname)
+                                  outname = outname,
+                                  nsgn = self._data[0].shape[0],
+                                  nbkg = self._data[1].shape[0],
+                                  )
 
         
         #NOTE: plot the roc for all validation curves
