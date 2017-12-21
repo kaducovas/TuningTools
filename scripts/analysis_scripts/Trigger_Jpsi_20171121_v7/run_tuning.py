@@ -38,7 +38,7 @@ tuningJob( DatasetLocationInput,
            etaBins = 0,
            crossValidFile='/home/micael.verissimo/RingerProject/root/TuningTools/scripts/analysis_scripts/Trigger_Jpsi_20171121_v7/crossValid.20172911.pic.gz',
            ppFile='/home/micael.verissimo/RingerProject/root/TuningTools/scripts/analysis_scripts/Trigger_Jpsi_20171121_v7/ppFile.20172911.pic.gz',
-           #development = True
+           development = True
            #confFileList='config.n5to20.jackKnife.inits_100by100/job.hn0009.s0000.il0000.iu0099.pic.gz',
            #refFile='/home/micael.verissimo/RingerProject/root/TuningTools/scripts/analysis_scripts/Trigger_Jpsi_20171121_v7/sample.Jpsi.20172911.tight-eff.npz',
            )
