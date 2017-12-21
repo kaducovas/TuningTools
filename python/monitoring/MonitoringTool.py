@@ -34,7 +34,7 @@ class TuningMonitoringTool( Logger ):
       self._logger.fatal('Could not open pickle summary file.')
     #Loop over benchmarks
 
-    from TuningTools.monitoring import Summary
+    from TuningTools.monitoring.MonitoringHelper import Summary
     for benchmarkName in crossvalObj.keys():
       #Must skip if ppchain collector
       if benchmarkName == 'infoPPChain':  continue
@@ -85,8 +85,8 @@ class TuningMonitoringTool( Logger ):
   def __call__(self, **kw):
     
     import gc
-    from TuningTools.monitoring import PlotObjects, Performance, PlotTrainingCurves, \
-                                       PlotDiscriminants, PlotRocs, PlotInits
+    from TuningTools.monitoring.MonitoringHelper import PlotObjects, Performance
+    from TuningTools.monitoring.PlotHelper import PlotTrainingCurves, PlotDiscriminants, PlotRocs, PlotInits
  
     #from scipy.io import loadmat
 
