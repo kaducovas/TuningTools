@@ -38,36 +38,36 @@ patternsFiles = [
 			'sample.Jpsi.20172911.npz'			
 				]
 
-configFileDS = 'sample.Jpsi.20172911.v2.config.n5to20.JK.inits_100by100'
+configFileDS = 'sample.Jpsi.20172112.v8.config.n5to20.JK.inits_100by100'
 
-crossFile = 'crossValid.20172911.pic.gz'
+crossFile = 'crossValid.20172112.pic.gz'
 
-ppFile = 'ppFile.20172911.pic.gz'
+ppFile = 'ppFile.20172112.pic.gz'
 
 
 ########################################################################################
 
 
-#add_container( ppFile, 'user.mverissi.new.'+ppFile)
-#add_rules( 'user.mverissi.new.'+ppFile)
+#add_container( ppFile, 'user.mverissi.new.v4.'+ppFile)
+#add_rules( 'user.mverissi.new.v4.'+ppFile)
 
-#add_container( crossFile, 'user.mverissi.new.'+crossFile)
-#add_rules( 'user.mverissi.new.'+crossFile)
+#add_container( crossFile, 'user.mverissi.new.v3.'+crossFile)
+#add_rules( 'user.mverissi.new.v3.'+crossFile)
 
 #for ds in effFiles:
-#  add_container( ds, 'user.mverissi.new.'+ds)
-#  add_rules( 'user.mverissi.new.'+ds)
+#  add_container( ds, 'user.mverissi.new.v3.'+ds)
+#  add_rules( 'user.mverissi.new.v3.'+ds)
 
 files = glob.glob(configFileDS+'/*')
 for idx, f in enumerate(files):
   print 'Attaching ',idx+1,'/',len(files)
-  add_container( f, 'user.mverissi.new.v2.'+configFileDS )
-add_rules( 'user.mverissi.new.v2.'+configFileDS)
+  add_container( f, 'user.mverissi.new.v8.'+configFileDS )
+add_rules( 'user.mverissi.new.v8.'+configFileDS)
 
 
 #for ds in patternsFiles:
-#  add_container( ds, 'user.mverissi.new.'+ds)
-#  add_rules( 'user.mverissi.new.'+ds)
+#  add_container( ds, 'user.mverissi.new.v3.'+ds)
+#  add_rules( 'user.mverissi.new.v3.'+ds)
 
 
 #add_container( 'ppFile_mu0_norm1.pic.gz' , 'user.jodafons.ppFile_mu0_norm1.pic.gz' )
