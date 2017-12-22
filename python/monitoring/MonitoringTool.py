@@ -35,11 +35,12 @@ class TuningMonitoringTool( Logger ):
     #Loop over benchmarks
 
     from TuningTools.monitoring.MonitoringHelper import Summary
-    for benchmarkName in crossvalObj.keys():
+    for benchmarkName in crossvalObj.keys(): 
       #Must skip if ppchain collector
       if benchmarkName == 'infoPPChain':  continue
       #Add summary information into MonTuningInfo helper class
-      self._infoObjs.append( Summary( benchmarkName, crossvalObj[benchmarkName] ) ) 
+      self._infoObjs.append( Summary( benchmarkName, crossvalObj[benchmarkName] ) )
+      #print 'lista: ', crossvalObj[benchmarkName]['etaBinIdx']
       self._logger.info('Creating MonTuningInfo for %s and the iterator object [et=%d, eta=%d]',
                          benchmarkName,self._infoObjs[-1].etBinIdx(), self._infoObjs[-1].etaBinIdx())
     #Loop over all benchmarks

@@ -163,6 +163,7 @@ class Summary(Logger):
     self._summary = rawObj
     self._benchmarkName = benchmarkName
     self._initBounds=None
+    #print '_summary keys', self._summary['rawBenchmark']['signalEfficiency']['etaBin']
 
   def neuronBounds(self):
     neuronBounds = [int(neuron.replace('config_','')) for neuron in self._summary.keys() if 'config_' in neuron]
@@ -209,13 +210,13 @@ class Summary(Logger):
 
   def etBinIdx(self):
     try:
-      return self.rawBenchmark()['signalEfficiency']['etBin']
+      return self.rawBenchmark()['_etBinIdx']
     except:
       return self.rawBenchmark()['signal_efficiency']['etBin']
 
   def etaBinIdx(self):
     try: 
-      return self.rawBenchmark()['signalEfficiency']['etaBin']
+      return self.rawBenchmark()['_etaBinIdx']
     except:
       return self.rawBenchmark()['signal_efficiency']['etaBin']
 
