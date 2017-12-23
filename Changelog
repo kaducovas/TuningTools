@@ -1,3 +1,79 @@
+2017-12-21 Werner S Freund
+	* Fast fix for cross-val revertible bug.
+
+2017-12-21 Werner S Freund
+	* Fix in CrossValStatAnalysis where it would try to find .gz files in
+	mergedDict
+	* Tagging TuningTools-01-00-33
+
+2017-12-20 Werner S Freund
+	* Improved TuningDataArchieve/BenchmarkEfficiencyArchieve reading speed
+	when using only one bin
+	* Disable mergeOutput in runGRIDtuning until GRID improves its merge jobs
+	policy or tune its parameters.
+	* Small change in tuningWrapper which now displays the correct reference
+	instead always assuming that non multi-stop jobs are set to use MSE.
+	* Tagging TuningTools-01-00-32
+
+2017-12-19 Werner S Freund
+	* Added StatReductionFactor pre-processing for stats studies
+	* RingerFilterMu was adding mu to patterns
+	* Tagging TuningTools-01-00-31
+
+2017-12-19 Werner S Freund
+	* runGRIDtuning will feed development flag to child jobs
+	* Reverted crossValStatAnalysis to use init method the same way
+	as the sort and neural choose method.
+	* Tagging TuningTools-01-00-30
+
+2017-12-18 Werner S Freund
+	* Removed keras import at coreConf as it is not needed anymore.
+	* Tagging TuningTools-01-00-29
+
+2017-12-18 Werner S Freund
+	* Removed auto import of ROOT dependent modules
+	* Tagging TuningTools-01-00-28
+
+2017-12-18 Werner S Freund
+	* Added policy: production jobs can only be submitted with clean TuningTools
+	and RingerCore modules. Development jobs should be submit with --development
+	flags.
+	* Tagging TuningTools-01-00-27
+
+2017-12-17 Werner S Freund
+	* runGRIDTuning now can automatically estimate multi-thread jobs
+	* Some cosmetics for fileJuicer
+	* CrossValStatAnalysis does not try to remove files not in
+	binFilesMergedDict any more.
+	* Tagging TuningTools-01-00-26
+
+2017-12-16 Werner S Freund
+	* SkimmedNtuple is now able to extract TrigRinger 
+	* Tagging TuningTools-01-00-25
+
+2017-12-15 Werner S Freund
+	* Multi-stop can be turned-off once again.
+	* CrossValStat can now expand sp-stop only training to have multiple
+	operation points
+	* Tagging TuningTools-01-00-24
+
+2017-12-14 Werner S Freund
+	* Improved add_container to try 3 protocols before giving-up
+	* Tagging TuningTools-01-00-23
+
+2017-12-07 Werner S Freund
+	* take params was not returning anything
+	* Tagging TuningTools-01-00-22
+
+2017-12-07 Werner S Freund
+	* Fixed important bug in pre-processing which did not apply the ppChain to
+	the train dataset
+	* Fixed tensorflow fortran representation
+	* Tagging TuningTools-01-00-21
+
+2017-12-02 Werner S Freund
+	* Added new choose method via MSE and set it for init method retrieval
+
 2017-11-20 Werner S Freund
 	* Updated createData to be able to read special v5 file
 	* Tagging TuningTools-01-00-20

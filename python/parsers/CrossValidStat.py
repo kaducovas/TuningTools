@@ -65,10 +65,23 @@ optArgs.add_argument('-modelm','--model-method', nargs='+', default = NotSet, ty
                      Usually it will come in the following order: SP Pd Pf.
                      """
                      )
+optArgs.add_argument('-imodelm','--init-model-method',  default = NotSet, #ChooseOPMethod.MSE, type=ChooseOPMethod,
+                     help = """Whether to overwrite, for all operation points,
+                     the initialization model choice method by the one specified
+                     here. If not set, it will use the same value as modelm.
+                     """
+                     )
 optArgs.add_argument('-aeps','--AUC-epsilon', nargs='+', default = NotSet, type=float,
                      help = """The Area Under the ROC Curve epsilon value. This
                      value is used as a delta from the reference in which the value is calculated.
                      Usually it will come in the following order: SP Pd Pf.
+                     """)
+optArgs.add_argument('--expandOP', default = NotSet, type=BooleanStr,
+                     help = """If the tune was done using --do-multi-stop set to false, then 
+                     this option will try to expand the operation point to derive the best
+                     models for each OP case, using the target Pd/Pf/SP. If no target Pd/Pf 
+                     is available, then it will print a warning and choose only one model
+                     via SP maximization.
                      """)
 optArgs.add_argument('--outputFileBase', action='store', default = NotSet, 
     help = """Base name for the output file.""")

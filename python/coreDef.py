@@ -5,12 +5,6 @@ __all__ = [ 'hasExmachina', 'hasFastnet', 'hasKeras', 'TuningToolCores'
           , 'TuningToolsGit']
 
 import os, pkgutil
-# This is needed due to some keras issue with numpy import order
-try:
-  import keras
-except ImportError:
-  pass
-
 
 hasExmachina = bool( pkgutil.find_loader( 'exmachina' )      )
 hasFastnet   = bool( pkgutil.find_loader( 'libTuningTools' ) )
@@ -76,7 +70,7 @@ class _ConfigureCoreFramework( EnumStringificationOptionConfigure ):
     if hasFastnet: 
       core = TuningToolCores.FastNet
     elif hasKeras:
-      core = TuningToolsCores.keras
+      core = TuningToolCores.keras
     elif hasExmachina:
       core = TuningToolCores.ExMachina
     else:
@@ -98,7 +92,7 @@ class _ConfigureCoreFramework( EnumStringificationOptionConfigure ):
       if backend() == "theano": # Theano copies data if input is not c-contiguous
         kwargs = { 'useFortran' : False, 'fp_dtype' : np.float32, 'int_dtype' : np.int32 }
       elif backend() == "tensorflow": # tensorflow copies data if input is not fortran-contiguous
-        kwargs = { 'useFortran' : True, 'fp_dtype' : np.float32, 'int_dtype' : np.int32 }
+        kwargs = { 'useFortran' : False, 'fp_dtype' : np.float32, 'int_dtype' : np.int32 }
     return npConstants( **kwargs )
 
   def core_framework(self):

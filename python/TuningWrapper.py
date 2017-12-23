@@ -30,12 +30,13 @@ class TuningWrapper(Logger):
                                retrieve_kw( kw, 'batchMethod', BatchSizeMethod.MinClassSize \
         if not 'batchSize' in kw or kw['batchSize'] is NotSet else BatchSizeMethod.Manual         ) 
                                  )
-    self.batchSize             = retrieve_kw( kw, 'batchSize',             NotSet                 )
+
     epochs                     = retrieve_kw( kw, 'epochs',                10000                  )
     maxFail                    = retrieve_kw( kw, 'maxFail',               50                     )
     self.useTstEfficiencyAsRef = retrieve_kw( kw, 'useTstEfficiencyAsRef', False                  )
     self._merged               = retrieve_kw( kw, 'merged',                False                  )
     self.networks              = retrieve_kw( kw, 'networks',              NotSet                 )
+    self._saveOutputs          = retrieve_kw( kw, 'saveOutputs',           False                  )
     self.sortIdx = None
     if coreConf() is TuningToolCores.FastNet:
       seed = retrieve_kw( kw, 'seed', None )
@@ -71,6 +72,8 @@ class TuningWrapper(Logger):
       self._historyCallback = PerformanceHistory( display = retrieve_kw( kw, 'showEvo', 50 ) )
     else:
       self._fatal("TuningWrapper not implemented for %s", coreConf)
+
+    self.batchSize             = retrieve_kw( kw, 'batchSize',             NotSet                 )
     checkForUnusedVars(kw, self._debug )
     del kw
     # Set default empty values:
@@ -85,6 +88,8 @@ class TuningWrapper(Logger):
                                 oidx=0 ) )
     elif coreConf() is TuningToolCores.FastNet:
       self._emptyTarget = None
+     
+
     # Set holders:
     self._trnData    = self._emptyData
     self._valData    = self._emptyData
@@ -196,14 +201,14 @@ class TuningWrapper(Logger):
                           self._core.det * 100.,
                           self._core.fa * 100.  )
       else:
-        self._info("Setting reference target to MSE.")
         if len(references) != 1:
           self._warning("Ignoring other references when using FastNet with MSE.")
           references = references[:1]
         self.references = references
         ref = self.references[0]
-        if ref.reference != ReferenceBenchmark.MSE:
-          self._fatal("Tuning using MSE and reference is not MSE!")
+        self._info("Set single reference target to: %s", self.references[0])
+        #if ref.reference != ReferenceBenchmark.MSE:
+        #  self._fatal("Tuning using MSE and reference is not MSE!")
     elif coreConf() is TuningToolCores.keras:
       self.references = references
       self._info("keras will be using the following references:")
@@ -427,8 +432,6 @@ class TuningWrapper(Logger):
         for ref in references:
           track_n[ref] = self.__dict_to_discr( self.networks[1][et][eta][ref]['sort_%1.3i'%(sort)], 'track', pruneLastLayer=True )
       calo_nn = {}
-      # from RingerCore import keyboard
-      # keyboard()
       for ref in references:
         calo_nn = self.__dict_to_discr( self.networks[0][et][eta][ref]['sort_%1.3i'%(sort)], 'calo', pruneLastLayer=True )
 
@@ -532,7 +535,7 @@ class TuningWrapper(Logger):
     # cores
 
     # Retrieve performance:
-    opRoc, tstRoc = Roc(), Roc() 
+    opRoc, tstRoc, trnRoc = Roc(), Roc(), Roc()
     for idx, tunedDiscrDict in enumerate(tunedDiscrList):
       discr = tunedDiscrDict['discriminator']
       if self.doPerf:
@@ -556,10 +559,16 @@ class TuningWrapper(Logger):
           perfList = self._core.valid_c( discriminatorPyWrapperList[idx] )
           opRoc( perfList[1] )
           tstRoc( perfList[0] )
+          #trnRoc( perfList[0] )
         # Add rocs to output information
         # TODO Change this to raw object
         tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
-                                          'roc_test' : tstRoc.toRawObj() }
+                                          'roc_test' : tstRoc.toRawObj(),
+                                          }
+        if self._saveOutputs:
+          tunedDiscrDict['summaryInfo']['trnOutput'] = [perfList[2],perfList[3]] if coreConf() is TuningToolCores.FastNet else trnOutput
+          tunedDiscrDict['summaryInfo']['valOutput'] = [perfList[4],perfList[5]] if coreConf() is TuningToolCores.FastNet else valOutput
+  
 
         for ref in self.references:
           if coreConf() is TuningToolCores.FastNet:

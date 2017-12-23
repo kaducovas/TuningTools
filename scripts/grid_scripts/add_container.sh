@@ -29,6 +29,7 @@ verbose=0 # Variables to be evaluated as shell arithmetic should be initialized 
 dataset=''
 rse='CERN-PROD_SCRATCHDISK'
 useDQ2=0
+user=$USER
 
 # If no input argument, show help and exit
 if [ $# -eq 0 ]; then
@@ -172,7 +173,11 @@ test "${file## }" != "${file}" && file=${file[@]1:-1}
 #  dq2Opt="-f"
 #fi
 
-user=`echo $dataset | cut -d "." -f2`
+if test "${dataset/:}" = "${dataset}"; then
+  user=`echo $dataset | cut -d "." -f2`
+else
+  user=`echo $dataset | cut -d ":" -f1 | cut -d "." -f2`
+fi
 
 # Test 
 test -z $user && echo "ERROR: option user was not specified or couldn't be automatically detected." >&2 && exit 1;
@@ -198,7 +203,15 @@ if [ $useDQ2 -eq 0 ]; then
     dataset="user.$user:$dataset"
   fi
   rucio add-dataset $dataset
-  rucio $rucio_verbose upload "$file" "$dataset" --rse $rse --scope "user.$user"
+  if ! rucio $rucio_verbose upload "$file" "$dataset" --rse $rse --scope "user.$user"; then
+    echo "WARN: Could not upload using standard protocol, will retry using davs protocol!" >&2 
+    if ! rucio $rucio_verbose upload "$file" "$dataset" --rse $rse --scope "user.$user" --protocol davs; then
+      echo "WARN: Could not upload using davs protocol, will retry using gsiftp protocol!" >&2 
+      if ! rucio $rucio_verbose upload "$file" "$dataset" --rse $rse --scope "user.$user" --protocol gsiftp; then
+        echo "ERROR: Could not upload using all available protocols" >&2 
+      fi
+    fi
+  fi
   #scoped_files=$(for f in $file; do echo "user.$user:$(basename $f)"; done)
   #rucio attach ${dataset} $scoped_files
   #rucio close user.$user:$dataset
