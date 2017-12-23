@@ -11,5 +11,6 @@ doc/.ipynb_checkpoints/*
 *.log
 *.h5
 *.jbl
+*.pdf
 cmt/boost_test.cxx.o
 scripts/jenkins/report_et0_eta0/

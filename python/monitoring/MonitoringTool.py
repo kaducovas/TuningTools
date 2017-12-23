@@ -34,12 +34,13 @@ class TuningMonitoringTool( Logger ):
       self._logger.fatal('Could not open pickle summary file.')
     #Loop over benchmarks
 
-    from TuningTools.monitoring import Summary
-    for benchmarkName in crossvalObj.keys():
+    from TuningTools.monitoring.MonitoringHelper import Summary
+    for benchmarkName in crossvalObj.keys(): 
       #Must skip if ppchain collector
       if benchmarkName == 'infoPPChain':  continue
       #Add summary information into MonTuningInfo helper class
-      self._infoObjs.append( Summary( benchmarkName, crossvalObj[benchmarkName] ) ) 
+      self._infoObjs.append( Summary( benchmarkName, crossvalObj[benchmarkName] ) )
+      #print 'lista: ', crossvalObj[benchmarkName]['etaBinIdx']
       self._logger.info('Creating MonTuningInfo for %s and the iterator object [et=%d, eta=%d]',
                          benchmarkName,self._infoObjs[-1].etBinIdx(), self._infoObjs[-1].etaBinIdx())
     #Loop over all benchmarks
@@ -85,8 +86,8 @@ class TuningMonitoringTool( Logger ):
   def __call__(self, **kw):
     
     import gc
-    from TuningTools.monitoring import PlotObjects, Performance, PlotTrainingCurves, \
-                                       PlotDiscriminants, PlotRocs, PlotInits
+    from TuningTools.monitoring.MonitoringHelper import PlotObjects, Performance
+    from TuningTools.monitoring.PlotHelper import PlotTrainingCurves, PlotDiscriminants, PlotRocs, PlotInits
  
     #from scipy.io import loadmat
 
@@ -94,7 +95,7 @@ class TuningMonitoringTool( Logger ):
     tuningReport = kw.pop('tuningReport', 'tuningReport' ) 
     doBeamer     = kw.pop('doBeamer'    , True           )
     shortSlides  = kw.pop('shortSlides' , False          )
-    debug        = kw.pop('debug'       , False          )
+    debug        = kw.pop('debug'       , True          )
     overwrite    = kw.pop('overwrite'   , False          )
     
     basepath=output
@@ -198,6 +199,11 @@ class TuningMonitoringTool( Logger ):
           obj.setBoundValues(initBounds)
           obj.best = csummary[neuronName][sortName]['infoTstBest']['init']  
           obj.worst = csummary[neuronName][sortName]['infoTstWorst']['init'] 
+
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort))
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_det_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='det')
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
+          #PlotInits(obj,obj.best,obj.worst,reference=reference,outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
           #    outname='{}/plot_{}_neuron_{}_sorts_{}_mse_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort))
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
@@ -205,7 +211,7 @@ class TuningMonitoringTool( Logger ):
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
           #    outname='{}/plot_{}_neuron_{}_sorts_{}_fa_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='fa')
           #PlotInits(obj,obj.best,obj.worst,reference=reference,
-          #    outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
+          #    outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_val.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')2
 
           plotObjects['allBestTstSorts'].append(  obj.getBestObject() )
           obj.best =  csummary[neuronName][sortName]['infoOpBest']['init']   
@@ -220,8 +226,8 @@ class TuningMonitoringTool( Logger ):
           #    outname='{}/plot_{}_neuron_{}_sorts_{}_sp_allInits_op.pdf'.format(currentPath,benchmarkName,neuron,sort),key='sp')
 
           plotObjects['allBestOpSorts'].append( obj.getBestObject() )
-          #plotObjects['allWorstTstSorts'].append( copy.deepcopy(tstObj.getBest() )
-          #plotObjects['allWorstOpSorts'].append(  copy.deepcopy(opObj.getBest()  )
+          #plotObjects['allWorstTstSorts'].append(copy.deepcopy(tstObj.getBest()))
+          #plotObjects['allWorstOpSorts'].append(copy.deepcopy(opObj.getBest()))
           infoObjects['allInfoOpBest_'+neuronName].append( copy.deepcopy(csummary[neuronName][sortName]['infoOpBest']) )
           #Release memory
           del obj
@@ -237,7 +243,7 @@ class TuningMonitoringTool( Logger ):
         # Best and worst sorts for this neuron configuration
         plotObjects['allBestTstSorts'].best =   csummary[neuronName]['infoTstBest']['sort']  
         plotObjects['allBestTstSorts'].worst =  csummary[neuronName]['infoTstWorst']['sort'] 
-        plotObjects['allBestOpSorts'].best =    csummary[neuronName]['infoOpBest']['sort']   
+        plotObjects['allBestOpSorts'].best =    csummary[neuronName]['infoOpBest']['sort'] 
         plotObjects['allBestOpSorts'].worst =   csummary[neuronName]['infoOpWorst']['sort']  
 
         # Hold the information from the best and worst discriminator for this neuron 
@@ -279,7 +285,8 @@ class TuningMonitoringTool( Logger ):
                                     best = plotObjects['allBestTstSorts'].best, 
                                     worst = plotObjects['allBestTstSorts'].worst,
                                     label = label,
-                                    refValue = refVal
+                                    refValue = refVal,
+                                    reference = reference,
                                     )
         
 
@@ -296,7 +303,8 @@ class TuningMonitoringTool( Logger ):
                                     best = plotObjects['allBestOpSorts'].best, 
                                     worst = plotObjects['allBestOpSorts'].worst,
                                     label = label,
-                                    refValue = refVal
+                                    refValue = refVal,
+                                    reference = reference,
                                     )
 
 
@@ -306,7 +314,10 @@ class TuningMonitoringTool( Logger ):
         fname3 = PlotDiscriminants(plotObjects['allBestOpSorts'],
                                   best = plotObjects['allBestOpSorts'].best, 
                                   worst = plotObjects['allBestOpSorts'].worst,
-                                  outname = outname)
+                                  outname = outname,
+                                  nsgn = self._data[0].shape[0],
+                                  nbkg = self._data[1].shape[0],
+                                  )
 
         
         #NOTE: plot the roc for all validation curves
