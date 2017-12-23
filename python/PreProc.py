@@ -993,8 +993,8 @@ class StackedAutoEncoder( PrepObj ):
     import numpy
     
     results_path = "/scratch/22061a/caducovas/StackedAutoEncoder_preproc/"
-    numpy.save(results_path+'val_Data_sort_'+str(self._sort),val_Data)
-    trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'.jbl'
+    numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0]),val_Data)
+    trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'
 
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
@@ -1077,7 +1077,8 @@ class StackedAutoEncoder( PrepObj ):
         # ret.append( ( cdata / self._invRMS ) + self._mean )
     # else:
       # ret = ( data / self._invRMS ) + self._mean
-    # return ret
+    #
+    return ret
 
 
 class MapStd_MassInvariant( MapStd ):
