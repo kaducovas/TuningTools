@@ -2,7 +2,7 @@ __all__ = ['TunedDiscrArchieve', 'TunedDiscrArchieveCol', 'ReferenceBenchmark',
            'ReferenceBenchmarkCollection', 'TuningJob', 'fixPPCol', 
            'fixLoopingBoundsCol', 'ChooseOPMethod', 'getEfficiencyKeyAndLabel']
 import numpy as np
-
+import ROOT
 from RingerCore                   import ( Logger, LoggerStreamable, LoggingLevel
                                          , RawDictCnv, LoggerRawDictStreamer, LoggerLimitedTypeListRDS, RawDictStreamer
                                          , save, load, EnumStringification
@@ -16,7 +16,6 @@ from TuningTools.PreProc          import *
 from TuningTools.SubsetGenerator  import *
 from TuningTools.dataframe.EnumCollection import Dataset
 from TuningTools.coreDef          import npCurrent
-import ROOT
 
 
 class TunedDiscrArchieveRDS( LoggerRawDictStreamer ):
