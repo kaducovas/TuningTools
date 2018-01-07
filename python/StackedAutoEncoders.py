@@ -28,9 +28,9 @@ from keras import backend as K
 
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.MetricsLosses import kullback_leibler_divergence
-import multiprocessing
+#import multiprocessing
 
-num_process = multiprocessing.cpu_count()
+#num_process = multiprocessing.cpu_count()
 
 class StackedAutoEncoders:
     def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData', CVO=None,

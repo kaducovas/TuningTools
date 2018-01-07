@@ -23,7 +23,7 @@ from sklearn.externals import joblib
 
 #print sys.path
 #sys.path.remove('/scratch/22061a/common-cern/pyenv/versions/2.7.9/lib/python2.7/site-packages')
-import tensorflow
+#import tensorflow
 import keras
 from keras.utils import np_utils
 from keras.models import load_model
