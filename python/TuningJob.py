@@ -245,7 +245,7 @@ class TunedDiscrArchieve( LoggerStreamable ):
     Save the TunedDiscrArchieve object to disk.
     """
     from RingerCore import keyboard
-    keyboard()
+    #keyboard()
     return save( self.toRawObj(), filePath, compress = compress )
 
   @classmethod
