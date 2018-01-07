@@ -37,11 +37,7 @@ class TuningMonitoringTool( Logger ):
     #Loop over benchmarks
 
     from TuningTools.monitoring.MonitoringHelper import Summary
-<<<<<<< HEAD
-    for benchmarkName in crossvalObj.keys(): 
-=======
     for benchmarkName in crossvalObj.keys():
->>>>>>> 39f8113d96101c60037df0c645ea93a821c46456
       #Must skip if ppchain collector
       if benchmarkName == 'infoPPChain':  continue
       #Add summary information into MonTuningInfo helper class
@@ -322,12 +318,7 @@ class TuningMonitoringTool( Logger ):
                                   worst = plotObjects['allBestOpSorts'].worst,
                                   outname = outname,
                                   nsgn = self._data[0].shape[0],
-<<<<<<< HEAD
-                                  nbkg = self._data[1].shape[0],
-                                  )
-=======
                                   nbkg = self._data[1].shape[0],)
->>>>>>> 39f8113d96101c60037df0c645ea93a821c46456
 
         
         #NOTE: plot the roc for all validation curves
