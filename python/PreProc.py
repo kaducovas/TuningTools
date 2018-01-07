@@ -888,7 +888,7 @@ class StackedAutoEncoder( PrepObj ):
     self._n_inits = n_inits
     self._hidden_activation = hidden_activation
     self._output_activation = output_activation
-    self._n_epochs = 1
+    self._n_epochs = n_epochs
     self._patience = patience
     self._batch_size = batch_size 
     self._layer= layer
@@ -957,8 +957,8 @@ class StackedAutoEncoder( PrepObj ):
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
 
-    data = [d[:100] for d in data]
-    val_Data = [d[:100] for d in val_Data]
+    #data = [d[:100] for d in data]
+    #val_Data = [d[:100] for d in val_Data]
 
 
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
@@ -1038,7 +1038,7 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      data = [d[:100] for d in data]
+      #data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
