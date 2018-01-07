@@ -232,7 +232,7 @@ class NoPreProc(PrepObj):
 
 class Projection(PrepObj):
   """
-    Do not apply any pre-processing to data.
+    Project data into new base
   """
 
   # FIXME: This will probably give problematic results if data is saved 
@@ -291,9 +291,11 @@ class RemoveMean( PrepObj ):
     del d
     self._mean = np.array( [], dtype=npCurrent.dtype )
 
+  @property
   def mean(self):
     return self._mean
   
+  @property
   def params(self):
     return self.mean()
 
@@ -359,9 +361,11 @@ class UnitaryRMS( PrepObj ):
     del d
     self._invRMS  = np.array( [], dtype=npCurrent.dtype )
 
+  @property
   def rms(self):
     return 1 / self._invRMS
 
+  @property
   def params(self):
     return self.rms()
 
@@ -416,52 +420,6 @@ class UnitaryRMS( PrepObj ):
       ret = ( data / self._invRMS )
     return ret
 
-# class Sigma2( PrepObj ):
-#   """
-#     Divide data by the standard deviation.
-#   """
-#   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_deviation'})
-#   _cnvObj = RawDictCnv(toProtectedAttrs = {'_deviation'})
-# 
-#   def __init__(self, d = {}, **kw):
-#     d.update( kw ); del kw
-#     PrepObj.__init__(self, d)
-#     checkForUnusedVars(d, self._warning)
-#     del d
-#     self._deviation = {}
-#   
-#   def __str__(self):
-#     """
-#     	String representation of the object.
-#     """
-#     return "Sigma2"
-#   
-#   def shortName(self):
-#     """
-#     	Short string representation of the object.
-#     """
-#     return "S2"
-#   
-#   def takeParams(self, trnData):
-#     """
-#     		Calculate standard deviation for each variable.
-#     """
-#     # NOTE: Check if the data is given in numpy.ndarray, only from one bin.
-#     for i in range(len(trnData[0])):
-#     		mean = sum(trnData[:,i])/len(trnData[:,i])
-#     		self._deviation[i] = math.sqrt(sum((trnData[:,i]-mean)**2)/len(trnData[:,i]))
-#     return self._deviation
-#   
-#   def _apply(self, data):
-#     if len(self._deviation)==0:
-#     		self._fatal("Attempted to apply Sigma2 before taking its parameters.")
-#     import numpy as np
-#     ret = np.concatenate((data[0],data[1]),axis=0)
-#     for i in range(len(ret[0])):
-#     		ret[:,i] = ret[:,I]/(2*self._deviation[i])
-#     return ret
-
-
 class TrackSimpleNorm( PrepObj ):
   """
     Specific normalization for track parameters in mc14, 13TeV.
@@ -511,14 +469,6 @@ class TrackSimpleNorm( PrepObj ):
 
   def takeParams(self, trnData):
     return self._apply(trnData)
-
-# FIXME
-#   def _undo(self, data):
-#     import numpy as np
-#     ret = np.concatenate((data[0],data[1]),axis=0)
-#     for i in range(len(self._factors)):
-#       ret[:,i] = ret[:,i]*self._factors[i]
-#     return ret
 
 
 class Norm1(PrepObj):
@@ -626,7 +576,12 @@ class ExpertNetworksSimpleNorm(PrepObj):
     return norms
 
   def _apply(self, data):
+    # Take care of different number of samples:
+    for i in xrange(len(data[0])):
+      if data[1][i].shape[ npCurrent.odim ] != data[0][i].shape[ npCurrent.odim ]:
+        self._fatal("Data dimensions are not the same! Make sure to extract using createData from the same ntuples!")
     data_calo = data[0]
+
     norms = self.__retrieveNorm(data_calo)
     if isinstance(data_calo, (tuple, list,)):
       ret_calo = []
@@ -652,6 +607,67 @@ class ExpertNetworksSimpleNorm(PrepObj):
           ret_track.append(tmp)
     return [ret_calo,ret_track]
 
+class _ExpertCaloNetworksNormRDS( LoggerRawDictStreamer ):
+  def treatDict(self, obj, raw):
+    """
+    Add efficiency value to be readable in matlab
+    """
+    raw['_mean'] = obj._mapStd.mean
+    raw['_invRMS'] = obj._mapStd.invRMS
+    return RawDictStreamer.treatDict( self, obj, raw )
+
+class _ExpertCaloNetworksNormRDC( RawDictCnv ):
+  def treatObj( self, obj, d ):
+    obj._mapStd._mean = d['_mean']
+    obj._mapStd._invRMS = d['_invRMS']
+    return obj
+
+class ExpertNorm1Std(PrepObj):
+  """
+    Applies norm1 to first dataset and MapStd to second one.
+  """
+  _streamerObj = _ExpertCaloNetworksNormRDS()
+  _cnvObj = _ExpertCaloNetworksNormRDC()
+
+  def __init__(self, d = {}, **kw):
+    d.update( kw ); del kw
+    PrepObj.__init__(self, d)
+    checkForUnusedVars(d, self._warning)
+    del d
+    # Rings normalization
+    self._norm1 = Norm1()
+    # Standard quantities normalization
+    self._mapStd = MapStd()
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+    return "ExpertCaloNorm"
+
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return "ExpStdN1"
+
+  def takeParams(self, data):
+    """
+      Calculate pre-processing parameters.
+    """
+    # Take care of different number of samples:
+    for i in xrange(len(data[0])):
+      if data[1][i].shape[ npCurrent.odim ] != data[0][i].shape[ npCurrent.odim ]:
+        self._fatal("Data dimensions are not the same! Make sure to extract using createData from the same ntuples!")
+    self._debug("No need to retrieve any parameters from data.")
+    self._mapStd.takeParams( data[1] )
+    self._norm1.takeParams( data[0] )
+    return self._apply(data)
+
+  def _apply(self, data):
+    retNorm1 = self._norm1._apply( data[0] )
+    retMapStd = self._mapStd._apply( data[1] )
+    return [retNorm1,retMapStd]
 
 class FirstNthPatterns(PrepObj):
   """
@@ -785,11 +801,17 @@ class MapStd( PrepObj ):
     self._mean = np.array( [], dtype=npCurrent.dtype )
     self._invRMS  = np.array( [], dtype=npCurrent.dtype )
 
+  @property
   def mean(self):
     return self._mean
   
+  @property
   def rms(self):
     return 1 / self._invRMS
+
+  @property
+  def invRMS(self):
+    return self._invRMS
 
   def params(self):
     return self.mean(), self.rms()

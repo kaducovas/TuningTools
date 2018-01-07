@@ -1,11 +1,11 @@
-__all__ = ['CrossValidStatAnalysis','GridJobFilter','PerfHolder',
+__all__ = ['CrossValidStatAnalysis','GridJobFilter', 'StandaloneJobBinnedFilter','PerfHolder',
            'fixReferenceBenchmarkCollection']
 
 from RingerCore import ( checkForUnusedVars, calcSP, save, load, Logger
                        , LoggingLevel, expandFolders, traverse
                        , retrieve_kw, NotSet, csvStr2List, select, progressbar, getFilters
                        , apply_sort, LoggerStreamable, appendToFileName, ensureExtension
-                       , measureLoopTime, checkExtension )
+                       , measureLoopTime, checkExtension, MatlabLoopingBounds, mkdir_p )
 
 from TuningTools.TuningJob import ( TunedDiscrArchieve, ReferenceBenchmark, ReferenceBenchmarkCollection
                                   , ChooseOPMethod 
@@ -15,9 +15,7 @@ from TuningTools.dataframe.EnumCollection import Dataset
 from pprint import pprint
 from cPickle import UnpicklingError
 from time import time
-import numpy as np
-import os
-import sys
+import numpy as np, os, sys, re
 
 def _localRetrieveList( l, idx ):
   if len(l) == 1:
@@ -88,8 +86,7 @@ class GridJobFilter( JobFilter ):
   Filter grid job files returning each unique job id.
   """
 
-  import re
-  pat = re.compile(r'.*user.[a-zA-Z0-9]+.(?P<jobID>[0-9]+)\..*$')
+  pat = re.compile(r'.*user.[a-zA-Z0-9]+.(?P<jobID>[0-9]+)\..+$')
   #pat = re.compile(r'user.(?P<user>[A-z0-9]*).(?P<jobID>[0-9]+).*\.tgz')
 
   def __call__(self, paths):
@@ -98,6 +95,35 @@ class GridJobFilter( JobFilter ):
     """
     jobIDs = sorted(list(set([self.pat.match(f).group('jobID') for f in paths if self.pat.match(f) is not None])))
     return jobIDs
+
+class StandaloneJobBinnedFilter( JobFilter ):
+  """
+  Filter using each file et/eta bin as saved in standalone jobs.
+  """
+
+  pat = re.compile(r'.+(?P<binID>et(?P<etBinIdx>\d+).eta(?P<etaBinIdx>\d+))\..+$')
+
+  def __call__(self, paths):
+    """
+      Returns the unique et/eta bins
+    """
+    binIDs = sorted(list(set([self.pat.match(f).group('binID') for f in paths if self.pat.match(f) is not None])))
+    return binIDs
+
+class MixedJobBinnedFilter( JobFilter ):
+  """
+  Filter both standalone and grid jobs.
+  """
+
+  pat = re.compile('|'.join([StandaloneJobBinnedFilter.pat.pattern,GridJobFilter.pat.pattern]))
+
+  def __call__(self, paths):
+    """
+      Returns the unique jobIDs
+    """
+    mo = filter(lambda x: x is not None, [self.pat.match(f) for f in paths])
+    mixIDs = map(lambda x: x.group('binID') or x.group('jobID'), mo)
+    return sorted(list(set(mixIDs)))
 
 class CrossValidStatAnalysis( Logger ):
 
@@ -120,9 +146,9 @@ class CrossValidStatAnalysis( Logger ):
     # Call other methods if necessary.
     """
     Logger.__init__(self, kw)    
-    self._binFilters            = retrieve_kw(kw, 'binFilters',            None         )
-    self._binFilterJobIdxs      = retrieve_kw(kw, 'binFilterIdxs',         None         )
-    self._useTstEfficiencyAsRef = retrieve_kw(kw, 'useTstEfficiencyAsRef', False        )
+    self._binFilters            = retrieve_kw(kw, 'binFilters',            MixedJobBinnedFilter )
+    self._binFilterJobIdxs      = retrieve_kw(kw, 'binFilterIdxs',         None                 )
+    self._useTstEfficiencyAsRef = retrieve_kw(kw, 'useTstEfficiencyAsRef', False                )
     checkForUnusedVars(kw, self._warning)
     # Check if path is a file with the paths
     self._paths = csvStr2List( paths )
@@ -271,6 +297,9 @@ class CrossValidStatAnalysis( Logger ):
       * expandOP: when only one operation point was used during tuning (e.g.
         Pd), expandOP, when set to true, will generate three operation points for
         the derived neural network by setting the targets to Pd/Pf/SP
+      * fullDumpNeurons: MatlabLoopingBounds with the neurons to be fully
+        dumped for monitoring. If this option is specified, standard monitoring
+        is not called.
     """
     import gc
     refBenchmarkColKW = 'refBenchmarkCol'
@@ -288,6 +317,10 @@ class CrossValidStatAnalysis( Logger ):
     modelChooseMethodCol    = retrieve_kw( kw, 'modelChooseMethodCol'               )
     modelChooseInitMethod   = retrieve_kw( kw, 'modelChooseInitMethod', None        )
     expandOP                = retrieve_kw( kw, 'expandOP',           True           )
+    FullDumpNeurons         = retrieve_kw( kw, 'fullDumpNeurons',    []             )
+    overwrite               = retrieve_kw( kw, 'overwrite',           False         )
+    if FullDumpNeurons not in (None, NotSet) and not isinstance( FullDumpNeurons, MatlabLoopingBounds ):
+        FullDumpNeurons = MatlabLoopingBounds( FullDumpNeurons )
     checkForUnusedVars( kw,            self._warning )
     tuningBenchmarks = ReferenceBenchmarkCollection([])
     if not isinstance( epsCol, (list, tuple) ):                  epsCol                  = [epsCol]
@@ -298,9 +331,14 @@ class CrossValidStatAnalysis( Logger ):
     if not self._paths:
       self._warning("Attempted to run without any file!")
       return
+    if test: self._paths = self._paths[:1]
 
     pbinIdxList=[]
     isMergedList=[]
+    etBinDict=dict()
+    etaBinDict=dict()
+    etEtaList = []
+    toRemove = []
     for binIdx, binPath in enumerate(progressbar(self._paths, 
                                                  len(self._paths), 'Retrieving tuned operation points: ', 30, True,
                                                  logger = self._logger)):
@@ -347,6 +385,14 @@ class CrossValidStatAnalysis( Logger ):
       etaBinIdx = tdArchieve.etaBinIdx
       etBin     = tdArchieve.etBin
       etaBin    = tdArchieve.etaBin
+      etBinDict[etBinIdx] =  tdArchieve.etBin
+      etaBinDict[etaBinIdx] = tdArchieve.etaBin
+      self._debug('This set of jobs et/eta bin is: %d/%d', etBinIdx, etaBinIdx)
+      try:
+        prevBinPath = etEtaList.index((etBinIdx,etaBinIdx,))
+        self._info('Merging this job set of files with job set index %d!', prevBinPath)
+      except ValueError: prevBinPath = None
+      etEtaList.append((etBinIdx,etaBinIdx))
 
       try:
         nTuned = len(tunedDiscrList)
@@ -370,6 +416,13 @@ class CrossValidStatAnalysis( Logger ):
       binTuningBench    = ReferenceBenchmarkCollection( 
                              [tunedDiscrDict['benchmark'] for tunedDiscrDict in tunedDiscrList]
                           )
+      if prevBinPath is not None:
+        prevTuningBenchmarks = tuningBenchmarks[prevBinPath]
+        if len(binTuningBench) != len(prevTuningBenchmarks) or not all([bT.name == pT.name for bT, pT in zip(binTuningBench,prevTuningBenchmarks)]):
+          self._fatal("Found another job filter with same bin but tuning benchmarks are different!")
+        self._paths[prevBinPath].extend(binPath)
+        toRemove.append(binIdx)
+        continue
 
       # Change output level from the tuning benchmarks
       for bench in binTuningBench: bench.level = self.level
@@ -380,8 +433,8 @@ class CrossValidStatAnalysis( Logger ):
 
       for bench in binTuningBench:
         self._debug("%s", bench)
-        # end of (tuning benchmarks retrieval)
-
+    for r in toRemove: del self._paths[r]
+    del toRemove
     # Make sure everything is ok with the reference benchmark collection (do not check for nBins):
     if refBenchmarkCol is not None:
       refBenchmarkCol = fixReferenceBenchmarkCollection(refBenchmarkCol, nBins = None,
@@ -413,6 +466,16 @@ class CrossValidStatAnalysis( Logger ):
     for binIdx, binPath in enumerate(self._paths):
       if self._binFilters:
         self._info("Running bin filter '%s'...",self._binFilters[binIdx])
+      # What is the output name we should give for the written files?
+      if self._binFilters:
+        cOutputName = appendToFileName( outputName, self._binFilters[binIdx] )
+      else:
+        cOutputName = outputName
+      # check if file exists and whether we want to overwrite
+      from glob import glob
+      if glob( cOutputName + '*' ) and not overwrite:
+        self._info("%s already exists and asked not to overwrite.", cOutputName )
+        continue
       tunedDiscrInfo = dict()
       cSummaryInfo = self._summaryInfo[binIdx]
       cSummaryPPInfo = self._summaryPPInfo[binIdx]
@@ -423,23 +486,26 @@ class CrossValidStatAnalysis( Logger ):
       tdArchieve = TunedDiscrArchieve.load(binPath[0], 
                                            useGenerator = True, 
                                            ignore_zeros = False).next()
-      if tdArchieve.etaBinIdx != -1:
+      # Update etBinIdx and etaBinIdx
+      etBinIdx          = tdArchieve.etBinIdx
+      etaBinIdx         = tdArchieve.etaBinIdx
+      if etaBinIdx != -1:
         self._info("File eta bin index (%d) limits are: %r", 
-                           tdArchieve.etaBinIdx, 
+                           etaBinIdx, 
                            tdArchieve.etaBin, )
-      if tdArchieve.etBinIdx != -1:
+      if etBinIdx != -1:
         self._info("File Et bin index (%d) limits are: %r", 
-                           tdArchieve.etBinIdx, 
+                           etBinIdx, 
                            tdArchieve.etBin, )
 
       self._info("Retrieving summary...")
       # Find the tuned benchmark that matches with this reference
       tBenchIdx = binIdx
-      if tdArchieve.etaBinIdx != -1 and tdArchieve.etBinIdx != -1:
+      if etaBinIdx != -1 and etBinIdx != -1:
         for cBenchIdx, tBenchmarkList in enumerate(tuningBenchmarks):
           tBenchmark = tBenchmarkList[0]
-          if tBenchmark.checkEtaBinIdx(tdArchieve.etaBinIdx) and \
-              tBenchmark.checkEtBinIdx(tdArchieve.etBinIdx) :
+          if tBenchmark.checkEtaBinIdx(etaBinIdx) and \
+              tBenchmark.checkEtBinIdx(etBinIdx) :
             tBenchIdx = cBenchIdx
         # Retrieved tBenchIdx
       # end of if
@@ -451,13 +517,13 @@ class CrossValidStatAnalysis( Logger ):
       # FIXME: Can I be sure that this will work if user enter None as benchmark?
       if refBenchmarkCol is not None:
         rBenchIdx = binIdx
-        if tdArchieve.etaBinIdx != -1 and tdArchieve.etaBinIdx != -1:
+        if etaBinIdx != -1 and etaBinIdx != -1:
           for cBenchIdx, rBenchmarkList in enumerate(refBenchmarkCol):
             for rBenchmark in rBenchmarkList:
               if rBenchmark is not None: break
             if rBenchmark is None: break
-            if rBenchmark.checkEtaBinIdx(tdArchieve.etaBinIdx) and \
-               rBenchmark.checkEtBinIdx(tdArchieve.etBinIdx):
+            if rBenchmark.checkEtaBinIdx(etaBinIdx) and \
+               rBenchmark.checkEtBinIdx(etBinIdx):
               rBenchIdx = cBenchIdx
           # Retrieved rBenchIdx
         # end of if
@@ -509,12 +575,6 @@ class CrossValidStatAnalysis( Logger ):
       # finished checking
 
       self._info('Using references: %r.', [(ReferenceBenchmark.tostring(ref.reference),ref.refVal) for ref in cRefBenchmarkList])
-
-      # What is the output name we should give for the written files?
-      if self._binFilters:
-        cOutputName = appendToFileName( outputName, self._binFilters[binIdx] )
-      else:
-        cOutputName = outputName
    
       # Finally, we start reading this bin files:
       nBreaks = 0
@@ -543,6 +603,11 @@ class CrossValidStatAnalysis( Logger ):
             if flagBreak: break
             self._info("Retrieving information from %s.", str(tdArchieve))
 
+            if etaBinIdx is not tdArchieve.etaBinIdx:
+              self._fatal("File (%s) do not match eta bin index!", tdArchieve.filePath)
+            if etBinIdx is not tdArchieve.etBinIdx:
+              self._fatal("File (%s) do not match et bin index!", tdArchieve.filePath)
+
             # Calculate the size of the list
             barsize = len(tdArchieve.neuronBounds.list()) * len(tdArchieve.sortBounds.list()) * \
                       len(tdArchieve.initBounds.list())
@@ -568,14 +633,14 @@ class CrossValidStatAnalysis( Logger ):
                      init == tdArchieve.initBounds.lowerBound() and \
                      idx == 0:
                   # Check if everything is ok in the binning:
-                  if not refBenchmark.checkEtaBinIdx(tdArchieve.etaBinIdx):
+                  if not refBenchmark.checkEtaBinIdx(etaBinIdx):
                     if refBenchmark.etaBinIdx is None:
                       self._warning("TunedDiscrArchieve does not contain eta binning information! Assuming the bins do match!")
                     else:
                       self._logger.error("File (%d) eta binning information does not match with benchmark (%r)!", 
                           tdArchieve.etaBinIdx,
                           refBenchmark.etaBinIdx)
-                  if not refBenchmark.checkEtBinIdx(tdArchieve.etBinIdx):
+                  if not refBenchmark.checkEtBinIdx(etBinIdx):
                     if refBenchmark.etaBinIdx is None:
                       self._warning("TunedDiscrArchieve does not contain Et binning information! Assuming the bins do match!")
                     else:
@@ -606,7 +671,7 @@ class CrossValidStatAnalysis( Logger ):
                                        path = tdArchieve.filePath, ref = refBenchmark, 
                                        benchmarkRef = tuningRefBenchmark,
                                        neuron = neuron, sort = sort, init = init,
-                                       etBinIdx = tdArchieve.etBinIdx, etaBinIdx = tdArchieve.etaBinIdx,
+                                       etBinIdx = etBinIdx, etaBinIdx = etaBinIdx,
                                        tunedDiscr = discr, trainEvolution = trainEvolution,
                                        tarMember = tdArchieve.tarMember,
                                        eps = eps,
@@ -658,10 +723,12 @@ class CrossValidStatAnalysis( Logger ):
       for refKey, refValue in tunedDiscrInfo.iteritems(): # Loop over operations
         refBenchmark = refValue['benchmark']
         # Create a new dictionary and append bind it to summary info
-        refDict = { 'rawBenchmark' : refBenchmark.toRawObj(),
-                    'rawTuningBenchmark' : refValue['tuningBenchmark'].toRawObj(),
-                    'etBinIdx' : etBinIdx, 'etaBinIdx' : etaBinIdx,
-                    'etBin' : etBin, 'etaBin' : etaBin,
+        rawBenchmark = refBenchmark.toRawObj()
+        refDict = { 'rawBenchmark' : rawBenchmark
+                  , 'rawTuningBenchmark' : refValue['tuningBenchmark'].toRawObj()
+                  , 'etBinIdx' : etBinIdx, 'etaBinIdx' : etaBinIdx
+                  , 'etBin' : etBinDict[etBinIdx]
+                  , 'etaBin' : etaBinDict[etaBinIdx]
                   }
         headerKeys = refDict.keys()
         eps, modelChooseMethod = refValue['eps'], refValue['modelChooseMethod']
@@ -789,74 +856,75 @@ class CrossValidStatAnalysis( Logger ):
         # Fix root file name:
         mFName = appendToFileName( cOutputName, 'monitoring' )
         mFName = ensureExtension( mFName, '.root' )
-        self._sg = TFile( mFName ,'recreate')
-        self._sgdirs=list()
-        # Just to start the loop over neuron and sort
-        refPrimaryKey = cSummaryInfo.keys()[0]
+        dPath = os.path.dirname(mFName)
+        allGood = True
+        if dPath and not os.path.exists(dPath):
+          try:
+            mkdir_p(dPath)
+          except IOError:
+           allGood = False
+        if allGood:
+          self._sg = TFile( mFName ,'recreate')
+          self._sgdirs=list()
+          # Just to start the loop over neuron and sort
+          refPrimaryKey = cSummaryInfo.keys()[0]
 
-        #NOTE: Use this flag as True to dump all information into monitoring.
-        doOnlyTheNecessary=True
-
-        if doOnlyTheNecessary:
-          for iPath in progressbar(iPathHolder, len(iPathHolder), 'Reading configs: ', 60, 1, True, logger = self._logger):
-            start = time()
-            infoList, extraInfoList = iPathHolder[iPath], extraInfoHolder[iPath]
-            self._info("Reading file '%s' which has %d configurations.", iPath, len(infoList))
-            # FIXME Check if extension is tgz, and if so, merge multiple tarMembers
-            tdArchieve = TunedDiscrArchieve.load(iPath)
-            for (neuron, sort, init, refEnum, refName,), tarMember in zip(infoList, extraInfoList):
-              tunedDict      = tdArchieve.getTunedInfo(neuron,sort,init)
-              trainEvolution = tunedDict['tuningInfo']
-              tunedDiscr     = tunedDict['tunedDiscr']
-              if type(tunedDiscr) in (list, tuple,):
-                if len(tunedDiscr) == 1:
-                  discr = tunedDiscr[0]
-                else:
-                  discr = tunedDiscr[refEnum]
-              else:
-                # exmachina core version
-                discr = tunedDiscr
-              self.__addMonPerformance(discr, trainEvolution, refName, neuron, sort, init)
-            elapsed = (time() - start)
-            self._debug('Total time is: %.2fs', elapsed)
-        else:
-
-          for cFile, path in progressbar( enumerate(binPath),self._nFiles[binIdx], 'Reading files: ', 60, 1, True,
-                                          logger = self._logger ):
-            
-            for tdArchieve in TunedDiscrArchieve.load(path, useGenerator = True, 
-                                                      extractAll = True if isMerged else False, 
-                                                      eraseTmpTarMembers = False if isMerged else True):
-
-              # Calculate the size of the list
-              barsize = len(tdArchieve.neuronBounds.list()) * len(tdArchieve.sortBounds.list()) * \
-                        len(tdArchieve.initBounds.list())
-
-              for neuron, sort, init in progressbar( product( tdArchieve.neuronBounds(), 
-                                                            tdArchieve.sortBounds(), 
-                                                            tdArchieve.initBounds() ),\
-                                                            barsize, 'Reading configurations: ', 60, 1, False,
-                                                            logger = self._logger):
-
-                if neuron > 5: continue
+          if not FullDumpNeurons:
+            for iPath in progressbar(iPathHolder, len(iPathHolder), 'Reading configs: ', 60, 1, True, logger = self._logger):
+              start = time()
+              infoList, extraInfoList = iPathHolder[iPath], extraInfoHolder[iPath]
+              self._info("Reading file '%s' which has %d configurations.", iPath, len(infoList))
+              # FIXME Check if extension is tgz, and if so, merge multiple tarMembers
+              tdArchieve = TunedDiscrArchieve.load(iPath)
+              for (neuron, sort, init, refEnum, refName,), tarMember in zip(infoList, extraInfoList):
                 tunedDict      = tdArchieve.getTunedInfo(neuron,sort,init)
                 trainEvolution = tunedDict['tuningInfo']
                 tunedDiscr     = tunedDict['tunedDiscr']
-                for refBenchmark in cRefBenchmarkList:
-                  if type(tunedDiscr) in (list, tuple,):
-                    if len(tunedDiscr) == 1:
-                      discr = tunedDiscr[0]
-                    else:
-                      discr = tunedDiscr[refBenchmark.reference]
+                if type(tunedDiscr) in (list, tuple,):
+                  if len(tunedDiscr) == 1:
+                    discr = tunedDiscr[0]
                   else:
-                    # exmachina core version
-                    discr = tunedDiscr
-                  self.__addMonPerformance(discr, trainEvolution, refBenchmark.name, neuron, sort, init)
+                    discr = tunedDiscr[refEnum]
+                else:
+                  # exmachina core version
+                  discr = tunedDiscr
+                self.__addMonPerformance(discr, trainEvolution, refName, neuron, sort, init)
+              elapsed = (time() - start)
+              self._debug('Total time is: %.2fs', elapsed)
+          else:
+            for cFile, path in progressbar( enumerate(binPath),self._nFiles[binIdx], 'Reading files: ', 60, 1, True,
+                                            logger = self._logger ):
+              for tdArchieve in TunedDiscrArchieve.load(path, useGenerator = True, 
+                                                        extractAll = True if isMerged else False, 
+                                                        eraseTmpTarMembers = False if isMerged else True):
+                # Calculate the size of the list
+                barsize = len(tdArchieve.neuronBounds.list()) * len(tdArchieve.sortBounds.list()) * \
+                          len(tdArchieve.initBounds.list())
 
-            if test and (cFile - 1) == 3:
-              break
+                for neuron, sort, init in progressbar( product( tdArchieve.neuronBounds(), 
+                                                              tdArchieve.sortBounds(), 
+                                                              tdArchieve.initBounds() ),\
+                                                              barsize, 'Reading configurations: ', 60, 1, False,
+                                                              logger = self._logger):
+                  if not neuron in FullDumpNeurons: continue
+                  tunedDict      = tdArchieve.getTunedInfo(neuron,sort,init)
+                  trainEvolution = tunedDict['tuningInfo']
+                  tunedDiscr     = tunedDict['tunedDiscr']
+                  for refBenchmark in cRefBenchmarkList:
+                    if type(tunedDiscr) in (list, tuple,):
+                      if len(tunedDiscr) == 1:
+                        discr = tunedDiscr[0]
+                      else:
+                        discr = tunedDiscr[refBenchmark.reference]
+                    else:
+                      # exmachina core version
+                      discr = tunedDiscr
+                    self.__addMonPerformance(discr, trainEvolution, refBenchmark.name, neuron, sort, init)
+              if test and (cFile - 1) == 3:
+                break
 
-        self._sg.Close()
+          self._sg.Close()
+        # all good
       # Do monitoring
 
       for iPath in iPathHolder:
