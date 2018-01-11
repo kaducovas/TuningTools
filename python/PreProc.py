@@ -879,7 +879,7 @@ class StackedAutoEncoder( PrepObj ):
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_SAE',})
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
-  def __init__(self,n_inits=1,hidden_activation='selu',output_activation='linear',n_epochs=500,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=500,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -1007,7 +1007,7 @@ class StackedAutoEncoder( PrepObj ):
                                         trgt=val_Data,
                                         ifold=0,
                                         hidden_neurons=self._hidden_neurons,
-                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx)
+                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx,regularizer='dropout',regularizer_param=0.5)
     self._trn_desc = trn_desc
     self._weights = model.get_weights()
     self._trn_params = model.get_config()
