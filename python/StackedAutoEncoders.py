@@ -176,10 +176,9 @@ class StackedAutoEncoders:
         neurons_str = self.getNeuronsString(data,hidden_neurons[:layer])
 
         if regularizer != None and len(regularizer) != 0:
-            model_str = '%s/%s/%s_%i_folds_%s_%s_neurons_%s_regularizer(%f)'%(self.save_path, self.analysis_str,
+            model_str = '%s/%s/%s_%i_folds_%s_%s_neurons'%(self.save_path, self.analysis_str,
                                                                               self.prefix_str, self.n_folds,
-                                                                              self.params_str, neurons_str,
-                                                                              regularizer, regularizer_param)
+                                                                              self.params_str, neurons_str)
         else:
             model_str = '%s/%s/%s_%i_folds_%s_%s_neurons'%(self.save_path, self.analysis_str,
                                                            self.prefix_str, self.n_folds,
