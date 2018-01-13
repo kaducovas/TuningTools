@@ -480,7 +480,7 @@ class Norm1(PrepObj):
     d.update( kw ); del kw
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
-    self._norms = ''
+    self._normslist = ''
     del d
 
   def __retrieveNorm(self, data):
@@ -500,7 +500,7 @@ class Norm1(PrepObj):
             npCurrent.access( pidx=1,
                               oidx=data.shape[npCurrent.odim] ) )
       norms[norms==0] = 1
-    self._norms = norms
+    #self._norms = norms
     return norms
 
   def __str__(self):
@@ -517,6 +517,7 @@ class Norm1(PrepObj):
 
   def _apply(self, data):
     norms = self.__retrieveNorm(data)
+    self._normslist = self.__retrieveNorm(data)
     if isinstance(data, (tuple, list,)):
       ret = []
       for i, cdata in enumerate(data):
@@ -881,7 +882,7 @@ class StackedAutoEncoder( PrepObj ):
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_SAE',})
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=500,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
