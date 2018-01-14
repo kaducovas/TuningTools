@@ -481,6 +481,8 @@ class Norm1(PrepObj):
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._normslist = ''
+    self._beforenorm = ''
+    self._afternorm = ''
     del d
 
   def __retrieveNorm(self, data):
@@ -517,6 +519,9 @@ class Norm1(PrepObj):
 
   def _apply(self, data):
     norms = self.__retrieveNorm(data)
+    self._info("norma1 list")
+    self._info(self.__retrieveNorm(data))
+    self._beforenorm = data
     self._normslist = self.__retrieveNorm(data)
     if isinstance(data, (tuple, list,)):
       ret = []
@@ -524,6 +529,7 @@ class Norm1(PrepObj):
         ret.append( cdata / norms[i] )
     else:
       ret = data / norms
+    self._afternorm = ret
     return ret
 
 class ExpertNetworksSimpleNorm(PrepObj):
@@ -1579,6 +1585,7 @@ class PreProcChain ( Logger ):
       self._warning("No pre-processing available in this chain.")
       return
     for pp in self:
+      self._info(pp.shortName())
       if pp.shortName()[:2] == 'AE':
         trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx)
         valData = pp(valData, False)
