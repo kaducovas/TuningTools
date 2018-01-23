@@ -221,8 +221,10 @@ class StackedAutoEncoders:
 
         classifier = []
         trn_desc = {}
-
+        
+        print 'Number of SAE training inits: '+str(self.n_inits)
         for i_init in range(self.n_inits):
+            #print 'Number of SAE training inits: '+ str(self.n_inits)
             print 'Layer: %i - Neuron: %i - Fold %i of %i Folds -  Init %i of %i Inits'%(layer,
                                                                                          hidden_neurons[layer-1],
                                                                                          ifold+1,
