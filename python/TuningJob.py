@@ -1053,6 +1053,7 @@ class TuningJob(Logger):
     outputFileBase = retrieve_kw(kw, 'outputFileBase',  'nn.tuned'        )
     outputDir      = retrieve_kw(kw, 'outputDirectory', ''                )
     merged         = retrieve_kw(kw, 'merged',          False             )
+    deep           = retrieve_kw(kw, 'deep',            False             )
     outputDir      = os.path.abspath( outputDir )
     ## Now we go to parameters which need higher treating level, starting with
     ## the CrossValid object:
@@ -1187,7 +1188,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[82])])) #,StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[20])] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[82]),StackedAutoEncoder(level=self.level,hidden_neurons=[59])])) #,StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[20])] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1205,6 +1206,7 @@ class TuningJob(Logger):
                                    # Wrapper confs:
     tuningWrapper = TuningWrapper( level                 = self.level
                                  , doPerf                = retrieve_kw( kw, 'doPerf',                NotSet)
+                                 , deep                  = deep
                                    # Expert Neural Networks confs:
                                  , merged                = merged
                                  , networks              = retrieve_kw( kw, 'networks',              NotSet)
@@ -1410,7 +1412,8 @@ class TuningJob(Logger):
           # Apply ppChain:
           self._info(len(trnData))
           self._info(len(valData))
-
+          hidden_neurons,weights,config = ppChain.getHiddenLayer()
+          self._info(hidden_neurons)
           #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )
           #self._info('Applying pp chain to validation dataset...')

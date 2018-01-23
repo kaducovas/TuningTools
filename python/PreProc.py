@@ -888,7 +888,7 @@ class StackedAutoEncoder( PrepObj ):
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_SAE',})
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=5,hidden_activation='tanh',output_activation='linear',n_epochs=5,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -1594,6 +1594,24 @@ class PreProcChain ( Logger ):
         valData = pp(valData, False)
     pp._SAE = ''
     return trnData,valData
+
+  def getHiddenLayer(self):
+    """
+      Return a list with the number of neurons on the hidden layer for Stacked AutoEncoders. 
+    """
+    if not self:
+      self._warning("No pre-processing available in this chain.")
+      return
+    for pp in self:
+      #self._info(pp.shortName())
+      hidden_neurons=[]
+      weights=[]
+      config=[]
+      if pp.shortName()[:2] == 'AE':
+            hidden_neurons.append(int(pp.shortName().split('_')[1]))
+            weights.append(pp._weights)
+            config.append(pp._trn_params)
+    return hidden_neurons,weights,config
 
   def concatenate(self, trnData, extraData):
     """
