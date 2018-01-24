@@ -1011,7 +1011,7 @@ class StackedAutoEncoder( PrepObj ):
     # Choose layer to be trained
     layer = self._layer
 
-    self._info(self._hidden_neurons)
+    #self._info(self._hidden_neurons)
 
     f, model, trn_desc = SAE.trainLayer(data=data,
                                         trgt=val_Data,
@@ -1592,7 +1592,9 @@ class PreProcChain ( Logger ):
         valData = pp(valData, False)
       else: 
         trnData = pp.takeParams(trnData)
+        pp._trn_norm1 = trnData
         valData = pp(valData, False)
+        pp._val_norm1 = valData
     pp._SAE = ''
     return trnData,valData
 
@@ -1603,12 +1605,12 @@ class PreProcChain ( Logger ):
     if not self:
       self._warning("No pre-processing available in this chain.")
       return
+    hidden_neurons=[]
+    weights=[]
+    config=[]
     for pp in self:
-      #self._info(pp.shortName())
-      hidden_neurons=[]
-      weights=[]
-      config=[]
       if pp.shortName()[:2] == 'AE':
+            #self._info(pp._weights)
             hidden_neurons.append(int(pp.shortName().split('_')[1]))
             weights.append(pp._weights)
             config.append(pp._trn_params)
