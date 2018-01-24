@@ -482,7 +482,7 @@ class Norm1(PrepObj):
     checkForUnusedVars(d, self._warning )
     self._normslist = ''
     self._beforenorm = ''
-    self._afternorm = ''
+    #self._afternorm = []
     del d
 
   def __retrieveNorm(self, data):
@@ -529,7 +529,7 @@ class Norm1(PrepObj):
         ret.append( cdata / norms[i] )
     else:
       ret = data / norms
-    self._afternorm = ret
+    #self._afternorm.append(ret)
     return ret
 
 class ExpertNetworksSimpleNorm(PrepObj):
