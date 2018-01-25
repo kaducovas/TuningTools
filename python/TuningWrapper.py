@@ -388,6 +388,7 @@ class TuningWrapper(Logger):
     elif coreConf() is TuningToolCores.keras:
       from keras.models import Sequential
       from keras.layers.core import Dense, Dropout, Activation
+      self._info("KEEEEEEEEEEEEEEEEEEEEEEEEEERAAAAAS")
       model = Sequential()
       model.add( Dense( nodes[0]
                       , input_dim=nodes[0]
