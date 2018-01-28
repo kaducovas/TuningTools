@@ -31,7 +31,7 @@ class TuningWrapper(Logger):
         if not 'batchSize' in kw or kw['batchSize'] is NotSet else BatchSizeMethod.Manual         ) 
                                  )
 
-    epochs                     = retrieve_kw( kw, 'epochs',                1                  )
+    epochs                     = retrieve_kw( kw, 'epochs',                10000                  )
     maxFail                    = retrieve_kw( kw, 'maxFail',               50                     )
     self.useTstEfficiencyAsRef = retrieve_kw( kw, 'useTstEfficiencyAsRef', False                  )
     self._merged               = retrieve_kw( kw, 'merged',                False                  )
@@ -820,7 +820,7 @@ class TuningWrapper(Logger):
         
         history = self._model[ref].fit( self._trnData
                                       , self._trnTarget
-                                      , epochs          = self.trainOptions['nEpochs']
+                                      , epochs          = 1 #self.trainOptions['nEpochs']
                                       , batch_size      = self.batchSize
                                       , callbacks       = [self._historyCallback, self._earlyStopping]
                                       #, callbacks       = [self._earlyStopping]
