@@ -31,7 +31,7 @@ class TuningWrapper(Logger):
         if not 'batchSize' in kw or kw['batchSize'] is NotSet else BatchSizeMethod.Manual         ) 
                                  )
 
-    epochs                     = retrieve_kw( kw, 'epochs',                10000                  )
+    epochs                     = retrieve_kw( kw, 'epochs',                1                  )
     maxFail                    = retrieve_kw( kw, 'maxFail',               50                     )
     self.useTstEfficiencyAsRef = retrieve_kw( kw, 'useTstEfficiencyAsRef', False                  )
     self._merged               = retrieve_kw( kw, 'merged',                False                  )
@@ -514,7 +514,7 @@ class TuningWrapper(Logger):
       # self._model = model
       # self._historyCallback.model = model
 
-def deepff(self, nodes, funcTrans = NotSet):
+  def deepff(self, nodes, funcTrans = NotSet):
     """
       Creates new feedforward neural network
     """
@@ -530,28 +530,29 @@ def deepff(self, nodes, funcTrans = NotSet):
     elif coreConf() is TuningToolCores.keras:
       from keras.models import Sequential
       from keras.layers.core import Dense, Dropout, Activation
+      self._info("Using Keras")
       references = ['Pd','Pf','SP']
       for ref in references:
-          model = Sequential()
-          model.add( Dense( nodes[0]
-                          , input_dim=nodes[0]
-                          , init='identity'
-                          , trainable=False 
-                          , name='dense_1' ) )
-          model.add( Activation('linear') )
-          model.add( Dense( nodes[1]
-                          , input_dim=nodes[0]
-                          , init='uniform'
-                          , name='dense_2' ) )
-          model.add( Activation('tanh') )
-          model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
-          model.add( Activation('tanh') )
-          model.compile( loss=self.trainOptions['costFunction']
+        model = Sequential()
+        model.add( Dense( nodes[0]
+                        , input_dim=nodes[0]
+                        , init='identity'
+                        , trainable=False 
+                        , name='dense_1' ) )
+        model.add( Activation('linear') )
+        model.add( Dense( nodes[1]
+                        , input_dim=nodes[0]
+                        , init='uniform'
+                        , name='dense_2' ) )
+        model.add( Activation('tanh') )
+        model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
+        model.add( Activation('tanh') )
+        model.compile( loss=self.trainOptions['costFunction']
                        , optimizer = self.trainOptions['optmin_alg']
                        , metrics = self.trainOptions['metrics'] )
           # keras.callbacks.History()
           # keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
-          models[ref] = model
+        models[ref] = model
       self._model = models
       self._historyCallback.model = models  
 
