@@ -468,11 +468,57 @@ class TuningWrapper(Logger):
     # FIXME: check historycallback compatibility
     self._historyCallback.model = models
 
-  def deepff(self, nodes, funcTrans = NotSet):
+  # def deepff(self, nodes,hidden_neurons,layers_weights,layers_config, funcTrans = NotSet):
+    # """
+      # Creates new feedforward neural network
+    # """
+    # self._debug('Initalizing newff...')
+    # if coreConf() is TuningToolCores.ExMachina:
+      # if funcTrans is NotSet: funcTrans = ['tanh', 'tanh']
+      # self._model = self._core.FeedForward(nodes, funcTrans, 'nw')
+    # elif coreConf() is TuningToolCores.FastNet:
+      # if funcTrans is NotSet: funcTrans = ['tansig', 'tansig']
+      # if not self._core.newff(nodes, funcTrans, self._core.trainFcn):
+        # self._fatal("Couldn't allocate new feed-forward!")
+    # elif coreConf() is TuningToolCores.keras:
+      # from keras.models import Sequential
+      # from keras.layers.core import Dense, Dropout, Activation
+      # model = Sequential()
+      # for i_hn in len(hidden_neurons):  
+            # weights = layers_weights[i_hn]
+            # config = layers_config[i_hn]
+            # model = Sequential.from_config(config)
+            # model.set_weights(weights)
+            # model.layers.pop()
+            # model.layers.pop()
+      # model.summary()  
+      # # model.add( Dense( nodes[0]
+                      # # , input_dim=nodes[0]
+                      # # , init='identity'
+                      # # , trainable=False 
+                      # # , name='dense_1' ) )
+      # # model.add( Activation('linear') )
+      # # model.add( Dense( nodes[1]
+                      # # , input_dim=nodes[0]
+                      # # , init='uniform'
+                      # # , name='dense_2' ) )
+      # # model.add( Activation('tanh') )
+      # # model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
+      # # model.add( Activation('tanh') )
+      # # model.compile( loss=self.trainOptions['costFunction']
+                   # # , optimizer = self.trainOptions['optmin_alg']
+                   # # , metrics = self.trainOptions['metrics'] )
+      # #keras.callbacks.History()
+      # #keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
+      # self._model = model
+      # self._historyCallback.model = model
+
+def deepff(self, nodes, funcTrans = NotSet):
     """
       Creates new feedforward neural network
     """
-    self._debug('Initalizing newff...')
+    self._debug('Initalizing deepff...')
+    models = {}
     if coreConf() is TuningToolCores.ExMachina:
       if funcTrans is NotSet: funcTrans = ['tanh', 'tanh']
       self._model = self._core.FeedForward(nodes, funcTrans, 'nw')
@@ -483,27 +529,31 @@ class TuningWrapper(Logger):
     elif coreConf() is TuningToolCores.keras:
       from keras.models import Sequential
       from keras.layers.core import Dense, Dropout, Activation
-      model = Sequential()
-      model.add( Dense( nodes[0]
-                      , input_dim=nodes[0]
-                      , init='identity'
-                      , trainable=False 
-                      , name='dense_1' ) )
-      model.add( Activation('linear') )
-      model.add( Dense( nodes[1]
-                      , input_dim=nodes[0]
-                      , init='uniform'
-                      , name='dense_2' ) )
-      model.add( Activation('tanh') )
-      model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
-      model.add( Activation('tanh') )
-      model.compile( loss=self.trainOptions['costFunction']
-                   , optimizer = self.trainOptions['optmin_alg']
-                   , metrics = self.trainOptions['metrics'] )
-      #keras.callbacks.History()
-      #keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
-      self._model = model
-      self._historyCallback.model = model
+      references = ['Pd','Pf','SP']
+      for ref in references:
+          model = Sequential()
+          model.add( Dense( nodes[0]
+                          , input_dim=nodes[0]
+                          , init='identity'
+                          , trainable=False 
+                          , name='dense_1' ) )
+          model.add( Activation('linear') )
+          model.add( Dense( nodes[1]
+                          , input_dim=nodes[0]
+                          , init='uniform'
+                          , name='dense_2' ) )
+          model.add( Activation('tanh') )
+          model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
+          model.add( Activation('tanh') )
+          model.compile( loss=self.trainOptions['costFunction']
+                       , optimizer = self.trainOptions['optmin_alg']
+                       , metrics = self.trainOptions['metrics'] )
+          # keras.callbacks.History()
+          # keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
+          models[ref] = model
+      self._model = models
+      self._historyCallback.model = models  
+
 
   def train_c(self):
     """
@@ -736,6 +786,107 @@ class TuningWrapper(Logger):
 
     return tunedDiscrList, tuningInfo
   # end of trainC_Exp
+
+  def trainC_Deep( self ):
+    """
+      Train expert feedforward neural network
+    """ 
+    if coreConf() is TuningToolCores.ExMachina:
+      self._fatal( "Expert Neural Networks not implemented for ExMachina" ) 
+    elif coreConf() is TuningToolCores.FastNet:
+      self._fatal( "Expert Neural Networks not implemented for FastNet" ) 
+    elif coreConf() is TuningToolCores.keras:
+      from copy import deepcopy
+
+      # Set batch size:
+      if self.batchMethod is BatchSizeMethod.MinClassSize:
+        self.__batchSize( self._bkgSize if self._sgnSize > self._bkgSize else self._sgnSize )
+      elif self.batchMethod is BatchSizeMethod.HalfSizeSignalClass:
+        self.__batchSize( self._sgnSize // 2 )
+      elif self.batchMethod is BatchSizeMethod.OneSample:
+        self.__batchSize( 1 )
+
+      references = ['SP','Pd','Pf']
+
+      # Holder of the discriminators:
+      tunedDiscrList = []
+      tuningInfo = {}
+
+      for idx, ref in enumerate(references):
+        rawDictTempl = { 'discriminator' : None,
+                         'benchmark' : None }
+        
+        history = self._model[ref].fit( self._trnData
+                                      , self._trnTarget
+                                      , epochs          = self.trainOptions['nEpochs']
+                                      , batch_size      = self.batchSize
+                                      , callbacks       = [self._historyCallback, self._earlyStopping]
+                                      #, callbacks       = [self._earlyStopping]
+                                      , verbose         = 0
+                                      , validation_data = ( self._valData , self._valTarget )
+                                      , shuffle         = self.trainOptions['shuffle'] 
+                                      )
+        # Retrieve raw network
+        rawDictTempl['discriminator'] = self.__discr_to_dict( self._model[ref] ) 
+        rawDictTempl['benchmark'] = self.references[idx]
+        tunedDiscrList.append( deepcopy( rawDictTempl ) )
+        tuningInfo[ref] = DataTrainEvolution( history ).toRawObj()
+
+        try:
+          from sklearn.metrics import roc_curve
+        except ImportError:
+          # FIXME Can use previous function that we used here as an alternative
+          raise ImportError("sklearn is not available, please install it.")
+
+        # Retrieve performance:
+        opRoc, tstRoc = Roc(), Roc() 
+        for idx, tunedDiscrDict in enumerate(tunedDiscrList):
+          discr = tunedDiscrDict['discriminator']
+          if self.doPerf:
+            self._debug('Retrieving performance for %s networks.'%(ref))
+            # propagate inputs:
+            trnOutput = self._model[ref].predict(self._trnData)
+            valOutput = self._model[ref].predict(self._valData)
+            tstOutput = self._model[ref].predict(self._tstData) if self._tstData else npCurrent.fp_array([])
+            try:
+              allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
+              allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
+            except ValueError:
+              allOutput = np.concatenate([trnOutput,valOutput] )
+              allTarget = np.concatenate([self._trnTarget,self._valTarget] )
+            # Retrieve Rocs:
+            opRoc( allOutput, allTarget )
+            if self._tstData: tstRoc( tstOutput, self._tstTarget )
+            else: tstRoc( valOutput, self._valTarget )
+            # Add rocs to output information
+            # TODO Change this to raw object
+            tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
+                                              'roc_test' : tstRoc.toRawObj() }
+
+            for ref2 in self.references:
+              opPoint = opRoc.retrieve( ref2 )
+              tstPoint = tstRoc.retrieve( ref2 )
+              # Print information:
+              self._info( '%s NETWORKS Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
+                        , ref
+                        , ref2.name
+                        , opPoint.sp_value
+                        , opPoint.pd_value
+                        , opPoint.pf_value
+                        , opPoint.thres_value )
+              self._info( '%s NETWORKS Test (%s): sp = %f, pd = %f, pf = %f, thres = %f'
+                        , ref
+                        , ref2.name
+                        , tstPoint.sp_value
+                        , tstPoint.pd_value
+                        , tstPoint.pf_value
+                        , tstPoint.thres_value )
+        self._info("Finished trainC_Deep for %s networks."%(ref))
+
+    self._debug("Finished trainC_Deep on python side.")
+
+    return tunedDiscrList, tuningInfo
+  # end of trainC_Deep
 
   def __discr_to_dict(self, model):
     """
