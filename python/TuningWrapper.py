@@ -513,7 +513,7 @@ class TuningWrapper(Logger):
       # self._model = model
       # self._historyCallback.model = model
 
-def deepff(self, nodes, funcTrans = NotSet):
+  def deepff(self, nodes, funcTrans = NotSet):
     """
       Creates new feedforward neural network
     """
@@ -529,30 +529,27 @@ def deepff(self, nodes, funcTrans = NotSet):
     elif coreConf() is TuningToolCores.keras:
       from keras.models import Sequential
       from keras.layers.core import Dense, Dropout, Activation
-      references = ['Pd','Pf','SP']
-      for ref in references:
-          model = Sequential()
-          model.add( Dense( nodes[0]
-                          , input_dim=nodes[0]
-                          , init='identity'
-                          , trainable=False 
-                          , name='dense_1' ) )
-          model.add( Activation('linear') )
-          model.add( Dense( nodes[1]
-                          , input_dim=nodes[0]
-                          , init='uniform'
-                          , name='dense_2' ) )
-          model.add( Activation('tanh') )
-          model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
-          model.add( Activation('tanh') )
-          model.compile( loss=self.trainOptions['costFunction']
+      model = Sequential()
+      model.add( Dense( nodes[0]
+                        , input_dim=nodes[0]
+                        , init='identity'
+                        , trainable=False 
+                        , name='dense_1' ) )
+      model.add( Activation('linear') )
+      model.add( Dense( nodes[1]
+                        , input_dim=nodes[0]
+                        , init='uniform'
+                        , name='dense_2' ) )
+      model.add( Activation('tanh') )
+      model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
+      model.add( Activation('tanh') )
+      model.compile( loss=self.trainOptions['costFunction']
                        , optimizer = self.trainOptions['optmin_alg']
                        , metrics = self.trainOptions['metrics'] )
-          # keras.callbacks.History()
-          # keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
-          models[ref] = model
-      self._model = models
-      self._historyCallback.model = models  
+      # keras.callbacks.History()
+      # keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
+      self._model = model
+      self._historyCallback.model = model  
 
 
   def train_c(self):
@@ -806,82 +803,80 @@ def deepff(self, nodes, funcTrans = NotSet):
       elif self.batchMethod is BatchSizeMethod.OneSample:
         self.__batchSize( 1 )
 
-      references = ['SP','Pd','Pf']
+      #references = ['SP','Pd','Pf']
 
       # Holder of the discriminators:
-      tunedDiscrList = []
-      tuningInfo = {}
+      #tunedDiscrList = []
+      #tuningInfo = {}
 
-      for idx, ref in enumerate(references):
-        rawDictTempl = { 'discriminator' : None,
-                         'benchmark' : None }
+      #for idx, ref in enumerate(references):
+      rawDictTempl = { 'discriminator' : None,
+                       'benchmark' : None }
         
-        history = self._model[ref].fit( self._trnData
-                                      , self._trnTarget
-                                      , epochs          = self.trainOptions['nEpochs']
-                                      , batch_size      = self.batchSize
-                                      , callbacks       = [self._historyCallback, self._earlyStopping]
-                                      #, callbacks       = [self._earlyStopping]
-                                      , verbose         = 0
-                                      , validation_data = ( self._valData , self._valTarget )
-                                      , shuffle         = self.trainOptions['shuffle'] 
-                                      )
-        # Retrieve raw network
-        rawDictTempl['discriminator'] = self.__discr_to_dict( self._model[ref] ) 
-        rawDictTempl['benchmark'] = self.references[idx]
-        tunedDiscrList.append( deepcopy( rawDictTempl ) )
-        tuningInfo[ref] = DataTrainEvolution( history ).toRawObj()
+      history = self._model.fit( self._trnData
+                                    , self._trnTarget
+                                    , epochs          = self.trainOptions['nEpochs']
+                                    , batch_size      = self.batchSize
+                                    , callbacks       = [self._historyCallback, self._earlyStopping]
+                                    #, callbacks       = [self._earlyStopping]
+                                    , verbose         = 0
+                                    , validation_data = ( self._valData , self._valTarget )
+                                    , shuffle         = self.trainOptions['shuffle'] 
+                                    )
+      # Retrieve raw network
+      rawDictTempl['discriminator'] = self.__discr_to_dict( self._model ) 
+      rawDictTempl['benchmark'] = self.references[0]
+      tunedDiscrList.append( deepcopy( rawDictTempl ) )
+      tuningInfo = DataTrainEvolution( history ).toRawObj()
 
-        try:
-          from sklearn.metrics import roc_curve
-        except ImportError:
-          # FIXME Can use previous function that we used here as an alternative
-          raise ImportError("sklearn is not available, please install it.")
+      try:
+        from sklearn.metrics import roc_curve
+      except ImportError:
+        # FIXME Can use previous function that we used here as an alternative
+        raise ImportError("sklearn is not available, please install it.")
 
-        # Retrieve performance:
-        opRoc, tstRoc = Roc(), Roc() 
-        for idx, tunedDiscrDict in enumerate(tunedDiscrList):
-          discr = tunedDiscrDict['discriminator']
-          if self.doPerf:
-            self._debug('Retrieving performance for %s networks.'%(ref))
-            # propagate inputs:
-            trnOutput = self._model[ref].predict(self._trnData)
-            valOutput = self._model[ref].predict(self._valData)
-            tstOutput = self._model[ref].predict(self._tstData) if self._tstData else npCurrent.fp_array([])
-            try:
-              allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
-              allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
-            except ValueError:
-              allOutput = np.concatenate([trnOutput,valOutput] )
-              allTarget = np.concatenate([self._trnTarget,self._valTarget] )
-            # Retrieve Rocs:
-            opRoc( allOutput, allTarget )
-            if self._tstData: tstRoc( tstOutput, self._tstTarget )
-            else: tstRoc( valOutput, self._valTarget )
-            # Add rocs to output information
-            # TODO Change this to raw object
-            tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
-                                              'roc_test' : tstRoc.toRawObj() }
+      # Retrieve performance:
+      opRoc, tstRoc = Roc(), Roc() 
+      for idx, tunedDiscrDict in enumerate(tunedDiscrList):
+        discr = tunedDiscrDict['discriminator']
+        if self.doPerf:
+          self._debug('Retrieving performance...')
+          # propagate inputs:
+          trnOutput = self._model.predict(self._trnData)
+          valOutput = self._model.predict(self._valData)
+          tstOutput = self._model.predict(self._tstData) if self._tstData else npCurrent.fp_array([])
+          try:
+            allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
+            allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
+          except ValueError:
+            allOutput = np.concatenate([trnOutput,valOutput] )
+            allTarget = np.concatenate([self._trnTarget,self._valTarget] )
+          # Retrieve Rocs:
+          opRoc( allOutput, allTarget )
+          if self._tstData: tstRoc( tstOutput, self._tstTarget )
+          else: tstRoc( valOutput, self._valTarget )
+          # Add rocs to output information
+          # TODO Change this to raw object
+          tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
+                                            'roc_test' : tstRoc.toRawObj() }
 
-            for ref2 in self.references:
-              opPoint = opRoc.retrieve( ref2 )
-              tstPoint = tstRoc.retrieve( ref2 )
-              # Print information:
-              self._info( '%s NETWORKS Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
-                        , ref
-                        , ref2.name
-                        , opPoint.sp_value
-                        , opPoint.pd_value
-                        , opPoint.pf_value
-                        , opPoint.thres_value )
-              self._info( '%s NETWORKS Test (%s): sp = %f, pd = %f, pf = %f, thres = %f'
-                        , ref
-                        , ref2.name
-                        , tstPoint.sp_value
-                        , tstPoint.pd_value
-                        , tstPoint.pf_value
-                        , tstPoint.thres_value )
-        self._info("Finished trainC_Deep for %s networks."%(ref))
+          for ref2 in self.references:
+            opPoint = opRoc.retrieve( ref2 )
+            tstPoint = tstRoc.retrieve( ref2 )
+            # Print information:
+            self._info( 'Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
+                      , ref2.name
+                      , opPoint.sp_value
+                      , opPoint.pd_value
+                      , opPoint.pf_value
+                      , opPoint.thres_value )
+            self._info( 'Test (%s): sp = %f, pd = %f, pf = %f, thres = %f'
+                      , ref2.name
+                      , tstPoint.sp_value
+                      , tstPoint.pd_value
+                      , tstPoint.pf_value
+                      , tstPoint.thres_value )
+      self._info("Finished trainC_Deep")
 
     self._debug("Finished trainC_Deep on python side.")
 
