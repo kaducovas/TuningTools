@@ -808,8 +808,8 @@ class TuningWrapper(Logger):
       #references = ['SP','Pd','Pf']
 
       # Holder of the discriminators:
-      #tunedDiscrList = []
-      #tuningInfo = {}
+      tunedDiscrList = []
+      tuningInfo = {}
 
       #for idx, ref in enumerate(references):
       rawDictTempl = { 'discriminator' : None,
