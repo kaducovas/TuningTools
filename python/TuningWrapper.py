@@ -812,8 +812,8 @@ class TuningWrapper(Logger):
       tuningInfo = {}
 
       #for idx, ref in enumerate(references):
-      rawDictTempl = { 'discriminator' : None,
-                       'benchmark' : None }
+      #rawDictTempl = { 'discriminator' : None,
+      #                 'benchmark' : None }
         
       history = self._model.fit( self._trnData
                                     , self._trnTarget
@@ -825,10 +825,14 @@ class TuningWrapper(Logger):
                                     , validation_data = ( self._valData , self._valTarget )
                                     , shuffle         = self.trainOptions['shuffle'] 
                                     )
-      # Retrieve raw network
-      rawDictTempl['discriminator'] = self.__discr_to_dict( self._model ) 
-      rawDictTempl['benchmark'] = self.references[0]
-      tunedDiscrList.append( deepcopy( rawDictTempl ) )
+      
+      rawDictTempl = { 'discriminator': None,
+                       'benchmark': None }
+      for idx,ref in enumerate(self.references):
+        # Retrieve raw network
+        rawDictTempl['discriminator'] = self.__discr_to_dict( self._model ) 
+        rawDictTempl['benchmark'] = self.references[idx]
+        tunedDiscrList.append( deepcopy( rawDictTempl ) )
       tuningInfo = DataTrainEvolution( history ).toRawObj()
 
       try:
