@@ -1412,8 +1412,8 @@ class TuningJob(Logger):
           # Apply ppChain:
           self._info(len(trnData))
           self._info(len(valData))
-          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
-          self._info(hidden_neurons)
+          ###hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )

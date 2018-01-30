@@ -521,8 +521,8 @@ class Norm1(PrepObj):
     norms = self.__retrieveNorm(data)
     self._info("norma1 list")
     self._info(self.__retrieveNorm(data))
-    self._beforenorm = data
-    self._normslist = self.__retrieveNorm(data)
+    #self._beforenorm = data
+    #self._normslist = self.__retrieveNorm(data)
     if isinstance(data, (tuple, list,)):
       ret = []
       for i, cdata in enumerate(data):
@@ -1592,9 +1592,9 @@ class PreProcChain ( Logger ):
         valData = pp(valData, False)
       else: 
         trnData = pp.takeParams(trnData)
-        pp._trn_norm1 = trnData
+        #pp._trn_norm1 = trnData
         valData = pp(valData, False)
-        pp._val_norm1 = valData
+        #pp._val_norm1 = valData
     pp._SAE = ''
     return trnData,valData
 
