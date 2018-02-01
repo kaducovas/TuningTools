@@ -469,52 +469,63 @@ class TuningWrapper(Logger):
     # FIXME: check historycallback compatibility
     self._historyCallback.model = models
 
-  # def deepff(self, nodes,hidden_neurons,layers_weights,layers_config, funcTrans = NotSet):
-    # """
-      # Creates new feedforward neural network
-    # """
-    # self._debug('Initalizing newff...')
-    # if coreConf() is TuningToolCores.ExMachina:
-      # if funcTrans is NotSet: funcTrans = ['tanh', 'tanh']
-      # self._model = self._core.FeedForward(nodes, funcTrans, 'nw')
-    # elif coreConf() is TuningToolCores.FastNet:
-      # if funcTrans is NotSet: funcTrans = ['tansig', 'tansig']
-      # if not self._core.newff(nodes, funcTrans, self._core.trainFcn):
-        # self._fatal("Couldn't allocate new feed-forward!")
-    # elif coreConf() is TuningToolCores.keras:
-      # from keras.models import Sequential
-      # from keras.layers.core import Dense, Dropout, Activation
-      # model = Sequential()
-      # for i_hn in len(hidden_neurons):  
-            # weights = layers_weights[i_hn]
-            # config = layers_config[i_hn]
-            # model = Sequential.from_config(config)
-            # model.set_weights(weights)
-            # model.layers.pop()
-            # model.layers.pop()
-      # model.summary()  
-      # # model.add( Dense( nodes[0]
-                      # # , input_dim=nodes[0]
+  def deepff(self, nodes,hidden_neurons,layers_weights,layers_config, funcTrans = NotSet):
+    """
+      Creates new feedforward neural network
+    """
+    self._debug('Initalizing newff...')
+    if coreConf() is TuningToolCores.ExMachina:
+      if funcTrans is NotSet: funcTrans = ['tanh', 'tanh']
+      self._model = self._core.FeedForward(nodes, funcTrans, 'nw')
+    elif coreConf() is TuningToolCores.FastNet:
+      if funcTrans is NotSet: funcTrans = ['tansig', 'tansig']
+      if not self._core.newff(nodes, funcTrans, self._core.trainFcn):
+        self._fatal("Couldn't allocate new feed-forward!")
+    elif coreConf() is TuningToolCores.keras:
+      from keras.models import Sequential
+      from keras.layers.core import Dense, Dropout, Activation
+      model = Sequential()
+      for i_hn in range(len(hidden_neurons)):  
+        print i_hn
+        #weight = layers_weights[i_hn][0]
+        weight = layers_weights[i_hn][:2]
+        print weight[0].shape,weight[1].shape
+        if i_hn == 0:
+          model.add(Dense(hidden_neurons[0],input_dim=100,weights=weight,trainable=True))
+          model.add(Activation('tanh'))
+        else:
+          model.add(Dense(hidden_neurons[i_hn],weights=weight,trainable=True))
+          model.add(Activation('tanh'))
+        #print weights[0].shape,weights[1].shape,weights[2].shape,weights[3].shape
+        #config = layers_config[i_hn]
+        #model = Sequential.from_config(config)
+        #model.set_weights(weights)
+        #model.layers.pop()
+        #model.layers.pop()
+        #model.summary()  
+      # model.add( Dense( nodes[0]
+                      # # input_dim=nodes[0]
                       # # , init='identity'
                       # # , trainable=False 
                       # # , name='dense_1' ) )
-      # # model.add( Activation('linear') )
-      # # model.add( Dense( nodes[1]
-                      # # , input_dim=nodes[0]
-                      # # , init='uniform'
-                      # # , name='dense_2' ) )
-      # # model.add( Activation('tanh') )
-      # # model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
-      # # model.add( Activation('tanh') )
-      # # model.compile( loss=self.trainOptions['costFunction']
-                   # # , optimizer = self.trainOptions['optmin_alg']
-                   # # , metrics = self.trainOptions['metrics'] )
+      #model.add( Activation('linear') )
+      model.add( Dense( nodes[1]
+                      , input_dim=nodes[0]
+                      , init='uniform'
+                      , name='dense_last_hl' ) )
+      model.add( Activation('tanh') )
+      model.add( Dense( nodes[2], init='uniform', name='dense_output' ) ) 
+      model.add( Activation('tanh') )
+      model.compile( loss=self.trainOptions['costFunction']
+                   , optimizer = self.trainOptions['optmin_alg']
+                   , metrics = self.trainOptions['metrics'] )
       # #keras.callbacks.History()
       # #keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
-      # self._model = model
-      # self._historyCallback.model = model
+      model.summary()
+      self._model = model
+      self._historyCallback.model = model
 
-  def deepff(self, nodes, funcTrans = NotSet):
+  def deepff2(self, nodes, funcTrans = NotSet):
     """
       Creates new feedforward neural network
     """
@@ -894,8 +905,8 @@ class TuningWrapper(Logger):
     Transform discriminators to dictionary
     """
     if coreConf() is TuningToolCores.keras:
-      hw, hb = model.get_layer(name='dense_2').get_weights()
-      ow, ob = model.get_layer(name='dense_3').get_weights()
+      hw, hb = model.get_layer(name='dense_last_hl').get_weights()
+      ow, ob = model.get_layer(name='dense_output').get_weights()
       discrDict = {
                     'nodes':   npCurrent.int_array( [hw.shape[0], hw.shape[1], ow.shape[1]] ),
                     'weights': np.concatenate( [hw.reshape(-1,order='F'), ow.reshape(-1,order='F')] ),

@@ -1592,15 +1592,28 @@ class PreProcChain ( Logger ):
         valData = pp(valData, False)
       else: 
         trnData = pp.takeParams(trnData)
-        #pp._trn_norm1 = trnData
+        pp._trn_norm1 = trnData
         valData = pp(valData, False)
-        #pp._val_norm1 = valData
+        pp._val_norm1 = valData
     pp._SAE = ''
+    return trnData,valData
+
+  def getNorm1(self):
+    """
+      Returns the output of Norm1. Used when layer wise pre training is performed on Deep AutoEncoders so that they can be stacked and the fine tuning can be made with the output of Norm1
+    """
+    if not self:
+      self._warning("No pre-processing available in this chan.")
+      return
+    for pp in self:
+      if pp.shortName() == 'N1':
+        trnData = pp._trn_norm1
+        valData = pp._val_norm1
     return trnData,valData
 
   def getHiddenLayer(self):
     """
-      Return a list with the number of neurons on the hidden layer for Stacked AutoEncoders. 
+      Return a list with the number of neurons on the hidden layer,weights and configuration for Stacked AutoEncoders. 
     """
     if not self:
       self._warning("No pre-processing available in this chain.")

@@ -1188,7 +1188,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[82]),StackedAutoEncoder(level=self.level,hidden_neurons=[59])])) #,StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[20])] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[82]),StackedAutoEncoder(level=self.level,hidden_neurons=[59]),StackedAutoEncoder(level = self.level,hidden_neurons=[41])])) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[20])] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1410,10 +1410,11 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
+          trnData,valData = ppChain.getNorm1()
           self._info(len(trnData))
           self._info(len(valData))
-          ###hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
-          ###self._info(hidden_neurons)
+          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )
@@ -1455,7 +1456,8 @@ class TuningJob(Logger):
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
-                tuningWrapper.deepff([nInputs, neuron, 1])
+                tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
+                #tuningWrapper.deepff([nInputs, neuron, 1])
                 #tuningWrapper.newff([nInputs, neuron, 1])
                 cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
                 #cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
