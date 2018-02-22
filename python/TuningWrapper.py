@@ -399,9 +399,9 @@ class TuningWrapper(Logger):
       model.add( Dense( nodes[1]
                       , input_dim=nodes[0]
                       , init='uniform'
-                      , name='dense_2' ) )
+                      , name='dense_last_hl' ) )
       model.add( Activation('tanh') )
-      model.add( Dense( nodes[2], init='uniform', name='dense_3' ) ) 
+      model.add( Dense( nodes[2], init='uniform', name='dense_output' ) ) 
       model.add( Activation('tanh') )
       model.compile( loss=self.trainOptions['costFunction']
                    , optimizer = self.trainOptions['optmin_alg']
