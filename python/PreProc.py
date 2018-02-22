@@ -889,7 +889,7 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=1,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=3,hidden_activation='tanh',output_activation='linear',n_epochs=500,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -967,8 +967,8 @@ class StackedAutoEncoder( PrepObj ):
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
 
-    data = [d[:100] for d in data]
-    val_Data = [d[:100] for d in val_Data]
+    #data = [d[:100] for d in data]
+    #val_Data = [d[:100] for d in val_Data]
 
 
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
@@ -1048,7 +1048,7 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      data = [d[:100] for d in data]
+      #data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
