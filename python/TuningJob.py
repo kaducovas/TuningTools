@@ -1422,7 +1422,7 @@ class TuningJob(Logger):
           #valData = ppChain( valData ) 
           #self._info('Applying pp chain to test dataset...')
           #tstData = ppChain( tstData )
-          vaidarerroaqui
+          #vaidarerroaqui
           self._info('Done applying the pre-processing chain to all sets!')
 
           # Retrieve resulting data shape
@@ -1460,8 +1460,8 @@ class TuningJob(Logger):
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 #tuningWrapper.deepff([nInputs, neuron, 1])
                 tuningWrapper.newff([nInputs, neuron, 1])
-                cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
-                #cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
+                #cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
+                cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
               self._debug('Finished C++ tuning, appending tuned discriminators to tuning record...')
               # Append retrieved tuned discriminators and its tuning information
               tunedDiscr.append( cTunedDiscr )
