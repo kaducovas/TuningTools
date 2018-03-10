@@ -1422,7 +1422,7 @@ class TuningJob(Logger):
           #valData = ppChain( valData ) 
           #self._info('Applying pp chain to test dataset...')
           #tstData = ppChain( tstData )
-          vaidarerroaqui
+          #vaidarerroaqui
           self._info('Done applying the pre-processing chain to all sets!')
 
           # Retrieve resulting data shape
