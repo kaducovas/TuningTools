@@ -51,12 +51,12 @@ class TuningWrapper(Logger):
     elif coreConf() is TuningToolCores.keras:
       self._core = coreframe
       from keras import callbacks
-      from keras.optimizers import RMSprop, SGD
+      from keras.optimizers import RMSprop, SGD,Adam
       from TuningTools.keras_util.callbacks import PerformanceHistory
       self.trainOptions = dict()
       #self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',     RMSprop(lr=0.001, rho=0.9, epsilon=1e-08) )
-      self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',    SGD(lr=0.1, decay=1e-6, momentum=0.7)  )
-      self.trainOptions['costFunction']  = retrieve_kw( kw, 'binary_crossentropy',  'mean_squared_error'  ) # 'binary_crossentropy' #'mean_squared_error' # 
+      self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',    Adam(lr=0.001,beta_1=0.9,beta_2=0.999,epsilon=1e-08)  )
+      self.trainOptions['costFunction']  = retrieve_kw( kw, 'loss',  'mean_squared_error'  ) # 'binary_crossentropy' #'mean_squared_error' # 
       self.trainOptions['metrics']       = retrieve_kw( kw, 'metrics',       ['accuracy', ]          )
       self.trainOptions['shuffle']       = retrieve_kw( kw, 'shuffle',       True                  )
       self._multiStop                    = retrieve_kw( kw, 'doMultiStop',   True      )
