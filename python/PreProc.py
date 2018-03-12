@@ -1609,6 +1609,8 @@ class PreProcChain ( Logger ):
       if pp.shortName() == 'N1':
         trnData = pp._trn_norm1
         valData = pp._val_norm1
+        pp._trn_norm1=''
+        pp._val_norm1=''
     return trnData,valData
 
   def getHiddenLayer(self):
