@@ -493,9 +493,11 @@ class TuningWrapper(Logger):
         if i_hn == 0:
           model.add(Dense(hidden_neurons[0],input_dim=100,weights=weight,trainable=True))
           model.add(Activation('tanh'))
+          model.add(Dropout(rate=0.5))
         else:
           model.add(Dense(hidden_neurons[i_hn],weights=weight,trainable=True))
           model.add(Activation('tanh'))
+          model.add(Dropout(rate=0.5))
         #print weights[0].shape,weights[1].shape,weights[2].shape,weights[3].shape
         #config = layers_config[i_hn]
         #model = Sequential.from_config(config)
