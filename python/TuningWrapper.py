@@ -56,7 +56,7 @@ class TuningWrapper(Logger):
       self.trainOptions = dict()
       #self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',     RMSprop(lr=0.001, rho=0.9, epsilon=1e-08) )
       self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',    Adam(lr=0.001,beta_1=0.9,beta_2=0.999,epsilon=1e-08)  )
-      self.trainOptions['costFunction']  = retrieve_kw( kw, 'loss',  'mean_squared_error'  ) # 'binary_crossentropy' #'mean_squared_error' # 
+      self.trainOptions['costFunction']  = retrieve_kw( kw, 'loss',  'binary_crossentropy'  ) # 'binary_crossentropy' #'mean_squared_error' # 
       self.trainOptions['metrics']       = retrieve_kw( kw, 'metrics',       ['accuracy', ]          )
       self.trainOptions['shuffle']       = retrieve_kw( kw, 'shuffle',       True                  )
       self._multiStop                    = retrieve_kw( kw, 'doMultiStop',   True      )
@@ -493,11 +493,11 @@ class TuningWrapper(Logger):
         if i_hn == 0:
           model.add(Dense(hidden_neurons[0],input_dim=100,weights=weight,trainable=True))
           model.add(Activation('tanh'))
-          model.add(Dropout(rate=0.5))
+          #model.add(Dropout(rate=0.5))
         else:
           model.add(Dense(hidden_neurons[i_hn],weights=weight,trainable=True))
           model.add(Activation('tanh'))
-          model.add(Dropout(rate=0.5))
+          #model.add(Dropout(rate=0.5))
         #print weights[0].shape,weights[1].shape,weights[2].shape,weights[3].shape
         #config = layers_config[i_hn]
         #model = Sequential.from_config(config)
