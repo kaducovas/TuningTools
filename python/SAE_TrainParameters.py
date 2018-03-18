@@ -82,7 +82,7 @@ class NeuralClassificationTrnParams(TrnParams):
                  hidden_activation='tanh',
                  output_activation='linear',
                  metrics=['kullback_leibler_divergence'],
-                 loss='binary_crossentropy',
+                 loss='mean_squared_error',
                  optmizerAlgorithm='Adam'
                 ):
         self.params = {}

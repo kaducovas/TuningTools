@@ -56,7 +56,7 @@ class TuningWrapper(Logger):
       self.trainOptions = dict()
       #self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',     RMSprop(lr=0.001, rho=0.9, epsilon=1e-08) )
       self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',    Adam(lr=0.001,beta_1=0.9,beta_2=0.999,epsilon=1e-08)  )
-      self.trainOptions['costFunction']  = retrieve_kw( kw, 'loss',  'binary_crossentropy'  ) # 'binary_crossentropy' #'mean_squared_error' # 
+      self.trainOptions['costFunction']  = retrieve_kw( kw, 'loss',  'mean_squared_error'  ) # 'binary_crossentropy' #'mean_squared_error' # 
       self.trainOptions['metrics']       = retrieve_kw( kw, 'metrics',       ['accuracy', ]          )
       self.trainOptions['shuffle']       = retrieve_kw( kw, 'shuffle',       True                  )
       self._multiStop                    = retrieve_kw( kw, 'doMultiStop',   True      )
