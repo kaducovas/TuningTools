@@ -16,7 +16,7 @@ from TuningTools.PreProc          import *
 from TuningTools.SubsetGenerator  import *
 from TuningTools.dataframe.EnumCollection import Dataset
 from TuningTools.coreDef          import npCurrent
-
+import os
 
 class TunedDiscrArchieveRDS( LoggerRawDictStreamer ):
   """
@@ -1503,9 +1503,14 @@ class TuningJob(Logger):
         # This pre-processing was tuned during this tuning configuration:
         tunedPP = PreProcCollection( [ ppCol[etBinIdx][etaBinIdx][sort] for sort in sortBounds() ] )
         
+        if not os.path.exists(outputDir+'/'+ppChain.shortName()):
+          os.makedirs(outputDir+'/'+ppChain.shortName())
+
+        
         # Define output file name:
         fulloutput = os.path.join(
-            outputDir
+            #outputDir
+            outputDir+'/'+ppChain.shortName()
             ,'{outputFileBase}.{ppStr}.{neuronStr}.{sortStr}.{initStr}.{saveBinStr}.pic'.format( 
                       outputFileBase = outputFileBase, 
                       ppStr = 'pp-' + ppChain.shortName(), # Truncate on 12th char
@@ -1536,6 +1541,10 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
 
+        if(len([name for name in os.listdir(outputDir+'/'+ppChain.shortName()) if os.path.isfile(name)]) == 10):
+          bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+          bot_message = ppChain.shortName()+' Finished all Jobs.'
+          bot.sendMessage('@ringer_tuning',bot_message)
       # Finished all configurations we had to do
       self._info('Finished tuning job!')
 
