@@ -480,9 +480,9 @@ class Norm1(PrepObj):
     d.update( kw ); del kw
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
-    self._normslist = ''
-    self._beforenorm = ''
-    #self._afternorm = []
+    #self._normslist = ''
+    #self._beforenorm = ''
+    #self._afternorm = ''
     del d
 
   def __retrieveNorm(self, data):
@@ -529,7 +529,7 @@ class Norm1(PrepObj):
         ret.append( cdata / norms[i] )
     else:
       ret = data / norms
-    #self._afternorm.append(ret)
+    #self._afternorm=ret #.append(ret)
     return ret
 
 class ExpertNetworksSimpleNorm(PrepObj):
@@ -889,7 +889,7 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=10,hidden_activation='tanh',output_activation='linear',n_epochs=2000,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=2000,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
@@ -948,7 +948,7 @@ class StackedAutoEncoder( PrepObj ):
   #def params(self):
   #  return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
 
-  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx):
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
 
   ###trainlayer
 
@@ -970,6 +970,7 @@ class StackedAutoEncoder( PrepObj ):
     #data = [d[:100] for d in data]
     #val_Data = [d[:100] for d in val_Data]
 
+    #print "TESTEEEE"+tuning_folder
 
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 	
@@ -980,7 +981,7 @@ class StackedAutoEncoder( PrepObj ):
  
     import numpy
     
-    results_path = "/scratch/22061a/caducovas/StackedAutoEncoder_preproc/"
+    results_path = "/afs/cern.ch/work/w/wsfreund/sae/run/StackedAutoEncoder_preproc/"
     numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0]),val_Data)
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'
 
@@ -999,11 +1000,13 @@ class StackedAutoEncoder( PrepObj ):
 
     self._info(trn_params.get_params_str())
 
+
+
     # Train Process
     SAE = StackedAutoEncoders(params = trn_params,
                               development_flag = False,
                               n_folds = 1,
-                              save_path = results_path,
+                              save_path = results_path
                               )
 
     self._SAE = SAE
@@ -1017,7 +1020,7 @@ class StackedAutoEncoder( PrepObj ):
                                         trgt=val_Data,
                                         ifold=0,
                                         hidden_neurons=self._hidden_neurons,
-                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx) #,regularizer='dropout',regularizer_param=0.5)
+                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder) #,regularizer='dropout',regularizer_param=0.5)
     self._trn_desc = trn_desc
     self._weights = model.get_weights()
     self._trn_params = model.get_config()
@@ -1534,7 +1537,7 @@ class PreProcChain ( Logger ):
     _LimitedTypeList____init__(self, *args)
     Logger.__init__(self, kw)
 
-  def __call__(self, data, revert = False,sort=None,etBinIdx=None,etaBinIdx=None):
+  def __call__(self, data, revert = False,sort=None,etBinIdx=None,etaBinIdx=None,tuning_folder=None):
     """
       Apply/revert pre-processing chain.
     """
@@ -1578,7 +1581,7 @@ class PreProcChain ( Logger ):
         return False
     return True
 
-  def takeParams(self,trnData,valData,sort=None,etBinIdx=None, etaBinIdx=None):
+  def takeParams(self,trnData,valData,sort=None,etBinIdx=None, etaBinIdx=None,tuning_folder=None):
     """
       Take pre-processing parameters for all objects in chain. 
     """
@@ -1588,7 +1591,7 @@ class PreProcChain ( Logger ):
     for pp in self:
       self._info(pp.shortName())
       if pp.shortName()[:2] == 'AE':
-        trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx)
+        trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder)
         valData = pp(valData, False)
       else: 
         trnData = pp.takeParams(trnData)

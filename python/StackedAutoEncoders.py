@@ -161,7 +161,7 @@ class StackedAutoEncoders:
         Method used to perform the layerwise algorithm to train the SAE
     '''
     def trainLayer(self, data=None, trgt=None, ifold=0, hidden_neurons = [80], layer=1, folds_sweep=False,
-                   regularizer=None, regularizer_param=None,sort=999,etBinIdx=999, etaBinIdx=999):
+                   regularizer=None, regularizer_param=None,sort=999,etBinIdx=999, etaBinIdx=999, tuning_folder=None):
         # Change elements equal to zero to one
         for i in range(len(hidden_neurons)):
             if hidden_neurons[i] == 0:
@@ -196,6 +196,11 @@ class StackedAutoEncoders:
                 classifier = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
                 file_name  = '%s_sort_%i_etbin_%i_etabin_%i_trn_desc.jbl'%(model_str,sort,etBinIdx, etaBinIdx)
                 trn_desc   = joblib.load(file_name)
+
+                file_name_prefix = '%s_sort_%i_etbin_%i_etabin_%i'%(model_str,sort,etBinIdx, etaBinIdx)
+                with open(self.save_path+tuning_folder,'a+') as t_file:
+                    t_file.write(file_name_prefix+ "\n")
+                t_file.close()
                 return ifold, classifier, trn_desc
         else:
             file_name = '%s_sort_%i_etbin_%i_etabin_%i_model_dev.h5'%(model_str,sort,etBinIdx, etaBinIdx)
@@ -325,6 +330,12 @@ class StackedAutoEncoders:
             file_name = '%s_sort_%i_etbin_%i_etabin_%i_trn_desc.jbl'%(model_str,sort,etBinIdx, etaBinIdx)
             #file_name = '%s_fold_%i_trn_desc.jbl'%(model_str,ifold)
             joblib.dump([trn_desc],file_name,compress=9)
+
+            file_name_prefix = '%s_sort_%i_etbin_%i_etabin_%i'%(model_str,sort,etBinIdx, etaBinIdx)
+            with open(self.save_path+tuning_folder,'a+') as t_file:
+                t_file.write(file_name_prefix+ "\n")
+            t_file.close()
+
         else:
             file_name = '%s_sort_%i_etbin_%i_etabin_%i_model_dev.h5'%(model_str,sort,etBinIdx, etaBinIdx)
             #file_name = '%s_fold_%i_model_dev.h5'%(model_str,ifold)

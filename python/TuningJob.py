@@ -17,6 +17,13 @@ from TuningTools.SubsetGenerator  import *
 from TuningTools.dataframe.EnumCollection import Dataset
 from TuningTools.coreDef          import npCurrent
 import os
+import telepot
+import subprocess
+from prettytable import PrettyTable
+from datetime import datetime
+startTime = datetime.now()
+from SAE_Evaluation import *
+
 
 class TunedDiscrArchieveRDS( LoggerRawDictStreamer ):
   """
@@ -1055,6 +1062,8 @@ class TuningJob(Logger):
     merged         = retrieve_kw(kw, 'merged',          False             )
     deep           = retrieve_kw(kw, 'deep',            False             )
     outputDir      = os.path.abspath( outputDir )
+    #sriptTime = str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
+
     ## Now we go to parameters which need higher treating level, starting with
     ## the CrossValid object:
     # Make sure that the user didn't try to use both options:
@@ -1188,7 +1197,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[82]),StackedAutoEncoder(level=self.level,hidden_neurons=[59]),StackedAutoEncoder(level = self.level,hidden_neurons=[41])])) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[20])] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[90])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level = self.level,hidden_neurons=[15])] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1401,12 +1410,13 @@ class TuningJob(Logger):
           del patterns # Keep only one data representation
 
           # Take ppChain parameters on training data:
+          tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
           #self._info(len(trnData))
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
           self._info('Tuning pre-processing chain (%s)...', ppChain)
           self._debug('Retrieving parameters and applying pp chain to train dataset...')
-          trnData,valData = ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx)
+          trnData,valData = ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder_name)
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
@@ -1457,11 +1467,11 @@ class TuningJob(Logger):
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
-                tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
+                #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 #tuningWrapper.deepff([nInputs, neuron, 1])
-                #tuningWrapper.newff([nInputs, neuron, 1])
-                cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
-                #cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
+                tuningWrapper.newff([nInputs, neuron, 1])
+                #cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
+                cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
               self._debug('Finished C++ tuning, appending tuned discriminators to tuning record...')
               # Append retrieved tuned discriminators and its tuning information
               tunedDiscr.append( cTunedDiscr )
@@ -1502,15 +1512,17 @@ class TuningJob(Logger):
         ## this pre-processing. Now we head to save what we've done so far:
         # This pre-processing was tuned during this tuning configuration:
         tunedPP = PreProcCollection( [ ppCol[etBinIdx][etaBinIdx][sort] for sort in sortBounds() ] )
-        
-        if not os.path.exists(outputDir+'/'+ppChain.shortName()):
-          os.makedirs(outputDir+'/'+ppChain.shortName())
+
+        #tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')       
+
+        if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/results'):
+          os.makedirs(outputDir+'/files/'+tuning_folder_name+'/results')
 
         
         # Define output file name:
         fulloutput = os.path.join(
             #outputDir
-            outputDir+'/'+ppChain.shortName()
+            outputDir+'/files/'+tuning_folder_name
             ,'{outputFileBase}.{ppStr}.{neuronStr}.{sortStr}.{initStr}.{saveBinStr}.pic'.format( 
                       outputFileBase = outputFileBase, 
                       ppStr = 'pp-' + ppChain.shortName(), # Truncate on 12th char
@@ -1541,11 +1553,49 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
 
-        if(len([name for name in os.listdir(outputDir+'/'+ppChain.shortName()) if os.path.isfile(name)]) == 10):
-          bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-          bot_message = ppChain.shortName()+' Finished all Jobs.'
-          bot.sendMessage('@ringer_tuning',bot_message)
-      # Finished all configurations we had to do
+        #iif(len(os.listdir(outputDir+'/files/'+tuning_folder_name)) == 1):
+        bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+        bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
+        training_time='Training took: '+str(datetime.now() - startTime).split('.')[0]
+        bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
+        subprocess.call("/afs/cern.ch/work/w/wsfreund/sae/run/teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
+        subprocess.call("/afs/cern.ch/work/w/wsfreund/sae/run/teste_monitoring.sh "+tuning_folder_name,shell=True)
+        subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
+        subprocess.call("mv ./report_et2_eta0 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name,shell=True)
+        
+        #subprocess.call("tail -47 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex >> /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",shell=True)
+        #f = open("/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",'rb')
+        #bot.sendDocument('@ringer_tuning',f)
+        #f.close()
+
+        fname = "/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
+        with open(fname) as f:
+          content = f.readlines()
+        f.close()
+        x = PrettyTable()
+        x.field_names = ["Criteria", "Pd", "SP", "Fa"]
+        x.add_row(["Pd", content[283].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[283].split(' & ')[2].replace('$\pm$',''), content[283].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+        x.add_row(["SP", content[285].split(' & ')[1].replace('$\pm$',''), content[285].split(' & ')[2].replace('$\pm$',''), content[285].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+        x.add_row(["Pf", content[287].split(' & ')[1].replace('$\pm$',''), content[287].split(' & ')[2].replace('$\pm$',''), content[287].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
+        x.add_row(["Reference", content[289].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[289].split(' & ')[2], content[289].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
+        #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
+        #bot.sendMessage('@ringer_tuning',x.get_string())
+        x2 = PrettyTable()
+        x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
+        x2.add_row(["Pd", content[304].split(' & ')[1], content[304].split(' & ')[2], content[304].split(' & ')[3].replace(' \\','')])
+        x2.add_row(["SP", content[306].split(' & ')[1], content[306].split(' & ')[2], content[306].split(' & ')[3].replace(' \\','')])
+        x2.add_row(["Pf", content[308].split(' & ')[1], content[308].split(' & ')[2], content[308].split(' & ')[3].replace(' \\','')])
+        
+        bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
+        #bot.sendMessage('@ringer_tuning',x2.get_string()) 
+        png_files=plot_AE_training('/afs/cern.ch/work/w/wsfreund/sae/run/StackedAutoEncoder_preproc/'+tuning_folder_name,'/afs/cern.ch/work/w/wsfreund/sae/run/files/'+tuning_folder_name+'/')
+
+        for png_file in png_files:
+          png_f = open(png_file,'rb')
+          bot.sendPhoto('@ringer_tuning',png_f)
+
+
+      # #Finished all configurations we had to do
       self._info('Finished tuning job!')
 
   # end of __call__ member fcn

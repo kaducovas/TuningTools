@@ -68,7 +68,7 @@ class TuningWrapper(Logger):
       #                                             , mode='max')
       self._earlyStopping = callbacks.EarlyStopping( monitor='val_loss' # val_acc
                                                    , patience=self.trainOptions['nFails']
-                                                   , verbose=0
+                                                   , verbose=2
                                                    , mode='auto')
       self._historyCallback = PerformanceHistory( display = retrieve_kw( kw, 'showEvo', 50 ) )
     else:
@@ -832,9 +832,9 @@ class TuningWrapper(Logger):
                                     , self._trnTarget
                                     , epochs          = self.trainOptions['nEpochs']
                                     , batch_size      = self.batchSize
-                                    , callbacks       = [self._historyCallback, self._earlyStopping]
-                                    #, callbacks       = [self._earlyStopping]
-                                    , verbose         = 0
+                                    #, callbacks       = [self._historyCallback, self._earlyStopping]
+                                    , callbacks       = [self._earlyStopping]
+                                    , verbose         = 2
                                     , validation_data = ( self._valData , self._valTarget )
                                     , shuffle         = self.trainOptions['shuffle'] 
                                     )
