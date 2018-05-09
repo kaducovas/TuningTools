@@ -66,12 +66,13 @@ def plot_AE_training(fname,dirout):
     ##PLOT MSE TREINAMENTO
     #list_t = []
     plt.subplot(221)
-    #for i in range(len(epochs.keys())):
-    plt.plot(max_epochs,loss_mean)
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],loss[i])
+      #plt.plot(max_epochs,loss_mean)
     #plt.plot(T[i].history['val_loss'])
     #list_t.append('Sorteio %.f'%(i+1))
-    list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
-    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+      list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
+      plt.legend(list_t, loc='best',fontsize = 'xx-large')
     #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
     #plt.title('SAE - '+layer.replace('x','-')+'-'+layer.split('x')[0],fontsize= 'xx-large')
     plt.title('SAE - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
@@ -85,12 +86,13 @@ def plot_AE_training(fname,dirout):
     ##PLOT MSE Val
     #list_t = []
     plt.subplot(222)
-    #for i in range(len(epochs.keys())):
-    plt.plot(max_epochs,val_loss_mean)
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],val_loss[i])
+      #plt.plot(max_epochs,val_loss_mean)
     #plt.plot(T[i].history['val_loss'])
     #list_t.append('Sorteio %.f'%(i+1))
     #list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
-    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+      plt.legend(list_t, loc='best',fontsize = 'xx-large')
     #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
     plt.title('SAE - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
     plt.ylabel(r'Erro de $Validac\c{}\~ao$ (MSE)',fontsize= 'xx-large')
@@ -104,12 +106,13 @@ def plot_AE_training(fname,dirout):
     
     #list_t = []
     plt.subplot(223)
-    #for i in range(len(epochs.keys())):
-    plt.plot(max_epochs,kl_mean)
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],kl[i])
+      #plt.plot(max_epochs,kl_mean)
     #plt.plot(T[i].history['val_loss'])
     #list_t.append('Sorteio %.f'%(i+1))
     #list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
-    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+      plt.legend(list_t, loc='best',fontsize = 'xx-large')
     #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
     plt.title('SAE - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
     plt.ylabel('Erro de Treinamento (KL)',fontsize= 'xx-large')
@@ -123,12 +126,13 @@ def plot_AE_training(fname,dirout):
 
     #list_t = []
     plt.subplot(224)
-    #for i in range(len(epochs.keys())):
-    plt.plot(max_epochs,val_kl_mean)
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],val_kl[i])
+      #plt.plot(max_epochs,val_kl_mean)
     #plt.plot(T[i].history['val_loss'])
     #list_t.append('Sorteio %.f'%(i+1))
     #list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
-    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+      plt.legend(list_t, loc='best',fontsize = 'xx-large')
     #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
     plt.title('SAE - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
     plt.ylabel(r'Erro de $Validac\c{}\~ao$ (KL)',fontsize= 'xx-large')
