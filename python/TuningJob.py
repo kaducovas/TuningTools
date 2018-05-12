@@ -1197,7 +1197,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[70])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level = self.level,hidden_neurons=[15])] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[90])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level = self.level,hidden_neurons=[15])] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1552,23 +1552,24 @@ class TuningJob(Logger):
                                         **extraKw
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
-
+        
+        work_path='/home/mariana_covas_costa/run/'
         #iif(len(os.listdir(outputDir+'/files/'+tuning_folder_name)) == 1):
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
         bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
         training_time='Training took: '+str(datetime.now() - startTime).split('.')[0]
         bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
-        subprocess.call("/afs/cern.ch/work/w/wsfreund/sae/run/teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
-        subprocess.call("/afs/cern.ch/work/w/wsfreund/sae/run/teste_monitoring.sh "+tuning_folder_name,shell=True)
-        subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
-        subprocess.call("mv ./report_et2_eta0 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name,shell=True)
+        subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
+        subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
+        subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
+        subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
         
         #subprocess.call("tail -47 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex >> /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",shell=True)
         #f = open("/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",'rb')
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
 
-        fname = "/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
+        fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
         with open(fname) as f:
           content = f.readlines()
         f.close()
@@ -1588,7 +1589,7 @@ class TuningJob(Logger):
         
         bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
         #bot.sendMessage('@ringer_tuning',x2.get_string()) 
-        png_files=plot_AE_training('/afs/cern.ch/work/w/wsfreund/sae/run/StackedAutoEncoder_preproc/'+tuning_folder_name,'/afs/cern.ch/work/w/wsfreund/sae/run/files/'+tuning_folder_name+'/')
+        png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
 
         for png_file in png_files:
           png_f = open(png_file,'rb')
