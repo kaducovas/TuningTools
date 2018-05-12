@@ -980,7 +980,7 @@ class StackedAutoEncoder( PrepObj ):
       val_Data = np.concatenate( val_Data, axis=npCurrent.odim )  
  
     import numpy
-    work_path='/home/mariana_covas_costa/run/'     
+    work_path='/scratch/22061a/caducovas/run/'     
     results_path = work_path+"StackedAutoEncoder_preproc/"
     numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0]),val_Data)
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'

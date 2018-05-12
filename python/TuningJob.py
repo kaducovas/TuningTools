@@ -1408,10 +1408,25 @@ class TuningJob(Logger):
               for i in range(len(patterns)):
                 trnData[i], valData[i], tstData[i] = crossValid( patterns[i], sort  )
           del patterns # Keep only one data representation
+          
+          work_path='/scratch/22061a/caducovas/run/'
+          
+          if os.path.exists(work_path+ppChain.shortName()):
+            with open(work_path+ppChain.shortName(),'a+') as t_file:
+              content = t_file.readlines()
+            t_file.close()
+            startTime=content[0]
+          else:
+            with open(work_path+ppChain.shortName(),'a+') as t_file:
+              t_file.write(startTime)
+            t_file.close()
+        
 
           # Take ppChain parameters on training data:
           tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
           #self._info(len(trnData))
+          
+          
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
           self._info('Tuning pre-processing chain (%s)...', ppChain)
@@ -1553,7 +1568,6 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         
-        work_path='/home/mariana_covas_costa/run/'
         #iif(len(os.listdir(outputDir+'/files/'+tuning_folder_name)) == 1):
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
         bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
