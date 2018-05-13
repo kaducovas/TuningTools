@@ -1485,10 +1485,10 @@ class TuningJob(Logger):
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
-                tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
+                #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 #tuningWrapper.deepff([nInputs, neuron, 1])
-                #tuningWrapper.newff([nInputs, neuron, 1])
-                cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
+                tuningWrapper.newff([nInputs, neuron, 1])
+                #cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
                 #cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
               self._debug('Finished C++ tuning, appending tuned discriminators to tuning record...')
               # Append retrieved tuned discriminators and its tuning information
