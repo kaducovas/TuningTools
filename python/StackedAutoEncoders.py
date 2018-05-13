@@ -300,7 +300,7 @@ class StackedAutoEncoders:
                                       nb_epoch=self.trn_params.params['n_epochs'],
                                       batch_size=self.trn_params.params['batch_size'],
                                       callbacks=[earlyStopping],
-                                      verbose= 0,#self.trn_params.params['verbose'], 
+                                      verbose=2, #self.trn_params.params['verbose'], 
                                       validation_data=(trgt,
                                                        trgt))
             if np.min(init_trn_desc.history['val_loss']) < best_loss:

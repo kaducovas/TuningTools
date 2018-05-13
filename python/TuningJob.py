@@ -21,7 +21,6 @@ import telepot
 import subprocess
 from prettytable import PrettyTable
 from datetime import datetime
-startTime = datetime.now()
 from SAE_Evaluation import *
 
 
@@ -1052,6 +1051,8 @@ class TuningJob(Logger):
     self._info( 'OMP_NUM_THREADS is set to: %d', OMP_NUM_THREADS )
     import gc, os.path
     from copy import deepcopy
+
+    startTime = datetime.now()
     ### Retrieve configuration from input values:
     ## We start with basic information:
     self.level     = retrieve_kw(kw, 'level',           masterLevel()     )
@@ -1197,7 +1198,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[90])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level = self.level,hidden_neurons=[15])] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level = self.level,hidden_neurons=[15])] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1418,12 +1419,13 @@ class TuningJob(Logger):
             startTime=content[0]
           else:
             with open(work_path+ppChain.shortName(),'a+') as t_file:
-              t_file.write(startTime)
+              t_file.write(str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':',''))
             t_file.close()
+            startTime=str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
         
-
+    
           # Take ppChain parameters on training data:
-          tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
+          tuning_folder_name=ppChain.shortName()+'_'+startTime #'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
           #self._info(len(trnData))
           
           
@@ -1455,6 +1457,7 @@ class TuningJob(Logger):
             nInputs = [trnData[0][0].shape[npCurrent.pdim], trnData[1][0].shape[npCurrent.pdim]]
           else:
             nInputs = trnData[0].shape[npCurrent.pdim]
+            print "NINPUUUUTS"+ str(nInputs)
           # Update tuningtool working data information:
           tuningWrapper.setTrainData( trnData ); del trnData
           tuningWrapper.setValData  ( valData ); del valData
@@ -1482,11 +1485,11 @@ class TuningJob(Logger):
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
-                #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
+                tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 #tuningWrapper.deepff([nInputs, neuron, 1])
-                tuningWrapper.newff([nInputs, neuron, 1])
-                #cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
-                cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
+                #tuningWrapper.newff([nInputs, neuron, 1])
+                cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
+                #cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
               self._debug('Finished C++ tuning, appending tuned discriminators to tuning record...')
               # Append retrieved tuned discriminators and its tuning information
               tunedDiscr.append( cTunedDiscr )
@@ -1571,7 +1574,8 @@ class TuningJob(Logger):
         #iif(len(os.listdir(outputDir+'/files/'+tuning_folder_name)) == 1):
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
         bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
-        training_time='Training took: '+str(datetime.now() - startTime).split('.')[0]
+        scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
+        training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
         bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
         subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
         subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
