@@ -1457,7 +1457,6 @@ class TuningJob(Logger):
             nInputs = [trnData[0][0].shape[npCurrent.pdim], trnData[1][0].shape[npCurrent.pdim]]
           else:
             nInputs = trnData[0].shape[npCurrent.pdim]
-            print "NINPUUUUTS"+ str(nInputs)
           # Update tuningtool working data information:
           tuningWrapper.setTrainData( trnData ); del trnData
           tuningWrapper.setValData  ( valData ); del valData
@@ -1485,6 +1484,7 @@ class TuningJob(Logger):
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
+                print "NINPUUUUTS "+ str(nInputs)+ "NEURON "+str(neuron)
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 #tuningWrapper.deepff([nInputs, neuron, 1])
                 tuningWrapper.newff([nInputs, neuron, 1])

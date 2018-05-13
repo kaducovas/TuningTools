@@ -383,6 +383,11 @@ class TuningWrapper(Logger):
       self._model = self._core.FeedForward(nodes, funcTrans, 'nw')
     elif coreConf() is TuningToolCores.FastNet:
       if funcTrans is NotSet: funcTrans = ['tansig', 'tansig']
+      print "-------------"
+      print nodes,type(nodes)
+      print funcTrans,type(funcTrans)
+      print self._core.trainFcn,type(self._core.trainFcn)
+      print "-------------"
       if not self._core.newff(nodes, funcTrans, self._core.trainFcn):
         self._fatal("Couldn't allocate new feed-forward!")
     elif coreConf() is TuningToolCores.keras:
