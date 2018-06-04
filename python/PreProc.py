@@ -96,9 +96,9 @@ class PreProcArchieve( Logger ):
       import sys
       sys.modules['FastNetTool.PreProc'] = sys.modules[__name__]
       ppColInfo = load( self._filePath )
-    try: 
+    try:
       if ppColInfo['type'] != self._type:
-        self._fatal(("Input crossValid file is not from PreProcFile " 
+        self._fatal(("Input crossValid file is not from PreProcFile "
             "type."))
       if ppColInfo['version'] == 3:
         ppCol = PreProcCollection.fromRawObj( ppColInfo['ppCol'] )
@@ -112,10 +112,10 @@ class PreProcArchieve( Logger ):
       self._fatal(("Couldn't read PreProcArchieve('%s'): Reason:"
           "\n\t %s" % (self._filePath,e,)))
     return ppCol
-    
+
   def __exit__(self, exc_type, exc_value, traceback):
     # Remove bound
-    self.ppChain = None 
+    self.ppChain = None
 
 class UndoPreProcError(RuntimeError):
   """
@@ -235,7 +235,7 @@ class Projection(PrepObj):
     Project data into new base
   """
 
-  # FIXME: This will probably give problematic results if data is saved 
+  # FIXME: This will probably give problematic results if data is saved
   # with one numpy type and executed with other type
 
   _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {'_mat'})
@@ -294,7 +294,7 @@ class RemoveMean( PrepObj ):
   @property
   def mean(self):
     return self._mean
-  
+
   @property
   def params(self):
     return self.mean()
@@ -307,7 +307,7 @@ class RemoveMean( PrepObj ):
     data = copy.deepcopy(trnData)
     if isinstance(trnData, (tuple, list,)):
       data = np.concatenate( trnData, axis=npCurrent.odim )
-    self._mean = np.mean( data, axis=npCurrent.odim, dtype=data.dtype ).reshape( 
+    self._mean = np.mean( data, axis=npCurrent.odim, dtype=data.dtype ).reshape(
             npCurrent.access( pidx=data.shape[npCurrent.pdim],
                               oidx=1 ) )
     return self._apply(trnData)
@@ -379,7 +379,7 @@ class UnitaryRMS( PrepObj ):
     data = copy.deepcopy(trnData)
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
-    tmpArray = np.sqrt( np.mean( np.square( data ), axis=npCurrent.odim ) ).reshape( 
+    tmpArray = np.sqrt( np.mean( np.square( data ), axis=npCurrent.odim ) ).reshape(
                 npCurrent.access( pidx=data.shape[npCurrent.pdim],
                                   oidx=1 ) )
     tmpArray[tmpArray==0] = 1
@@ -492,13 +492,13 @@ class Norm1(PrepObj):
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
-        cnorm = cdata.sum(axis=npCurrent.pdim).reshape( 
+        cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
                               oidx=cdata.shape[npCurrent.odim] ) )
         cnorm[cnorm==0] = 1
         norms.append( cnorm )
     else:
-      norms = data.sum(axis=npCurrent.pdim).reshape( 
+      norms = data.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
                               oidx=data.shape[npCurrent.odim] ) )
       norms[norms==0] = 1
@@ -572,13 +572,13 @@ class ExpertNetworksSimpleNorm(PrepObj):
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
-        cnorm = cdata.sum(axis=npCurrent.pdim).reshape( 
+        cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
                               oidx=cdata.shape[npCurrent.odim] ) )
         cnorm[cnorm==0] = 1
         norms.append( cnorm )
     else:
-      norms = data.sum(axis=npCurrent.pdim).reshape( 
+      norms = data.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
                               oidx=data.shape[npCurrent.odim] ) )
       norms[norms==0] = 1
@@ -706,13 +706,13 @@ class FirstNthPatterns(PrepObj):
     return "F%dP" % self._n
 
   def _apply(self, data):
-    try: 
+    try:
       if isinstance(data, (tuple, list,)):
         ret = []
         for cdata in data:
           ret.append( cdata[npCurrent.access( pidx=slice(0,self._n), oidx=':'  ) ] )
       else:
-        ret = data[ npCurrent.access( pidx=slice(0,self._n), oidx=':'  ) ]  
+        ret = data[ npCurrent.access( pidx=slice(0,self._n), oidx=':'  ) ]
     except IndexError, e:
       self._fatal("Data has not enought patterns!\n%s", str(e), IndexError)
     return ret
@@ -813,7 +813,7 @@ class MapStd( PrepObj ):
   @property
   def mean(self):
     return self._mean
-  
+
   @property
   def rms(self):
     return 1 / self._invRMS
@@ -835,11 +835,11 @@ class MapStd( PrepObj ):
     data = copy.deepcopy(trnData)
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
-    self._mean = np.mean( data, axis=npCurrent.odim, dtype=data.dtype ).reshape( 
+    self._mean = np.mean( data, axis=npCurrent.odim, dtype=data.dtype ).reshape(
             npCurrent.access( pidx=data.shape[npCurrent.pdim],
                               oidx=1 ) )
     data = data - self._mean
-    tmpArray = np.sqrt( np.mean( np.square( data ), axis=npCurrent.odim ) ).reshape( 
+    tmpArray = np.sqrt( np.mean( np.square( data ), axis=npCurrent.odim ) ).reshape(
                 npCurrent.access( pidx=data.shape[npCurrent.pdim],
                                   oidx=1 ) )
     tmpArray[tmpArray==0] = 1
@@ -889,10 +889,10 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=1,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=10,hidden_activation='tanh',output_activation='linear',n_epochs=2000,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
-    self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])  
+    self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits
@@ -900,7 +900,7 @@ class StackedAutoEncoder( PrepObj ):
     self._output_activation = output_activation
     self._n_epochs = n_epochs
     self._patience = patience
-    self._batch_size = batch_size 
+    self._batch_size = batch_size
     self._layer= layer
     del d
     self._sort = ''
@@ -941,7 +941,7 @@ class StackedAutoEncoder( PrepObj ):
 
   #def weights(self):
   #  return self._weights
-  
+
   #def trn_params(self):
   #  return self._trn_params
 
@@ -955,7 +955,7 @@ class StackedAutoEncoder( PrepObj ):
     """
       Perform the layerwise algorithm to train the SAE
     """
-    
+
     # TODO...
     self._sort = sort
     self._etBinIdx = etBinIdx
@@ -973,14 +973,14 @@ class StackedAutoEncoder( PrepObj ):
     #print "TESTEEEE"+tuning_folder
 
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
-	
+
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data, axis=npCurrent.odim )
     if isinstance(val_Data, (tuple, list,)):
-      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )  
- 
+      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
+
     import numpy
-    work_path='/scratch/22061a/caducovas/run/'     
+    work_path='/scratch/22061a/caducovas/run/'
     results_path = work_path+"StackedAutoEncoder_preproc/"
     numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0]),val_Data)
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'
@@ -1025,8 +1025,8 @@ class StackedAutoEncoder( PrepObj ):
     self._weights = model.get_weights()
     self._trn_params = model.get_config()
     #self._info(self._SAE)
-    
-    return self._apply(trnData)   
+
+    return self._apply(trnData)
 
 
 
@@ -1119,7 +1119,7 @@ class MapStd_MassInvariant( MapStd ):
 
 class PCA( PrepObj ):
   """
-    PCA preprocessing 
+    PCA preprocessing
   """
   def __init__(self, d = {}, **kw):
     d.update( kw ); del kw
@@ -1196,7 +1196,7 @@ class PCA( PrepObj ):
 
 class KernelPCA( PrepObj ):
   """
-    Kernel PCA preprocessing 
+    Kernel PCA preprocessing
   """
   _explained_variance_ratio = None
   _cov = None
@@ -1220,11 +1220,11 @@ class KernelPCA( PrepObj ):
       self._fatal('Energy value must be in: [0,1]')
 
     from sklearn import decomposition
-    self._kpca  = decomposition.KernelPCA(kernel = self._kernel, 
+    self._kpca  = decomposition.KernelPCA(kernel = self._kernel,
                                           n_components = self._n_components,
-                                          eigen_solver = 'auto', 
+                                          eigen_solver = 'auto',
                                           gamma=self._gamma,
-                                          fit_inverse_transform= self._fit_inverse_transform, 
+                                          fit_inverse_transform= self._fit_inverse_transform,
                                           remove_zero_eig=self._remove_zero_eig)
     del d
 
@@ -1233,7 +1233,7 @@ class KernelPCA( PrepObj ):
 
   def takeParams(self, trnData):
 
-    #FIXME: try to reduze the number of samples for large 
+    #FIXME: try to reduze the number of samples for large
     #datasets. There is some problem into sklearn related
     #to datasets with more than 20k samples. (lock to 16K samples)
     data = trnData
@@ -1246,7 +1246,7 @@ class KernelPCA( PrepObj ):
           data[pattern] = cdata[
             npCurrent.access( pdim=':',
                               odim=(0,np.random.permutation(cdata.shape[npCurrent.odim])[0:self._max_samples]))
-                               ] 
+                               ]
         pattern+=1
       data = np.concatenate( data, axis=npCurrent.odim )
       trnData = np.concatenate( trnData, axis=npCurrent.odim )
@@ -1274,7 +1274,7 @@ class KernelPCA( PrepObj ):
     self._explained_variance_ratio = explained_variance / np.sum(explained_variance)
     max_components_found = data_transf.shape[0]
     # release space
-    data = [] 
+    data = []
     data_transf = []
 
     #fix n components by load curve
@@ -1309,7 +1309,7 @@ class KernelPCA( PrepObj ):
       return "KernelPCA_energy_"+str(self._energy)
     else:
       return "KernelPCA_ncomp_"+str(self._n_components)
-      
+
 
   def shortName(self):
     """
@@ -1380,13 +1380,13 @@ class RingerEtaMu(Norm1):
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
-        cnorm = cdata.sum(axis=npCurrent.pdim).reshape( 
+        cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
                               oidx=cdata.shape[npCurrent.odim] ) )
         cnorm[cnorm==0] = 1
         norms.append( cnorm )
     else:
-      norms = data.sum(axis=npCurrent.pdim).reshape( 
+      norms = data.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
                               oidx=data.shape[npCurrent.odim] ) )
       norms[norms==0] = 1
@@ -1412,7 +1412,7 @@ class RingerEtaMu(Norm1):
       for i, cdata in enumerate(data):
         norms = self.__retrieveNorm(cdata[ npCurrent.access( pidx=(0, 100) ) ])
         rings = cdata[ npCurrent.access( pidx=(0, 100) ) ] / norms[i]
-        eta   = cdata[ npCurrent.access( pidx=(100,101), oidx=':' )] 
+        eta   = cdata[ npCurrent.access( pidx=(100,101), oidx=':' )]
         eta   = ((np.abs(eta) - np.abs(self._etamin))*np.sign(eta))/np.max(self._etamax)
         mu    = cdata[ npCurrent.access( pidx=(101,102) ,oidx=':') ]
         mu[mu > self._pileupThreshold] = self._pileupThreshold
@@ -1423,7 +1423,7 @@ class RingerEtaMu(Norm1):
       norms = self.__retrieveNorm(data)
       norms = self.__retrieveNorm(data[ npCurrent.access( pidx=(0, 100) ) ])
       rings = data[ npCurrent.access( pidx=(0, 100) ) ] / norms[i]
-      eta   = data[ npCurrent.access( pidx=(100,101), oidx=':' )] 
+      eta   = data[ npCurrent.access( pidx=(100,101), oidx=':' )]
       eta   = ((np.abs(eta) - np.abs(self._etamin))*np.sign(eta))/np.max(self._etamax)
       mu[mu > self._pileupThreshold] = self._pileupThreshold
       mu = mu/self._pileupThreshold
@@ -1495,7 +1495,7 @@ class StatReductionFactor(PrepObj):
 
   def concatenate(self, data, _):
     " Apply stats reduction "
-    # We remove stats at random in the beginning of the process, so all sorts 
+    # We remove stats at random in the beginning of the process, so all sorts
     # have the same statistics available
     if isinstance(data, (tuple, list,)):
       ret = []
@@ -1583,7 +1583,7 @@ class PreProcChain ( Logger ):
 
   def takeParams(self,trnData,valData,sort=None,etBinIdx=None, etaBinIdx=None,tuning_folder=None):
     """
-      Take pre-processing parameters for all objects in chain. 
+      Take pre-processing parameters for all objects in chain.
     """
     if not self:
       self._warning("No pre-processing available in this chain.")
@@ -1593,7 +1593,7 @@ class PreProcChain ( Logger ):
       if pp.shortName()[:2] == 'AE':
         trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder)
         valData = pp(valData, False)
-      else: 
+      else:
         trnData = pp.takeParams(trnData)
         pp._trn_norm1 = trnData
         valData = pp(valData, False)
@@ -1618,7 +1618,7 @@ class PreProcChain ( Logger ):
 
   def getHiddenLayer(self):
     """
-      Return a list with the number of neurons on the hidden layer,weights and configuration for Stacked AutoEncoders. 
+      Return a list with the number of neurons on the hidden layer,weights and configuration for Stacked AutoEncoders.
     """
     if not self:
       self._warning("No pre-processing available in this chain.")

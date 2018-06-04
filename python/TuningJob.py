@@ -1,5 +1,5 @@
-__all__ = ['TunedDiscrArchieve', 'TunedDiscrArchieveCol', 'ReferenceBenchmark', 
-           'ReferenceBenchmarkCollection', 'TuningJob', 'fixPPCol', 
+__all__ = ['TunedDiscrArchieve', 'TunedDiscrArchieveCol', 'ReferenceBenchmark',
+           'ReferenceBenchmarkCollection', 'TuningJob', 'fixPPCol',
            'fixLoopingBoundsCol', 'ChooseOPMethod', 'getEfficiencyKeyAndLabel']
 import numpy as np
 import ROOT
@@ -29,11 +29,11 @@ class TunedDiscrArchieveRDS( LoggerRawDictStreamer ):
   The TunedDiscrArchieve RawDict Streamer
   """
   def __init__(self, **kw):
-    LoggerRawDictStreamer.__init__( self, 
+    LoggerRawDictStreamer.__init__( self,
         transientAttrs = {'_readVersion',} | kw.pop('transientAttrs', set()),
         toPublicAttrs = {'_neuronBounds','_sortBounds','_initBounds',
-                         '_etaBin', '_etBin', 
-                         '_etaBinIdx', '_etBinIdx', 
+                         '_etaBin', '_etBin',
+                         '_etaBinIdx', '_etBinIdx',
                          '_tuningInfo', '_tunedDiscr', '_tunedPP'} | kw.pop('toPublicAttrs', set()),
         **kw )
 
@@ -74,15 +74,15 @@ class TunedDiscrArchieveRDC( RawDictCnv ):
   The TunedDiscrArchieve RawDict Converter
   """
   def __init__(self, **kw):
-    RawDictCnv.__init__( self, 
+    RawDictCnv.__init__( self,
                          ignoreAttrs = {'type','version',
                                         # We add old version parameters here:
                                         'tuningInformation', 'trainEvolution', 'tunedDiscriminators',
-                                        'tunedPPCollection'} | kw.pop('ignoreAttrs', set()), 
+                                        'tunedPPCollection'} | kw.pop('ignoreAttrs', set()),
                          toProtectedAttrs = {'_neuronBounds','_sortBounds','_initBounds',
-                                             '_etaBin', '_etBin', 
+                                             '_etaBin', '_etBin',
                                              '_etaBinIdx', '_etBinIdx',
-                                             '_tuningInfo','_tunedDiscr', '_tunedPP'} | kw.pop('toProtectedAttrs', set()), 
+                                             '_tuningInfo','_tunedDiscr', '_tunedPP'} | kw.pop('toProtectedAttrs', set()),
                          ignoreRawChildren = kw.pop('ignoreRawChildren', True),
                          **kw )
     self.skipBenchmark = False
@@ -128,7 +128,7 @@ class TunedDiscrArchieveRDC( RawDictCnv ):
       obj._tunedDiscr   = d['tunedDiscriminators']
       if obj._readVersion <= 4:
         # Before version 4 we didn't save the benchmarks:
-        def ffilt(tData): 
+        def ffilt(tData):
           for idx, discr in enumerate(tData):
             if idx == 0:
               discr['benchmark'] = ReferenceBenchmark( 'Tuning_EFCalo_SP', 'SP' )
@@ -162,17 +162,17 @@ class TunedDiscrArchieve( LoggerStreamable ):
   """
   Manager for Tuned Discriminators archives
 
-  Version 7: - Changes dict attribute names and saves ReferenceBenchmark as dict. 
+  Version 7: - Changes dict attribute names and saves ReferenceBenchmark as dict.
                Makes profit of RDS and RDC functionality.
   Version 6: - Saves raw object from PreProcCollection
                Saves raw reference object
-  Version 5: - added tuning benchmarks. 
+  Version 5: - added tuning benchmarks.
              - separated tuning information from the tuned discriminators
                (tunedDiscr) variable.
   Version 4: - added eta/et bin limits
   Version 3: - added eta/et bin compatibility (only indexes)
   Version 2: - added pre-processing collection
-  Version 1: - started using MatlabLoopingBounds and PythonLoopingBounds to save 
+  Version 1: - started using MatlabLoopingBounds and PythonLoopingBounds to save
                the objects.
   Version 0: - save pickle file with a list containing the neuron/sort/init
                bounds in the same object
@@ -255,7 +255,7 @@ class TunedDiscrArchieve( LoggerStreamable ):
     return save( self.toRawObj(), filePath, compress = compress )
 
   @classmethod
-  def load(cls, filePath, useGenerator = False, extractAll = False, 
+  def load(cls, filePath, useGenerator = False, extractAll = False,
            eraseTmpTarMembers = True, tarMember = None, ignore_zeros = True,
            skipBenchmark = True):
     """
@@ -266,11 +266,11 @@ class TunedDiscrArchieve( LoggerStreamable ):
     from cPickle import PickleError
     try:
       import sys, inspect
-      kwArgs = {'useHighLevelObj' : False, 
+      kwArgs = {'useHighLevelObj' : False,
                 'useGenerator' : useGenerator,
                 'tarMember' : tarMember,
                 'ignore_zeros' : ignore_zeros, 'extractAll' : extractAll,
-                'eraseTmpTarMembers' : eraseTmpTarMembers, 'logger' : lLogger, 
+                'eraseTmpTarMembers' : eraseTmpTarMembers, 'logger' : lLogger,
                 'returnFileName' : True, 'returnFileMember' : True}
       rawObjCol = load( filePath,  **kwArgs )
     except (PickleError, TypeError, ImportError) as e: # TypeError due to add object inheritance on Logger
@@ -295,7 +295,7 @@ class TunedDiscrArchieve( LoggerStreamable ):
       rawObjCol = [ rawObjCol ]
     def __objRead(rawObjCol):
       for rawObj, lFilePath, lTarMember in rawObjCol:
-        if type(rawObj) is list: # zero version file (without versioning 
+        if type(rawObj) is list: # zero version file (without versioning
           # control):
           # Old version was saved as follows:
           #objSave = [neuron, sort, initBounds, train]
@@ -359,16 +359,16 @@ class ReferenceBenchmarkRDS( LoggerRawDictStreamer ):
   """
 
   def __init__(self, **kw):
-    LoggerRawDictStreamer.__init__( self, 
+    LoggerRawDictStreamer.__init__( self,
         #transientAttrs = {'_readVersion',} | kw.pop('transientAttrs', set()),
         #transientAttrs = set() | kw.pop('transientAttrs', set()),
         transientAttrs = {'_readVersion',} | kw.pop('transientAttrs', set()),
-        toPublicAttrs = { 
-                          '_signalEfficiency', 
+        toPublicAttrs = {
+                          '_signalEfficiency',
                           '_backgroundEfficiency',
-                          '_signalCrossEfficiency', 
+                          '_signalCrossEfficiency',
                           '_backgroundCrossEfficiency',
-                          '_name', 
+                          '_name',
                           '_reference',
                         } | kw.pop('toPublicAttrs', set()),
         **kw )
@@ -408,7 +408,7 @@ class ReferenceBenchmarkRDS( LoggerRawDictStreamer ):
                                        BranchCrossEffCollector(etBin=obj.etBinIdx, etaBin=obj.etaBinIdx).toRawObj()
     d['_etBinIdx'] = '' if obj.etBinIdx is None else obj.etBinIdx
     d['_etaBinIdx'] = '' if obj.etaBinIdx is None else obj.etaBinIdx
-    
+
     return d
 
 class ReferenceBenchmarkRDC( RawDictCnv ):
@@ -417,14 +417,14 @@ class ReferenceBenchmarkRDC( RawDictCnv ):
   """
 
   def __init__(self, **kw):
-    RawDictCnv.__init__( self, 
-                         ignoreAttrs = {'_removeOLs'} | kw.pop('ignoreAttrs', set()), 
-                         toProtectedAttrs = { 
-                                              '_signalEfficiency', 
+    RawDictCnv.__init__( self,
+                         ignoreAttrs = {'_removeOLs'} | kw.pop('ignoreAttrs', set()),
+                         toProtectedAttrs = {
+                                              '_signalEfficiency',
                                               '_backgroundEfficiency',
-                                              '_signalCrossEfficiency', 
+                                              '_signalCrossEfficiency',
                                               '_backgroundCrossEfficiency',
-                                              '_name', 
+                                              '_name',
                                               '_reference',
                                  } | kw.pop('toProtectedAttrs', set()),
                          **kw )
@@ -457,7 +457,7 @@ class ChooseOPMethod( EnumStringification ):
 class ReferenceBenchmark(EnumStringification, LoggerStreamable):
   """
   Reference benchmark to set discriminator operation point.
-    - SP: Use the SUM-PRODUCT coeficient as an optimization target. 
+    - SP: Use the SUM-PRODUCT coeficient as an optimization target.
     - Pd: Aims at operating with signal detection probability as close as
       possible from reference value meanwhile minimazing the false
       alarm probability.
@@ -486,12 +486,12 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
   _def_auc_eps = _def_eps
   _def_model_choose_method = ChooseOPMethod.BestBenchWithinBound
 
-  def __init__(self, name = '', reference = SP, 
+  def __init__(self, name = '', reference = SP,
                signalEfficiency = None, backgroundEfficiency = None,
-               signalCrossEfficiency = None, backgroundCrossEfficiency = None, 
+               signalCrossEfficiency = None, backgroundCrossEfficiency = None,
                **kw):
     """
-    ref = ReferenceBenchmark(name, reference, signalEfficiency, backgroundEfficiency, 
+    ref = ReferenceBenchmark(name, reference, signalEfficiency, backgroundEfficiency,
                                    signalCrossEfficiency = None, backgroundCrossEfficiency = None,
                                    allowLargeDeltas = True])
       * name: The name for this reference benchmark;
@@ -659,21 +659,21 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
 
   def __refVal(self):
     # The reference
-    if self.reference is ReferenceBenchmark.Pd: 
+    if self.reference is ReferenceBenchmark.Pd:
       return self._pd
-    elif self.reference is ReferenceBenchmark.Pf: 
+    elif self.reference is ReferenceBenchmark.Pf:
       return self._pf
-    elif self.reference is ReferenceBenchmark.SP: 
+    elif self.reference is ReferenceBenchmark.SP:
       return self._sp
-    else: 
+    else:
       return -999
 
   @property
   def tuningDict(self, ):
-    return { 
+    return {
              'name' : self.name,
              'reference' : self.reference,
-             'refVal' : self.refVal 
+             'refVal' : self.refVal
            }
 
   def checkEtaBinIdx(self, val):
@@ -715,7 +715,7 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
 
   def getOutermostPerf(self, data, **kw):
     """
-    Get outermost performance for the tuned discriminator performances on data. 
+    Get outermost performance for the tuned discriminator performances on data.
     idx = refBMark.getOutermostPerf( data [, eps = .002 ][, cmpType = 1])
      * data: A list with following struction:
         data[0] : SP
@@ -760,7 +760,7 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
       else:
         benchmark = (cmpType) * npData[1]
     elif self.reference is ReferenceBenchmark.Pd:
-      refVec = npData[1] 
+      refVec = npData[1]
       if method is ChooseOPMethod.MaxSPWithinBound:
         benchmark = cmpType * npData[0]
       elif method in (ChooseOPMethod.InBoundAUC, ChooseOPMethod.AUC):
@@ -789,7 +789,7 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
       return np.argmax( benchmark )
     lRefVal = self.getReference( ds = ds, sort = sortIdx )
     # Finally, return the index:
-    if self.reference in (ReferenceBenchmark.SP, ReferenceBenchmark.MSE): 
+    if self.reference in (ReferenceBenchmark.SP, ReferenceBenchmark.MSE):
       idx = np.argmax( cmpType * benchmark )
     else:
       refAllowedIdxs = ( np.abs( refVec - lRefVal) < eps ).nonzero()[0]
@@ -810,14 +810,14 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
             lRefVal = refVec[minDistanceIdx]
             # and the other indexes which correspond to this value
             refAllowedIdxs = ( np.abs(refVec - lRefVal) == 0. ).nonzero()[0]
-            self._verbose("Found %d points with minimum available distance of %r%% to original. They are: %r", 
+            self._verbose("Found %d points with minimum available distance of %r%% to original. They are: %r",
                          len(refAllowedIdxs), distances[minDistanceIdx]*100., refAllowedIdxs )
           else:
             refAllowedIdxs = np.arange( len( refVec ) )
       else:
         if method is not ChooseOPMethod.ClosestPointToReference:
           if len(refAllowedIdxs) != len(refVec):
-            self._info("Found %d points within %r%% distance from benchmark.", 
+            self._info("Found %d points within %r%% distance from benchmark.",
                               len(refAllowedIdxs), eps*100. )
       # Otherwise we return best benchmark for the allowed indexes:
       if method is ChooseOPMethod.ClosestPointToReference:
@@ -860,7 +860,7 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
     return self._def_eps if eps is NotSet else eps
 
   def __str__(self):
-    str_ =  self.name + '(' + ReferenceBenchmark.tostring(self.reference) 
+    str_ =  self.name + '(' + ReferenceBenchmark.tostring(self.reference)
     if self.refVal is not None: str_ += ':' + str(self.refVal)
     str_ += ')'
     return str_
@@ -870,7 +870,7 @@ ReferenceBenchmarkCollection = LimitedTypeList('ReferenceBenchmarkCollection',()
                                                {'_acceptedTypes':(ReferenceBenchmark,type(None),)})
 ReferenceBenchmarkCollection._acceptedTypes = ReferenceBenchmarkCollection._acceptedTypes + (ReferenceBenchmarkCollection,)
 
-def fixLoopingBoundsCol( var, 
+def fixLoopingBoundsCol( var,
     wantedType = LoopingBounds,
     wantedCollection = LoopingBoundsCollection ):
   """
@@ -889,7 +889,7 @@ def fixPPCol( var, nSorts = 1, nEta = 1, nEt = 1, level = None ):
     correctly represented by a LoopingBoundsCollection instance.
   """
   tree_types = (PreProcCollection, PreProcChain, list, tuple )
-  try: 
+  try:
     # Retrieve collection maximum depth
     _, _, _, _, depth = traverse(var, tree_types = tree_types).next()
   except GeneratorExit:
@@ -942,7 +942,7 @@ class TuningJob(Logger):
       Mutually exclusive optional arguments: Either choose the cross (x) or
         circle (o) of the following block options.
        -------
-        x crossValid [CrossValid( nSorts=50, nBoxes=10, nTrain=6, nValid=4, 
+        x crossValid [CrossValid( nSorts=50, nBoxes=10, nTrain=6, nValid=4,
                                   seed=crossValidSeed, method=crossValidMethod )]:
           The cross-validation sorts object. The files can be generated using a
           CreateConfFiles instance which can be accessed via command line using
@@ -965,28 +965,28 @@ class TuningJob(Logger):
         o initBoundsCol [PythonLoopingBounds(100)]: A LoopingBoundsCollection
           range for the initialization numbers to be ran on this tuning job.
           The neuronBoundsCol, sortBoundsCol, initBoundsCol will be synchronously
-          looped upon, that is, all the first collection information upon those 
-          variables will be used to feed the first job configuration, all of 
-          those second collection information will be used to feed the second job 
+          looped upon, that is, all the first collection information upon those
+          variables will be used to feed the first job configuration, all of
+          those second collection information will be used to feed the second job
           configuration, and so on...
           In the case you have only one job configuration, it can be input as
           a single LoopingBounds instance, or values that feed the LoopingBounds
           initialization. In the last case, the neuronBoundsCol will be used
           to feed a MatlabLoopingBounds, and the sortBoundsCol together with
           initBoundsCol will be used to feed a PythonLoopingBounds.
-          For instance, if you use neuronBoundsCol set to [5,2,11], it will 
+          For instance, if you use neuronBoundsCol set to [5,2,11], it will
           loop upon the list [5,7,9,11], while if this was set to sortBoundsCol,
           it would generate [5,7,9].
        -------
-        x ppFile [None]: The file containing the pre-processing collection to apply into 
+        x ppFile [None]: The file containing the pre-processing collection to apply into
           input space and obtain the pattern space. The files can be generated
           using a CreateConfFiles instance which is accessed via command
           line using the createTuningJobFiles.py script.
-        o ppCol PreProcCollection( [ PreProcCollection( [ PreProcCollection( [ PreProcChain( Norm1() ) ] ) ] ) ] ): 
+        o ppCol PreProcCollection( [ PreProcCollection( [ PreProcCollection( [ PreProcChain( Norm1() ) ] ) ] ) ] ):
           A PreProcCollection with the PreProcChain instances to be applied to
           each sort and eta/et bin.
         o clusterFile [None]: The file containing the cluster collection to apply into the crossvalid method.
-        o cluster [None]: The collection object with type SubsetGeneratorPatternsCollection( 
+        o cluster [None]: The collection object with type SubsetGeneratorPatternsCollection(
                           [SubsetGeneratorPatterns(..., PreProcChain(Norm1(), Projection()))])
        -------
       Optional arguments:
@@ -995,7 +995,7 @@ class TuningJob(Logger):
             file. This is important only when using the MultiStop criterea,
             where all operation points will be optimized together using the
             signal and background efficiency from the operation.
-        - etBins [None]: The et bins to use within this job. 
+        - etBins [None]: The et bins to use within this job.
             When not specified, all bins available on the file will be tuned
             separately.
             If specified as a integer or float, it is assumed that the user
@@ -1026,7 +1026,7 @@ class TuningJob(Logger):
             with the less observations]: Set the batch size used during tuning.
         - algorithmName (TuningWrapper prop) [resilient back-propgation]: The
             tuning method to use.
-        - batchMethod (TuningWrapper prop) [MinClassSize]: The method to choose 
+        - batchMethod (TuningWrapper prop) [MinClassSize]: The method to choose
             the batching size. Use one of those decribed by BatchSizeMethod
             EnumStringification.
        -------
@@ -1044,8 +1044,8 @@ class TuningJob(Logger):
           SP when set to True. Uses only SP when set to False.
     """
     from TuningTools import TuningToolsGit
-    from RingerCore import RingerCoreGit 
-    TuningToolsGit.ensure_clean() 
+    from RingerCore import RingerCoreGit
+    TuningToolsGit.ensure_clean()
     RingerCoreGit.ensure_clean()
     from RingerCore import OMP_NUM_THREADS
     self._info( 'OMP_NUM_THREADS is set to: %d', OMP_NUM_THREADS )
@@ -1112,7 +1112,7 @@ class TuningJob(Logger):
       initBoundsCol   = LoopingBoundsCollection()
       from TuningTools.CreateTuningJobFiles import TuningJobConfigArchieve
       for confFile in confFileList:
-        with TuningJobConfigArchieve( confFile ) as (neuronBounds, 
+        with TuningJobConfigArchieve( confFile ) as (neuronBounds,
                                                      sortBounds,
                                                      initBounds):
           neuronBoundsCol += neuronBounds
@@ -1139,7 +1139,7 @@ class TuningJob(Logger):
       if initBounds.lowerBound() < 0:
         self._fatal("Attempted to create an initialization index lower than 0.", ValueError)
     nSortsVal = crossValid.nSorts()
-    ## Retrieve binning information: 
+    ## Retrieve binning information:
     etBins  = retrieve_kw(kw, 'etBins',  None )
     etaBins = retrieve_kw(kw, 'etaBins', None )
     # Check binning information
@@ -1162,7 +1162,7 @@ class TuningJob(Logger):
     if 'cluster' in kw and 'clusterFile' in kw:
       self._fatal("cluster is mutually exclusive with clusterFile, \
           either use or another terminology to specify SubsetGenaratorCollection object.", ValueError)
-    
+
     clusterFile      = retrieve_kw( kw, 'clusterFile', None )
     if clusterFile is None:
       clusterCol = kw.pop('cluster', None)
@@ -1198,7 +1198,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level = self.level,hidden_neurons=[15])] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[90])] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1236,7 +1236,7 @@ class TuningJob(Logger):
                                  , seed                  = retrieve_kw( kw, 'seed',                  NotSet)
                                  , doMultiStop           = retrieve_kw( kw, 'doMultiStop',           NotSet)
                                  )
-   
+
 
 
     # Check whether it is need to retrieve efficiencies from another reference file:
@@ -1244,7 +1244,7 @@ class TuningJob(Logger):
     refFilePath = retrieve_kw( kw, 'refFile', NotSet)
     if not (refFilePath in (None, NotSet)):
       self._info("Reading reference file...")
-      refFile = BenchmarkEfficiencyArchieve.load( refFilePath, 
+      refFile = BenchmarkEfficiencyArchieve.load( refFilePath,
                                                   loadCrossEfficiencies = True )
       if not refFile.checkForCompatibleBinningFile( dataLocation[0] ):
         self._logger.error("Reference file binning information is not compatible with data file. Ignoring reference file!")
@@ -1256,10 +1256,10 @@ class TuningJob(Logger):
 
     from itertools import product
     for etBinIdx, etaBinIdx in product( range( nEtBins if nEtBins is not None else 1 ) if etBins is None \
-                                   else etBins(), 
+                                   else etBins(),
                                   range( nEtaBins if nEtaBins is not None else 1 ) if etaBins is None \
                                    else etaBins() ):
-      binStr = '' 
+      binStr = ''
       saveBinStr = 'no-bin'
       if nEtBins is not None or nEtaBins is not None:
         binStr = ' (etBinIdx=%d,etaBinIdx=%d)' % (etBinIdx, etaBinIdx)
@@ -1278,7 +1278,7 @@ class TuningJob(Logger):
                                            loadCrossEfficiencies = True if refFile is None else False
                                            ) ]
         patterns += [ [tdArchieve[i].signalPatterns, tdArchieve[i].backgroundPatterns] ]
-      
+
       #FIXME: Only this version is supported
       if tdVersion >= 6:
         baseInfo = (tdArchieve[0].signalBaseInfo, tdArchieve[0].backgroundBaseInfo)
@@ -1301,7 +1301,7 @@ class TuningJob(Logger):
         except (AttributeError, KeyError):
           if refFile is not None:
             self._logger.error("Couldn't retrieve efficiencies from reference file. Attempting to use tuning data references instead...")
-          benchmarks = (tdArchieve[0].signalEfficiencies[efficiencyKey], 
+          benchmarks = (tdArchieve[0].signalEfficiencies[efficiencyKey],
                         tdArchieve[0].backgroundEfficiencies[efficiencyKey])
       except KeyError, e:
         if tuningWrapper.doMultiStop:
@@ -1312,10 +1312,10 @@ class TuningJob(Logger):
       try:
         #if tuningWrapper.useTstEfficiencyAsRef:
         try:
-          crossBenchmarks = (refFile.signalCrossEfficiencies[efficiencyKey], 
+          crossBenchmarks = (refFile.signalCrossEfficiencies[efficiencyKey],
                              refFile.backgroundCrossEfficiencies[efficiencyKey])
         except (AttributeError, KeyError):
-          crossBenchmarks = (tdArchieve[0].signalCrossEfficiencies[efficiencyKey], 
+          crossBenchmarks = (tdArchieve[0].signalCrossEfficiencies[efficiencyKey],
                              tdArchieve[0].backgroundCrossEfficiencies[efficiencyKey])
       except (AttributeError, KeyError, TypeError):
         self._info("Cross-validation benchmark efficiencies is not available.")
@@ -1335,36 +1335,36 @@ class TuningJob(Logger):
         opRefs = [ReferenceBenchmark.SP, ReferenceBenchmark.Pd, ReferenceBenchmark.Pf]
       else:
         opRefs = [ReferenceBenchmark.SP]
-      for ref in opRefs: 
+      for ref in opRefs:
         if benchmarks and (benchmarks[0]) is list:
           if crossBenchmarks is not None and (crossBenchmarks[0][etBinIdx]) and crossBenchmarks[1][etBinIdx]:
-            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_" 
-                                                 + ReferenceBenchmark.tostring( ref ), 
+            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_"
+                                                 + ReferenceBenchmark.tostring( ref ),
                                                    ref, benchmarks[0][etBinIdx][etaBinIdx], benchmarks[1][etBinIdx][etaBinIdx],
                                                    crossBenchmarks[0][etBinIdx][etaBinIdx], crossBenchmarks[1][etBinIdx][etaBinIdx]
                                                   , etBinIdx=etBinIdx, etaBinIdx=etaBinIdx ) )
           elif benchmarks is not None and benchmarks[0][etBinIdx] and benchmarks[1][etBinIdx]:
-            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_" 
-                                                 + ReferenceBenchmark.tostring( ref ), 
+            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_"
+                                                 + ReferenceBenchmark.tostring( ref ),
                                                    ref, benchmarks[0][etBinIdx][etaBinIdx], benchmarks[1][etBinIdx][etaBinIdx]
                                                   , etBinIdx=etBinIdx, etaBinIdx=etaBinIdx))
           elif not tuningWrapper.doMultiStop :
-            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_" 
+            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_"
                                                  + ReferenceBenchmark.tostring( ref ), ref) )
           else: self._fatal("No benchmark efficiency could be found")
         else:
           if crossBenchmarks is not None and crossBenchmarks[0].etaBin != -1:
-            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_" 
-                                                 + ReferenceBenchmark.tostring( ref ), 
+            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_"
+                                                 + ReferenceBenchmark.tostring( ref ),
                                                    ref, benchmarks[0], benchmarks[1]
                                                  , crossBenchmarks[0], crossBenchmarks[1], etBinIdx=etBinIdx, etaBinIdx=etaBinIdx) )
           elif benchmarks is not None and benchmarks[0].etaBin != -1:
-            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_" 
-                                                 + ReferenceBenchmark.tostring( ref ), 
+            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_"
+                                                 + ReferenceBenchmark.tostring( ref ),
                                                    ref, benchmarks[0], benchmarks[1]
                                                  , etBinIdx=etBinIdx, etaBinIdx=etaBinIdx ) )
           elif not tuningWrapper.doMultiStop :
-            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_" 
+            references.append( ReferenceBenchmark( "Tuning_" + refLabel.replace('Accept','') + "_"
                                                  + ReferenceBenchmark.tostring( ref ), ref) )
           else: self._fatal("No benchmark efficiency could be found")
 
@@ -1409,26 +1409,26 @@ class TuningJob(Logger):
               for i in range(len(patterns)):
                 trnData[i], valData[i], tstData[i] = crossValid( patterns[i], sort  )
           del patterns # Keep only one data representation
-          
+
           work_path='/scratch/22061a/caducovas/run/'
-          
-          if os.path.exists(work_path+ppChain.shortName()):
-            with open(work_path+ppChain.shortName(),'a+') as t_file:
+
+          if os.path.exists(work_path+ppChain.shortName()+'.txt'):
+            with open(work_path+ppChain.shortName()+'.txt','a+') as t_file:
               content = t_file.readlines()
             t_file.close()
             startTime=content[0]
           else:
-            with open(work_path+ppChain.shortName(),'a+') as t_file:
+            with open(work_path+ppChain.shortName()+'.txt','a+') as t_file:
               t_file.write(str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':',''))
             t_file.close()
             startTime=str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
-        
-    
+
+
           # Take ppChain parameters on training data:
           tuning_folder_name=ppChain.shortName()+'_'+startTime #'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
           #self._info(len(trnData))
-          
-          
+
+
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
           self._info('Tuning pre-processing chain (%s)...', ppChain)
@@ -1437,16 +1437,16 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
-          trnData,valData = ppChain.getNorm1()
+          #trnData,valData = ppChain.getNorm1()
           self._info(len(trnData))
           self._info(len(valData))
-          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
           #trnData = ppChain( trnData )
           #self._info('Applying pp chain to validation dataset...')
-          #valData = ppChain( valData ) 
+          #valData = ppChain( valData )
           #self._info('Applying pp chain to test dataset...')
           #tstData = ppChain( tstData )
           #vaidarerroaqui
@@ -1489,7 +1489,7 @@ class TuningJob(Logger):
                 #tuningWrapper.deepff([nInputs, neuron, 1])
                 tuningWrapper.newff([nInputs, neuron, 1])
                 #cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Deep()
-                #cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
+                cTunedDiscr, cTuningInfo = tuningWrapper.train_c()
               self._debug('Finished C++ tuning, appending tuned discriminators to tuning record...')
               # Append retrieved tuned discriminators and its tuning information
               tunedDiscr.append( cTunedDiscr )
@@ -1515,12 +1515,12 @@ class TuningJob(Logger):
               # We cannot revert ppChain, reload data:
               self._info('Re-opening raw data...')
               tdArchieve = []
-              patterns = [] 
+              patterns = []
               for i in range(len(dataLocation)):
                 tdArchieve += [ TuningDataArchieve.load(dataLocation[i],
                                                     etBinIdx = etBinIdx if isEtDependent else None,
                                                     etaBinIdx = etaBinIdx if isEtaDependent else None) ]
-                patterns += [ (tdArchieve[i].signalPatterns, tdArchieve[i].backgroundPatterns) ] 
+                patterns += [ (tdArchieve[i].signalPatterns, tdArchieve[i].backgroundPatterns) ]
 
 
               del tdArchieve
@@ -1531,20 +1531,20 @@ class TuningJob(Logger):
         # This pre-processing was tuned during this tuning configuration:
         tunedPP = PreProcCollection( [ ppCol[etBinIdx][etaBinIdx][sort] for sort in sortBounds() ] )
 
-        #tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')       
+        #tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
 
         if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/results'):
           os.makedirs(outputDir+'/files/'+tuning_folder_name+'/results')
 
-        
+
         # Define output file name:
         fulloutput = os.path.join(
             #outputDir
             outputDir+'/files/'+tuning_folder_name
-            ,'{outputFileBase}.{ppStr}.{neuronStr}.{sortStr}.{initStr}.{saveBinStr}.pic'.format( 
-                      outputFileBase = outputFileBase, 
+            ,'{outputFileBase}.{ppStr}.{neuronStr}.{sortStr}.{initStr}.{saveBinStr}.pic'.format(
+                      outputFileBase = outputFileBase,
                       ppStr = 'pp-' + ppChain.shortName(), # Truncate on 12th char
-                      neuronStr = neuronBounds.formattedString('hn'), 
+                      neuronStr = neuronBounds.formattedString('hn'),
                       sortStr = sortBounds.formattedString('s'),
                       initStr = initBounds.formattedString('i'),
                       saveBinStr = saveBinStr )
@@ -1561,8 +1561,8 @@ class TuningJob(Logger):
           #extraKw['etaBin'] = etaBins[etaBinIdx]
           extraKw['etaBin'] = etaBins
 
-        savedFile = TunedDiscrArchieve( neuronBounds = neuronBounds, 
-                                        sortBounds = sortBounds, 
+        savedFile = TunedDiscrArchieve( neuronBounds = neuronBounds,
+                                        sortBounds = sortBounds,
                                         initBounds = initBounds,
                                         tunedDiscr = tunedDiscr,
                                         tuningInfo = tuningInfo,
@@ -1570,48 +1570,50 @@ class TuningJob(Logger):
                                         **extraKw
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
-        
-        #iif(len(os.listdir(outputDir+'/files/'+tuning_folder_name)) == 1):
-        bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-        bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
-        scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
-        training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
-        bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
-        subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
-        subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
-        subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
-        subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
-        
+        #print(work_path+ppChain.shortName())
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 2):
+          #remove temp file which stores starttime so that all the jobs have the same value
+          #subprocess.call('rm '+work_path+ppChain.shortName()+'.txt')
+          bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+          bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
+          scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
+          training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
+          bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
+          subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
+          subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
+          subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
+          subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
+
         #subprocess.call("tail -47 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex >> /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",shell=True)
         #f = open("/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",'rb')
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
 
-        fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
-        with open(fname) as f:
-          content = f.readlines()
-        f.close()
-        x = PrettyTable()
-        x.field_names = ["Criteria", "Pd", "SP", "Fa"]
-        x.add_row(["Pd", content[283].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[283].split(' & ')[2].replace('$\pm$',''), content[283].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-        x.add_row(["SP", content[285].split(' & ')[1].replace('$\pm$',''), content[285].split(' & ')[2].replace('$\pm$',''), content[285].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-        x.add_row(["Pf", content[287].split(' & ')[1].replace('$\pm$',''), content[287].split(' & ')[2].replace('$\pm$',''), content[287].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
-        x.add_row(["Reference", content[289].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[289].split(' & ')[2], content[289].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
-        #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
-        #bot.sendMessage('@ringer_tuning',x.get_string())
-        x2 = PrettyTable()
-        x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
-        x2.add_row(["Pd", content[304].split(' & ')[1], content[304].split(' & ')[2], content[304].split(' & ')[3].replace(' \\','')])
-        x2.add_row(["SP", content[306].split(' & ')[1], content[306].split(' & ')[2], content[306].split(' & ')[3].replace(' \\','')])
-        x2.add_row(["Pf", content[308].split(' & ')[1], content[308].split(' & ')[2], content[308].split(' & ')[3].replace(' \\','')])
-        
-        bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
-        #bot.sendMessage('@ringer_tuning',x2.get_string()) 
-        png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
+          with open(fname) as f:
+            content = f.readlines()
+          f.close()
+          x = PrettyTable()
+          x.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
+          x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
+          #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
+          #bot.sendMessage('@ringer_tuning',x.get_string())
+          x2 = PrettyTable()
+          x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
+          x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
+          x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
 
-        for png_file in png_files:
-          png_f = open(png_file,'rb')
-          bot.sendPhoto('@ringer_tuning',png_f)
+          bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
+          #bot.sendMessage('@ringer_tuning',x2.get_string())
+          png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+
+          for png_file in png_files:
+            png_f = open(png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',png_f)
 
 
       # #Finished all configurations we had to do

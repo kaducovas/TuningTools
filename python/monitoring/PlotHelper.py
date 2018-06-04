@@ -7,7 +7,7 @@ from ROOT import kCyan, kRed, kGreen, kBlue, kBlack, kMagenta, kGray
 from ROOT import TCanvas, gROOT, kTRUE, TColor, gStyle
 
 class PlotHelper(object):
-  
+
   _keys = ['sp_val','det_val','fa_val','sp_tst','det_tst','fa_tst']
 
   def __init__( self, objects ):
@@ -65,7 +65,7 @@ class PlotHelper(object):
 
 def GetTransparent(color,factor=.5):
   return TColor.GetColorTransparent(color,factor)
- 
+
 
 
 def GetMinMax( curves, idx = 0, percent=0):
@@ -83,9 +83,9 @@ def GetMinMax( curves, idx = 0, percent=0):
 def MakeYLegend( dataset='val', reference='Pd', refValue=None ):
   # Set all ylabels names here
   ylabel = {
-            'mse':'MSE ('+dataset+')', 
+            'mse':'MSE ('+dataset+')',
             'sp' :'SP ('+dataset+')',
-            'det': 'Det ('+dataset+')', 
+            'det': 'Det ('+dataset+')',
             'fa':'FA ('+dataset+')'
             }
   ref = {'Pd':None,'Pf':None,'SP':None}
@@ -110,10 +110,10 @@ def PlotInits( objects, best, worst, reference='Pd',outname=None,key='mse'):
   these_transcolors=[TColor.GetColorTransparent(c,.5) for c in these_colors]
   plots = PlotHelper( objects )
   plots.setReference( reference )
-  drawopt='L' 
+  drawopt='L'
   canvas = TCanvas('canvas', 'canvas', 1000, 500)
   FormatCanvasAxes(canvas)
- 
+
   # plot all cunves from cross validation method in gray
   graph_list=[]
   for idx in plots.getBoundValues():
@@ -142,9 +142,9 @@ def PlotInits( objects, best, worst, reference='Pd',outname=None,key='mse'):
 
 
 
-def PlotCurves( objects, best, worst, reference='Pd', refValue=None, dataset='val', 
+def PlotCurves( objects, best, worst, reference='Pd', refValue=None, dataset='val',
                 drawtrn=False, drawtst=False, outname=None, label=None, ylabel='Mean Square Error',key='mse'):
-  
+
 
   collect=[]
   gROOT.SetBatch(kTRUE)
@@ -152,10 +152,10 @@ def PlotCurves( objects, best, worst, reference='Pd', refValue=None, dataset='va
   these_transcolors=[TColor.GetColorTransparent(c,.5) for c in these_colors]
   plots = PlotHelper( objects )
   plots.setReference( reference )
-  drawopt='L' 
+  drawopt='L'
   canvas = TCanvas('canvas', 'canvas', 1000, 500)
   FormatCanvasAxes(canvas)
- 
+
   # plot all cunves from cross validation method in gray
   graph_list=[]
   for idx in plots.getBoundValues():
@@ -189,7 +189,7 @@ def PlotCurves( objects, best, worst, reference='Pd', refValue=None, dataset='va
   if drawtrn:
     AutoFixAxes(canvas)
     ymin, ymax = GetYaxisRanges(canvas,check_all=True,ignorezeros=False,ignoreErrors=True)
-  else:   
+  else:
     ymin,ymax=GetMinMax(graph_list,5,0.05)
     SetYaxisRanges(canvas,ymin,ymax)
 
@@ -208,7 +208,7 @@ def PlotCurves( objects, best, worst, reference='Pd', refValue=None, dataset='va
     collect.append(l)
 
   xmin, xmax = GetXaxisRanges(canvas,check_all=True)
-  
+
   if xmax > max_best_epoch+150:
     xmax_real=xmax
     xmax=max_best_epoch+150
@@ -235,15 +235,15 @@ def PlotCurves( objects, best, worst, reference='Pd', refValue=None, dataset='va
     l.Draw()
     collect.append(l)
 
-  canvas.SaveAs(outname)
+  #@@canvas.SaveAs(outname)
 
 
 
 
 def PlotTrainingCurves( objects, best, worst, reference='Pd', refValue=None,outname=None, label=None, dataset='val'):
- 
+
   ylabel, ref = MakeYLegend( reference=reference, dataset=dataset, refValue=refValue )
-  
+
   # plot all curves for each case
   PlotCurves(objects,best,worst,dataset=dataset,reference=reference,outname=outname+'_mse.pdf',
       label=label,drawtrn=True,ylabel=ylabel['mse'], key='mse')
@@ -256,23 +256,23 @@ def PlotTrainingCurves( objects, best, worst, reference='Pd', refValue=None,outn
 
 
 
- 
+
 def PlotDiscriminants( objects, best=0, worst=0, outname=None, nsgn=2500,nbkg=1000 ):
 
   collect=[]
-  gROOT.SetBatch(kTRUE) 
+  gROOT.SetBatch(kTRUE)
   gStyle.SetOptStat(0)
 
   plots = PlotHelper( objects )
-  drawopt='hist' 
+  drawopt='hist'
   canvas1 = TCanvas('canvas1', 'canvas1', 500, 500)
   canvas2 = TCanvas('canvas2', 'canvas2', 500, 500)
   canvas3 = TCanvas('canvas3', 'canvas3', 500, 500)
-  
+
   FormatCanvasAxes(canvas1)
   FormatCanvasAxes(canvas2)
   FormatCanvasAxes(canvas3)
- 
+
   canvas1.SetLogy()
   canvas2.SetLogy()
   canvas3.SetLogy()
@@ -282,8 +282,8 @@ def PlotDiscriminants( objects, best=0, worst=0, outname=None, nsgn=2500,nbkg=10
   for idx in plots.getBoundValues():
     roc = plots.getCurve('roc_operation',idx)
     sgn, bkg = Roc_to_histogram(roc, nsgn, nbkg)
-    h_sgn = TH1F('Signal',"Signal Distribution;Discriminant;Count",100,-1,1)    
-    h_bkg = TH1F('Background',"Background Distribution;Discriminant;Count",100,-1,1)    
+    h_sgn = TH1F('Signal',"Signal Distribution;Discriminant;Count",100,-1,1)
+    h_bkg = TH1F('Background',"Background Distribution;Discriminant;Count",100,-1,1)
     for o in sgn: h_sgn.Fill(o)
     for o in bkg: h_bkg.Fill(o)
     h_sgn.SetLineColor(kBlack)
@@ -298,7 +298,7 @@ def PlotDiscriminants( objects, best=0, worst=0, outname=None, nsgn=2500,nbkg=10
   best_objs = collect[objects.getBoundValues().index(best)]
   best_objs[0].SetFillColor(GetTransparent(kBlue))
   best_objs[1].SetFillColor(GetTransparent(kRed))
-  
+
   # clean all
   best_objs[0].SetTitle("")
   best_objs[1].SetTitle("")
@@ -307,31 +307,31 @@ def PlotDiscriminants( objects, best=0, worst=0, outname=None, nsgn=2500,nbkg=10
 
   AddHistogram(canvas3,best_objs[0],drawopt=drawopt)
   AddHistogram(canvas3,best_objs[1],drawopt=drawopt)
-  
+
   SetAxisLabels(canvas1, 'Discriminant', 'Count')
   SetAxisLabels(canvas2, 'Discriminant', 'Count')
   SetAxisLabels(canvas3, 'Discriminant', 'Count')
-  
+
   AutoFixAxes(canvas1)
   AutoFixAxes(canvas2)
   AutoFixAxes(canvas3)
-  
+
   # Save!
-  if outname:
-    canvas1.SaveAs(outname+'_sgn_dist.pdf')
-    canvas2.SaveAs(outname+'_bkg_dist.pdf')
-    canvas3.SaveAs(outname+'_both_best_dist.pdf')
+  #@@if outname:
+  #@@  canvas1.SaveAs(outname+'_sgn_dist.pdf')
+  #@@  canvas2.SaveAs(outname+'_bkg_dist.pdf')
+  #@@  canvas3.SaveAs(outname+'_both_best_dist.pdf')
 
 
 def PlotRocs( objects, best=0, worst=0, reference=None, eps=.05, outname=None,
     xmin=0.0, xmax=0.07, ymin=0.6, ymax=1.05, key='roc_operation'):
 
   plots = PlotHelper( objects )
-  drawopt='L' 
-  
+  drawopt='L'
+
   canvas = TCanvas('canvas', 'canvas', 500, 500)
   FormatCanvasAxes(canvas)
- 
+
   for idx in plots.getBoundValues():
     roc = plots.getCurve(key,idx)
     roc.SetTitle("")
@@ -342,14 +342,14 @@ def PlotRocs( objects, best=0, worst=0, reference=None, eps=.05, outname=None,
   roc_best.SetLineColor(kBlue+2)
   roc_worst = plots.getCurve(key,worst)
   roc_worst.SetLineColor(kRed+2)
-  
+
   AddHistogram(canvas,roc_best,drawopt=drawopt)
   AddHistogram(canvas,roc_worst,drawopt=drawopt)
   SetAxisLabels(canvas, 'False Alarm', 'Detection')
   SetXaxisRanges(canvas,xmin,xmax)
   SetYaxisRanges(canvas,ymin,ymax)
-  canvas.SaveAs(outname+'_'+key+'.pdf')
-     
+  #@@canvas.SaveAs(outname+'_'+key+'.pdf')
+
 
 
 
