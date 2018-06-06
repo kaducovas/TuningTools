@@ -967,8 +967,8 @@ class StackedAutoEncoder( PrepObj ):
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
 
-    #data = [d[:100] for d in data]
-    #val_Data = [d[:100] for d in val_Data]
+    data = [d[:100] for d in data]
+    val_Data = [d[:100] for d in val_Data]
 
     #print "TESTEEEE"+tuning_folder
 
@@ -1051,7 +1051,7 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      #data = [d[:100] for d in data]
+      data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
