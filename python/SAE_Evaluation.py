@@ -34,7 +34,7 @@ def plot_AE_training(fname,dirout):
 
   layers_list =[f.split('/')[-1].split('_')[24] for f in content]
   layers=sorted(list(set(layers_list)),cmp=layer2number)
-
+  print(layers)
   list_t=[]
   for layer in layers:
     epochs = {}
@@ -77,6 +77,7 @@ def plot_AE_training(fname,dirout):
     #plt.plot(T[i].history['val_loss'])
     #list_t.append('Sorteio %.f'%(i+1))
     list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
+    print list_t
     plt.legend(list_t, loc='best',fontsize = 'xx-large')
     #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
     #plt.title('SAE - '+layer.replace('x','-')+'-'+layer.split('x')[0],fontsize= 'xx-large')
