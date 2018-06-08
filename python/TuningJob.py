@@ -1477,12 +1477,13 @@ class TuningJob(Logger):
             for init in initBounds():
               self._info('Training <Neuron = %d, sort = %d, init = %d>%s...', \
                   neuron, sort, init, binStr)
+              deep=True
               if merged:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             (nInputs[0]+nInputs[1]), neuron, 1)
                 tuningWrapper.newExpff( [nInputs, neuron, 1], etBinIdx, etaBinIdx, sort )
                 cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Exp()
-              deep = True
+
               elif deep:
                 self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
                 tuningWrapper.deepff2([nInputs, neuron,1])
