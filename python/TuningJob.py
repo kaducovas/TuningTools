@@ -1204,7 +1204,7 @@ class TuningJob(Logger):
       with PreProcArchieve(ppFile) as ppCol: pass
     # Make sure that our pre-processings are PreProcCollection instances and matches
     # the number of sorts, eta and et bins.
-    print ppCol,nEtaBins
+    print len(ppCol),nEtaBins
     ppCol = fixPPCol( ppCol,
                       nSortsVal,
                       nEtaBins,
