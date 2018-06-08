@@ -52,9 +52,10 @@ def plot_AE_training(fname,dirout):
       kl[int(file_name.split('_')[27])] = job[0]['kullback_leibler_divergence']
       val_loss[int(file_name.split('_')[27])] = job[0]['val_losS']
       val_kl[int(file_name.split('_')[27])] = job[0]['val_kullback_leibler_divergence']
-    print loss.values()
+    print len(loss.values())
+    print type(loss.values())
     max_epochs = np.max(epochs.values())
-    loss_mean = np.mean(loss.values(),axis=0)
+    loss_mean = np.mean(np.asarray(loss.values()),axis=0)
     loss_std = np.std(loss.values(),axis=0)
     val_loss_mean = np.mean(val_loss.values(),axis=0)
     val_loss_std = np.std(val_loss.values(),axis=0)
