@@ -1485,7 +1485,9 @@ class TuningJob(Logger):
                 cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Exp()
 
               elif deep:
-                self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
+                self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
+                            nInputs, neuron, 1)
+                #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
                 tuningWrapper.deepff2([nInputs, neuron,1])
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 cTunedDiscr, cTuningInfo,history = tuningWrapper.trainC_Deep()
