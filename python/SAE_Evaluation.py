@@ -197,8 +197,153 @@ def plot_AE_training(fname,dirout):
   png_files.append(dirout+'layer_'+layer+'_'+fname.split('/')[-1]+'.png')
   return png_files
 
-    #plt.show()
+def plot_classifier_training(fname,dirout):
+  import os
+  history_files=[x for x in os.listdir(fname) if x.endswith(".pkl")]
+  png_files=[]
+  with open(fname) as f:
+    content = f.readlines()
+  f.close()
 
+  layers_list =[f.split('/')[-1].split('_')[24] for f in content]
+  layers=sorted(list(set(layers_list)),cmp=layer2number)
+  print(layers)
+  list_t=[]
+  for layer in layers:
+    epochs = {}
+    loss = {}
+    kl = {}
+    val_loss = {}
+    val_kl = {}
+    #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
+    for file in history_files:
+      job = load_dl_history(fname+'/'+file) #joblib.load(file.replace('\n','')+'_trn_desc.jbl')
+      sort = file.split('_')[2]
+      #print file.split('_')[27]
+      epochs[sort] = len(job['loss'])
+      loss[sort] = job['loss']
+      acc[sort] = job['acc']
+      val_loss[sort] = job[0]['val_loss']
+      val_acc[sort] = job[0]['val_acc']
+    #print len(loss.values())
+    #print list(loss.values())
+    max_epochs = np.max(epochs.values())
+    loss_mean = avgNestedLists(list(loss.values())) #np.mean(list(loss.values()),axis=0)
+    loss_std = stdNestedLists(list(loss.values())) #np.std(loss.values(),axis=0)
+    val_loss_mean = avgNestedLists(list(val_loss.values())) #np.mean(val_loss.values(),axis=0)
+    val_loss_std = stdNestedLists(list(val_loss.values())) #np.std(val_loss.values(),axis=0)
+    acc_mean = avgNestedLists(list(acc.values())) #np.mean(kl.values(),axis=0)
+    acc_std = stdNestedLists(list(acc.values())) #np.std(kl.values(),axis=0)
+    acc_kl_mean = avgNestedLists(list(val_acc.values())) #np.mean(val_kl.values(),axis=0)
+    acc_kl_std = stdNestedLists(list(val_acc.values())) #np.std(val_kl.values(),axis=0)
+
+
+
+    fig, axs = plt.subplots(2, 2, figsize=(24, 18))
+    plt.figure(1)
+    ##PLOT MSE TREINAMENTO
+    #list_t = []
+    plt.subplot(221)
+    #plt.errorbar(range(max_epochs+1),y=loss_mean,yerr=loss_std,errorevery=10)
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],loss[i])
+      #plt.plot(max_epochs,loss_mean)
+    #plt.plot(T[i].history['val_loss'])
+    list_t.append('Sorteio %.f'%(i+1))
+    #list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
+    #print list_t
+    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+    #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
+    #plt.title('SAE - '+layer.replace('x','-')+'-'+layer.split('x')[0],fontsize= 'xx-large')
+    plt.title('Neural Network - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
+    plt.ylabel('Erro de Treinamento (MSE)',fontsize= 'xx-large')
+    plt.xlabel(r"""$\'Epoca$""",fontsize= 'xx-large')
+    plt.tick_params(axis='both',labelsize=16)
+    #plt.xlim(0)
+    #plt.grid()
+    #plt.yscale('log')
+
+    ##PLOT MSE Val
+    #list_t = []
+    plt.subplot(222)
+
+    #plt.errorbar(range(max_epochs+1),y=val_loss_mean,yerr=val_loss_std,errorevery=10)
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],val_loss[i])
+      #plt.plot(max_epochs,val_loss_mean)
+    #plt.plot(T[i].history['val_loss'])
+    #list_t.append('Sorteio %.f'%(i+1))
+    #list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
+    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+    #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
+    plt.title('Neural Network - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
+    plt.ylabel(r'Erro de $Validac\c{}\~ao$ (MSE)',fontsize= 'xx-large')
+    plt.xlabel(r"""$\'Epoca$""",fontsize= 'xx-large')
+    plt.tick_params(axis='both',labelsize=16)
+    #plt.xlim(0)
+    #plt.grid()
+    #plt.yscale('log')
+
+    ##PLOT KL TREINAMENTO
+
+    #list_t = []
+    plt.subplot(223)
+
+    #plt.errorbar(range(max_epochs+1),y=kl_mean,yerr=kl_std,errorevery=10)
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],acc[i])
+      #plt.plot(max_epochs,kl_mean)
+    #plt.plot(T[i].history['val_loss'])
+    #list_t.append('Sorteio %.f'%(i+1))
+    #list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
+    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+    #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
+    plt.title('Neural Network - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
+    plt.ylabel('Erro de Treinamento (Acc)',fontsize= 'xx-large')
+    plt.xlabel(r"""$\'Epoca$""",fontsize= 'xx-large')
+    plt.tick_params(axis='both',labelsize=16)
+    #plt.xlim(0)
+    #plt.grid()
+    #plt.yscale('log')
+
+    ##PLOT KL Val
+
+    #list_t = []
+    plt.subplot(224)
+    #plt.errorbar(range(max_epochs+1),y=val_kl_mean,yerr=val_kl_std,errorevery=10)
+
+    for i in range(len(epochs.keys())):
+      plt.plot(epochs[i],val_acc[i])
+      #plt.plot(max_epochs,val_kl_mean)
+    #plt.plot(T[i].history['val_loss'])
+    #list_t.append('Sorteio %.f'%(i+1))
+    #list_t.append('AE - '+layer.replace('x','-')+'-'+layer.split('x')[0])
+    plt.legend(list_t, loc='best',fontsize = 'xx-large')
+    #plt.title('AE '+layer+' - ',fontsize= 'xx-large')
+    plt.title('Neural Network - '+fname.split('/')[-1].split('_2018')[0],fontsize= 'xx-large')
+    plt.ylabel(r'Erro de $Validac\c{}\~ao$ (Acc)',fontsize= 'xx-large')
+    plt.xlabel(r"""$\'Epoca$""",fontsize= 'xx-large')
+    plt.tick_params(axis='both',labelsize=16)
+    #plt.xlim(0)
+    #plt.grid()
+    #plt.yscale('log')
+
+  #plt.grid()
+  plt.savefig(dirout+'dl_layer_'+layer+'_'+fname.split('/')[-1]+'.png')
+  png_files.append(dirout+'dl_layer_'+layer+'_'+fname.split('/')[-1]+'.png')
+  return png_files
+
+def save_dl_history(path,obj):
+  import pickle
+  with open(path + '.pkl', 'wb') as f:
+    pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+  f.close()
+
+def load_dl_history(path ):
+  import pickle
+  with open(path + '.pkl', 'rb') as f:
+    return pickle.load(f)
+  f.close()
 def save_dl_model(path=None,model=None):
   # serialize model to JSON
   model_json = model.to_json()

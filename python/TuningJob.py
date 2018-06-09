@@ -1493,7 +1493,8 @@ class TuningJob(Logger):
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput = tuningWrapper.trainC_Deep()
 
-                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
+                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
+                save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
                 #print trnTarget
                 #print trnOutput
                 #trnOutput[trnOutput >= 0] = 1
@@ -1635,6 +1636,10 @@ class TuningJob(Logger):
             png_f = open(png_file,'rb')
             bot.sendPhoto('@ringer_tuning',png_f)
 
+          dl_png_files=plot_classifier_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          for dl_png_files in dl_png_files:
+            dl_png_f = open(dl_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',dl_png_f)
 
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
