@@ -234,7 +234,8 @@ def report_performance(labels, predictions, elapsed=0, model_name="",time=None,s
   db = dataset.connect('sqlite:///:memory:')
   table = db['metrics']
   metrics = OrderedDict()
-
+  predictions[predictions >= 0] = 1
+  predictions[predictions < 0] = -1
   metrics['Model'] = model_name
   metrics['time'] = time
   metrics['phase'] = phase

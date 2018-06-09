@@ -1494,7 +1494,11 @@ class TuningJob(Logger):
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput = tuningWrapper.trainC_Deep()
 
                 save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
-
+                #print trnTarget
+                #print trnOutput
+                #trnOutput[trnOutput >= 0] = 1
+                #trnOutput[trnOutput < 0] = -1
+                #print trnOutput
                 ###Create dict with metrics and store in a local database
                 report_performance(trnTarget, trnOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',report=True)
                 report_performance(valTarget, valOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',report=True)
