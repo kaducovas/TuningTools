@@ -231,7 +231,7 @@ def print_metrics(metricsDict):
 def report_performance(labels, predictions, elapsed=0, model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
-  db = dataset.connect('sqlite:///:memory:')
+  db = dataset.connect('sqlite:///home/users/caducovas/mydatabase.db')
   table = db['metrics']
   metrics = OrderedDict()
   predictions[predictions >= 0] = 1
@@ -248,7 +248,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",time=None,s
   metrics['auc'] = roc_auc_score(labels, predictions)
   metrics['precision'] = precision_score(labels, predictions)
   metrics['recall'] = recall_score(labels, predictions)
-
+  table.insert(metrics)
   if report == True:
     print_metrics(metrics)
 
