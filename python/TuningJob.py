@@ -1493,7 +1493,7 @@ class TuningJob(Logger):
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput = tuningWrapper.trainC_Deep()
 
-                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'model_sort_'+sort+'_et_'+etBinIdx+'_eta_'+etaBinIdx,model=dlModel)
+                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
 
                 ###Create dict with metrics and store in a local database
                 report_performance(trnTarget, trnOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',report=True)
