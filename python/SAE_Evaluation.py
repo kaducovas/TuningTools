@@ -26,6 +26,8 @@ def calc_MI(x, y):
 def layer2number(x, y):
   return int(y.split('x')[1]) - int(x.split('x')[1])
 
+
+
 def plot_AE_training(fname,dirout):
   png_files=[]
   with open(fname) as f:
