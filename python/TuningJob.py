@@ -1638,7 +1638,7 @@ class TuningJob(Logger):
             png_f = open(png_file,'rb')
             bot.sendPhoto('@ringer_tuning',png_f)
 
-          dl_png_files=plot_classifier_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/models')
+          dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
           for dl_png_files in dl_png_files:
             dl_png_f = open(dl_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',dl_png_f)
