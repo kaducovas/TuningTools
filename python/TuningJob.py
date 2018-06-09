@@ -1428,7 +1428,8 @@ class TuningJob(Logger):
           # Take ppChain parameters on training data:
           tuning_folder_name=ppChain.shortName()+'_'+startTime #'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
           #self._info(len(trnData))
-
+          if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/results'):
+            os.makedirs(outputDir+'/files/'+tuning_folder_name+'/results')
 
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
@@ -1490,7 +1491,13 @@ class TuningJob(Logger):
                 #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
                 tuningWrapper.deepff2([nInputs, neuron,1])
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
-                cTunedDiscr, cTuningInfo,history = tuningWrapper.trainC_Deep()
+                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput = tuningWrapper.trainC_Deep()
+
+                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'model_sort_'+sort+'_et_'+etBinIdx+'_eta_'+etaBinIdx,model=dlModel)
+                
+                ###Create dict with metrics and store in a local database
+                report_performance(trnTarget, trnOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',report=True):
+                report_performance(valTarget, valOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',report=True):
 
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
@@ -1543,9 +1550,6 @@ class TuningJob(Logger):
         tunedPP = PreProcCollection( [ ppCol[etBinIdx][etaBinIdx][sort] for sort in sortBounds() ] )
 
         #tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
-
-        if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/results'):
-          os.makedirs(outputDir+'/files/'+tuning_folder_name+'/results')
 
 
         # Define output file name:

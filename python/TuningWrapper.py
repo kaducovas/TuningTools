@@ -904,7 +904,7 @@ class TuningWrapper(Logger):
 
     self._debug("Finished trainC_Deep on python side.")
 
-    return tunedDiscrList, tuningInfo, history
+    return tunedDiscrList, tuningInfo, modelHistory,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput
   # end of trainC_Deep
 
   def __discr_to_dict(self, model):

@@ -13,6 +13,7 @@ import numpy as np
 import os
 import re
 import matplotlib.pyplot as plt
+from collections import OrderedDict
 
 def calc_MI(x, y):
   max_value = max(max(x),max(y))
@@ -26,7 +27,41 @@ def calc_MI(x, y):
 def layer2number(x, y):
   return int(y.split('x')[1]) - int(x.split('x')[1])
 
+def avgNestedLists(nested_vals):
+  """
+  Averages a 2-D array and returns a 1-D array of all of the columns
+  averaged together, regardless of their dimensions.
+  """
+  output = []
+  maximum = 0
+  for lst in nested_vals:
+    if len(lst) > maximum:
+      maximum = len(lst)
+  for index in range(maximum): # Go through each index of longest list
+    temp = []
+    for lst in nested_vals: # Go through each list
+      if index < len(lst): # If not an index error
+        temp.append(lst[index])
+    output.append(np.nanmean(temp))
+  return output
 
+def stdNestedLists(nested_vals):
+  """
+  Averages a 2-D array and returns a 1-D array of all of the columns
+  averaged together, regardless of their dimensions.
+  """
+  output = []
+  maximum = 0
+  for lst in nested_vals:
+    if len(lst) > maximum:
+      maximum = len(lst)
+  for index in range(maximum): # Go through each index of longest list
+    temp = []
+    for lst in nested_vals: # Go through each list
+      if index < len(lst): # If not an index error
+        temp.append(lst[index])
+    output.append(np.nanstd(temp))
+  return output
 
 def plot_AE_training(fname,dirout):
   png_files=[]
@@ -54,17 +89,17 @@ def plot_AE_training(fname,dirout):
       kl[int(file_name.split('_')[27])] = job[0]['kullback_leibler_divergence']
       val_loss[int(file_name.split('_')[27])] = job[0]['val_losS']
       val_kl[int(file_name.split('_')[27])] = job[0]['val_kullback_leibler_divergence']
-    print len(loss.values())
-    print list(loss.values())
+    #print len(loss.values())
+    #print list(loss.values())
     max_epochs = np.max(epochs.values())
-    loss_mean = np.mean(list(loss.values()),axis=0)
-    loss_std = np.std(loss.values(),axis=0)
-    val_loss_mean = np.mean(val_loss.values(),axis=0)
-    val_loss_std = np.std(val_loss.values(),axis=0)
-    kl_mean = np.mean(kl.values(),axis=0)
-    kl_std = np.std(kl.values(),axis=0)
-    val_kl_mean = np.mean(val_kl.values(),axis=0)
-    val_kl_std = np.std(val_kl.values(),axis=0)
+    loss_mean = avgNestedLists(list(loss.values())) #np.mean(list(loss.values()),axis=0)
+    loss_std = stdNestedLists(list(loss.values())) #np.std(loss.values(),axis=0)
+    val_loss_mean = avgNestedLists(list(val_loss.values())) #np.mean(val_loss.values(),axis=0)
+    val_loss_std = stdNestedLists(list(val_loss.values())) #np.std(val_loss.values(),axis=0)
+    kl_mean = avgNestedLists(list(kl.values())) #np.mean(kl.values(),axis=0)
+    kl_std = stdNestedLists(list(kl.values())) #np.std(kl.values(),axis=0)
+    val_kl_mean = avgNestedLists(list(val_kl.values())) #np.mean(val_kl.values(),axis=0)
+    val_kl_std = stdNestedLists(list(val_kl.values())) #np.std(val_kl.values(),axis=0)
 
 
 
@@ -163,3 +198,162 @@ def plot_AE_training(fname,dirout):
   return png_files
 
     #plt.show()
+
+def save_dl_model(path=None,model=None):
+  # serialize model to JSON
+  model_json = model.to_json()
+  with open(path+".json", "w") as json_file:
+    json_file.write(model_json)
+  # serialize weights to HDF5
+  model.save_weights(path+".h5")
+  #print("Saved model to disk")
+
+def load_dl_model(path=None,model=None):
+  # load json and create model
+  json_file = open(path+".json", 'r')
+  loaded_model_json = json_file.read()
+  json_file.close()
+  loaded_model = model_from_json(loaded_model_json)
+  # load weights into new model
+  loaded_model.load_weights(path+".h5")
+  print("Loaded model from disk")
+  return loaded_model
+
+def print_metrics(metricsDict):
+  for key in metricsDict.keys():
+    if isinstance(metricsDict[key], float):
+      print("{:15}: {:.2f}".format(key, metricsDict[key]))
+    else:
+      print("{:15}: {}".format(key, metricsDict[key]))
+
+    return 0
+
+def report_performance(labels, predictions, elapsed=0, model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,report=True):
+  from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
+  import dataset
+  db = dataset.connect('sqlite:///:memory:')
+  table = db['metrics']
+  metrics = OrderedDict()
+
+  metrics['Model'] = model_name
+  metrics['time'] = time
+  metrics['phase'] = phase
+  metrics['Elapsed'] = elapsed
+  metrics['sort'] = sort
+  metrics['etBinIdx'] = etBinIdx
+  metrics['etaBinIdx'] = etaBinIdx
+  metrics['accuracy'] = accuracy_score(labels, predictions, normalize=True)
+  metrics['f1'] = f1_score(labels, predictions)
+  metrics['auc'] = roc_auc_score(labels, predictions)
+  metrics['precision'] = precision_score(labels, predictions)
+  metrics['recall'] = recall_score(labels, predictions)
+
+  if report == True:
+    print_metrics(metrics)
+
+  return metrics
+
+def cross_val_analysis_nn(n_split=10, classifier=None, x=None, y=None, model_name="",
+              patience=30, train_verbose=2, n_epochs=500):
+  '''
+    Classification and ROC analysis
+    Run classifier with cross-validation and plot ROC curves
+  '''
+  kf = KFold(n_splits=n_split)
+  kf.get_n_splits(x)
+
+  tprs = []
+  fpr_ = []
+  tpr_ = []
+  aucs = []
+  accuracy_ = []
+  f1_score_ = []
+  precision_ = []
+  recall_ = []
+  roc_auc_ = []
+
+  metrics_ = {}
+  trn_desc = {}
+  mean_fpr = np.linspace(0, 1, 100)
+
+  batch_size = min(x[y==-1].shape[0],x[y==1].shape[0])
+
+  i = 0
+  #start_time = time.time()
+  for train, val in kf.split(x,y):
+    print('Train Process for %i Fold'%(i+1))
+    #print("TRAIN:", train_index, "TEST:", test_index)
+    #trainX, valX = trainDf[train_index], trainDf[val_index]
+    #trainY, valY = y_train[train_index], y_train[val_index]
+
+    earlyStopping = callbacks.EarlyStopping(monitor='val_loss', patience=patience, verbose=train_verbose, mode='auto')
+    model = classifier.fit(x.iloc[train], y[train], nb_epoch=n_epochs, callbacks=[earlyStopping], verbose=train_verbose, validation_data=(x.iloc[val], y[val]))
+    trn_desc[i] = model
+    #model = classifier.fit(x.iloc[train], y[train])
+    pred_ = model.predict(x.iloc[val])
+    probas_ = model.predict_proba(x.iloc[val])
+
+    # Metrics evaluation
+    accuracy_.append(100*accuracy_score(y[val],pred_ , normalize=True))
+    f1_score_.append(100*f1_score(y[val], pred_))
+    roc_auc_.append(100*roc_auc_score(y[val], pred_))
+    precision_.append(100*precision_score(y[val], pred_))
+    recall_.append(100*recall_score(y[val], pred_))
+
+
+    # Compute ROC curve and area the curve
+    fpr, tpr, thresholds = roc_curve(y[val], probas_[:, 1])
+    tprs.append(interp(mean_fpr, fpr, tpr))
+    fpr_.append(fpr)
+    tpr_.append(tpr)
+    tprs[-1][0] = 0.0
+    roc_auc = auc(fpr, tpr)
+    aucs.append(roc_auc)
+    plt.plot(fpr, tpr, lw=1, alpha=0.3,
+         label='ROC fold %d (AUC = %0.2f)' % (i, 100*roc_auc))
+
+    i += 1
+  plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r',
+       label='Luck', alpha=.8)
+
+  #Store average and std metrics in dict
+  metrics_['model']=model_name
+  metrics_['accuracy']=round(np.mean(accuracy_),2)
+  metrics_['accuracy_std']=round(np.std(accuracy_),2)
+  #metrics_['fpr']=round(np.mean(fpr_),2)
+  #metrics_['fpr_std']=round(np.std(fpr_),2)
+  #metrics_['tpr']=round(np.mean(tpr_),2)
+  #metrics_['tpr_std']=round(np.std(tpr_),2)
+  metrics_['precision']=round(np.mean(precision_),2)
+  metrics_['precision_std']=round(np.std(precision_),2)
+  metrics_['recall']=round(np.mean(recall_),2)
+  metrics_['recall_std']=round(np.std(recall_),2)
+  metrics_['roc_auc']=round(np.mean(roc_auc_),2)
+  metrics_['roc_auc_std']=round(np.std(roc_auc_),2)
+  metrics_['f1']=round(np.mean(f1_score_),2)
+  metrics_['f1_std']=round(np.std(f1_score_),2)
+
+
+  mean_tpr = np.mean(tprs, axis=0)
+  mean_tpr[-1] = 1.0
+  mean_auc = auc(mean_fpr, mean_tpr)
+  std_auc = np.std(aucs)
+  plt.plot(mean_fpr, mean_tpr, color='b',
+       label=r'Mean ROC (AUC = %0.2f $\pm$ %0.2f)' % (100*mean_auc, 100*std_auc),
+       lw=2, alpha=.8)
+
+  std_tpr = np.std(tprs, axis=0)
+  tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+  tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+  plt.fill_between(mean_fpr, tprs_lower, tprs_upper, color='grey', alpha=.2,
+           label=r'$\pm$ 1 std. dev.')
+
+  plt.xlim([-0.05, 1.05])
+  plt.ylim([-0.05, 1.05])
+  plt.xlabel('False Positive Rate')
+  plt.ylabel('True Positive Rate')
+  plt.title(model_name+' Receiver operating characteristic')
+  plt.legend(loc="lower right")
+  plt.show()
+
+return metrics_,trn_desc
