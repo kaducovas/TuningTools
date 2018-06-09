@@ -1494,10 +1494,10 @@ class TuningJob(Logger):
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput = tuningWrapper.trainC_Deep()
 
                 save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'model_sort_'+sort+'_et_'+etBinIdx+'_eta_'+etaBinIdx,model=dlModel)
-                
+
                 ###Create dict with metrics and store in a local database
-                report_performance(trnTarget, trnOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',report=True):
-                report_performance(valTarget, valOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',report=True):
+                report_performance(trnTarget, trnOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',report=True)
+                report_performance(valTarget, valOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',report=True)
 
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
