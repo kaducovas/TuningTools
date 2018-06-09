@@ -232,11 +232,15 @@ def report_performance(labels, predictions, elapsed=0, model_name="",time=None,s
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
-  table = db['metrics']
+  table = db['classifier_pfm']
   metrics = OrderedDict()
   predictions[predictions >= 0] = 1
   predictions[predictions < 0] = -1
   metrics['Model'] = model_name
+  metrics['signal_samples'] = len(labels[labels==1])
+  metrics['bkg_samples'] = len(labels[labels==-1])
+  metrics['signal_pred_samples'] = len(predictions[predictions==1])
+  metrics['bkg_pred_samples'] = len(predictions[predictions==-1])
   metrics['time'] = time
   metrics['phase'] = phase
   metrics['Elapsed'] = elapsed
