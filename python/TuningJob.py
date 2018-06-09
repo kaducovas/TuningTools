@@ -1430,6 +1430,8 @@ class TuningJob(Logger):
           #self._info(len(trnData))
           if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/results'):
             os.makedirs(outputDir+'/files/'+tuning_folder_name+'/results')
+          if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/models'):
+            os.makedirs(outputDir+'/files/'+tuning_folder_name+'/models')
 
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
@@ -1493,8 +1495,8 @@ class TuningJob(Logger):
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput = tuningWrapper.trainC_Deep()
 
-                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
-                save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
+                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
+                save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
                 #print trnTarget
                 #print trnOutput
                 #trnOutput[trnOutput >= 0] = 1
@@ -1591,7 +1593,7 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 11):
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
@@ -1636,7 +1638,7 @@ class TuningJob(Logger):
             png_f = open(png_file,'rb')
             bot.sendPhoto('@ringer_tuning',png_f)
 
-          dl_png_files=plot_classifier_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          dl_png_files=plot_classifier_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/models')
           for dl_png_files in dl_png_files:
             dl_png_f = open(dl_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',dl_png_f)
