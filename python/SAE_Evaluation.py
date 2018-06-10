@@ -338,7 +338,7 @@ def save_dl_history(path,obj):
 
 def load_dl_history(path ):
   import pickle
-  with open(path + '.pkl', 'rb') as f:
+  with open(path, 'rb') as f:
     return pickle.load(f)
   f.close()
 def save_dl_model(path=None,model=None):
