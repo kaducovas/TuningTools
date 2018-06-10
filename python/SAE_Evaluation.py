@@ -202,9 +202,9 @@ def plot_classifier_training(fname,dirout):
   import os
   history_files=[x for x in os.listdir(fname) if x.endswith(".pkl")]
   png_files=[]
-  with open(fname) as f:
-    content = f.readlines()
-  f.close()
+  #with open(fname) as f:
+  #  content = f.readlines()
+  #f.close()
 
   layers_list =[f.split('/')[-1].split('_')[24] for f in content]
   layers=sorted(list(set(layers_list)),cmp=layer2number)

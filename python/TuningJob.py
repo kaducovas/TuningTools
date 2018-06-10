@@ -1632,11 +1632,11 @@ class TuningJob(Logger):
 
           bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
           #bot.sendMessage('@ringer_tuning',x2.get_string())
-          png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-
-          for png_file in png_files:
-            png_f = open(png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',png_f)
+          if('AE' in str(ppChain.shortName())):
+            png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendPhoto('@ringer_tuning',png_f)
 
           dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
           for dl_png_files in dl_png_files:
