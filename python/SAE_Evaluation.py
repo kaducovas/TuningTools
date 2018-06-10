@@ -154,7 +154,7 @@ def plot_AE_training(fname,dirout):
     #list_t = []
     plt.subplot(223)
 
-    plt.errorbar(range(len(max_epoch)),y=kl_mean,yerr=kl_std,errorevery=10)
+    plt.errorbar(range(len(max_epochs)),y=kl_mean,yerr=kl_std,errorevery=10)
     #for i in range(len(epochs.keys())):
     #  plt.plot(epochs[i],kl[i])
       #plt.plot(max_epochs,kl_mean)
