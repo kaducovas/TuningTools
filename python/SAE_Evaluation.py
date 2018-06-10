@@ -206,9 +206,9 @@ def plot_classifier_training(fname,dirout):
   #  content = f.readlines()
   #f.close()
 
-  layers_list =[f.split('/')[-1].split('_')[24] for f in content]
-  layers=sorted(list(set(layers_list)),cmp=layer2number)
-  print(layers)
+  #layers_list =[f.split('/')[-1].split('_')[24] for f in content]
+  #layers=sorted(list(set(layers_list)),cmp=layer2number)
+  #print(layers)
   list_t=[]
   for layer in layers:
     epochs = {}

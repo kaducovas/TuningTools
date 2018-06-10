@@ -1493,8 +1493,9 @@ class TuningJob(Logger):
                 #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
                 tuningWrapper.deepff2([nInputs, neuron,1])
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
+                start_model=datetime.now()
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput = tuningWrapper.trainC_Deep()
-
+                model_time=datetime.now() - start_model
                 save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
                 save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
                 #print trnTarget
@@ -1503,8 +1504,8 @@ class TuningJob(Logger):
                 #trnOutput[trnOutput < 0] = -1
                 #print trnOutput
                 ###Create dict with metrics and store in a local database
-                report_performance(trnTarget, trnOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',report=True)
-                report_performance(valTarget, valOutput, elapsed=0, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',report=True)
+                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',report=True)
+                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',report=True)
 
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
@@ -1632,6 +1633,11 @@ class TuningJob(Logger):
 
           bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
           #bot.sendMessage('@ringer_tuning',x2.get_string())
+          x3 = PrettyTable()
+          x3.field_names = list(trnMetrics.keys())
+          x3.add_row(list(trnMetrics.values()))
+          x3.add_row(list(valMetrics.values()))
+          bot.sendMessage('@ringer_tuning',x3.get_string())
           if('AE' in str(ppChain.shortName())):
             png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
