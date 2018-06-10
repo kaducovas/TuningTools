@@ -245,7 +245,7 @@ def plot_classifier_training(fname,dirout):
   plt.subplot(221)
   #plt.errorbar(range(max_epochs+1),y=loss_mean,yerr=loss_std,errorevery=10)
   for i in range(len(epochs.keys())):
-    plt.plot(range(apochs[i]),loss[i])
+    plt.plot(range(epochs[i]),loss[i])
     #plt.plot(max_epochs,loss_mean)
   #plt.plot(T[i].history['val_loss'])
     list_t.append('Sorteio %.f'%(i+1))
