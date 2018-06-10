@@ -92,6 +92,7 @@ def plot_AE_training(fname,dirout):
     #print len(loss.values())
     #print list(loss.values())
     max_epochs = np.max(epochs.values())
+    print max_epochs
     loss_mean = avgNestedLists(list(loss.values())) #np.mean(list(loss.values()),axis=0)
     loss_std = stdNestedLists(list(loss.values())) #np.std(loss.values(),axis=0)
     val_loss_mean = avgNestedLists(list(val_loss.values())) #np.mean(val_loss.values(),axis=0)
