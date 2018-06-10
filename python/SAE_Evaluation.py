@@ -109,7 +109,7 @@ def plot_AE_training(fname,dirout):
     ##PLOT MSE TREINAMENTO
     #list_t = []
     plt.subplot(221)
-    plt.errorbar(range(max_epochs+1),y=loss_mean,yerr=loss_std,errorevery=10)
+    plt.errorbar(range(len(max_epochs)),y=loss_mean,yerr=loss_std,errorevery=10)
     #3#for i in range(len(epochs.keys())):
       ###plt.plot(epochs[i],loss[i])
       #plt.plot(max_epochs,loss_mean)
