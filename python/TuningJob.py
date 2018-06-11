@@ -1413,6 +1413,9 @@ class TuningJob(Logger):
 
           work_path='/scratch/22061a/caducovas/run/'
 
+          bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+          bot.sendMessage('@ringer_tuning','Started Sort: '+str(sort))
+
           if os.path.exists(work_path+ppChain.shortName()+'.txt'):
             with open(work_path+ppChain.shortName()+'.txt','a+') as t_file:
               content = t_file.readlines()
