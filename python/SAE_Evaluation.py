@@ -109,7 +109,7 @@ def plot_AE_training(fname,dirout):
     ##PLOT MSE TREINAMENTO
     #list_t = []
     plt.subplot(221)
-    plt.errorbar(range(len(max_epochs)),y=loss_mean,yerr=loss_std,errorevery=10)
+    plt.errorbar(range(max_epochs),y=loss_mean,yerr=loss_std,errorevery=10)
     #3#for i in range(len(epochs.keys())):
       ###plt.plot(epochs[i],loss[i])
       #plt.plot(max_epochs,loss_mean)
@@ -132,7 +132,7 @@ def plot_AE_training(fname,dirout):
     #list_t = []
     plt.subplot(222)
 
-    plt.errorbar(range(len(max_epochs)),y=val_loss_mean,yerr=val_loss_std,errorevery=10)
+    plt.errorbar(range(max_epochs),y=val_loss_mean,yerr=val_loss_std,errorevery=10)
     #for i in range(len(epochs.keys())):
     #  plt.plot(epochs[i],val_loss[i])
       #plt.plot(max_epochs,val_loss_mean)
@@ -154,7 +154,7 @@ def plot_AE_training(fname,dirout):
     #list_t = []
     plt.subplot(223)
 
-    plt.errorbar(range(len(max_epochs)),y=kl_mean,yerr=kl_std,errorevery=10)
+    plt.errorbar(range(max_epochs),y=kl_mean,yerr=kl_std,errorevery=10)
     #for i in range(len(epochs.keys())):
     #  plt.plot(epochs[i],kl[i])
       #plt.plot(max_epochs,kl_mean)
@@ -175,7 +175,7 @@ def plot_AE_training(fname,dirout):
 
     #list_t = []
     plt.subplot(224)
-    plt.errorbar(range(len(max_epochs)),y=val_kl_mean,yerr=val_kl_std,errorevery=10)
+    plt.errorbar(range(max_epochs),y=val_kl_mean,yerr=val_kl_std,errorevery=10)
 
     #for i in range(len(epochs.keys())):
     #  plt.plot(epochs[i],val_kl[i])
