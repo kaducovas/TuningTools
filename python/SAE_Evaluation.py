@@ -540,7 +540,7 @@ def createClassifierTable(model_name,script_time):
     val= row.values()
 
   for k in chave:
-    x.add_row([chave,trn[chave],val[chave]])
+    x.add_row([k,trn[k],val[k]])
 
   return x
 
