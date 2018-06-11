@@ -1414,7 +1414,7 @@ class TuningJob(Logger):
           work_path='/scratch/22061a/caducovas/run/'
 
           bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-          bot.sendMessage('@ringer_tuning','Started Sort: '+str(sort))
+          bot.sendMessage('@ringer_tuning',ppChain.shortName()+'Started Sort: '+str(sort))
 
           if os.path.exists(work_path+ppChain.shortName()+'.txt'):
             with open(work_path+ppChain.shortName()+'.txt','a+') as t_file:
@@ -1597,67 +1597,67 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
+        #@@if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           #remove temp file which stores starttime so that all the jobs have the same value
-          os.remove(work_path+ppChain.shortName()+".txt")
+        #@@  os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
-          bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-          bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
-          scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
-          training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
-          bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
-          subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
-          subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
-          subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
-          subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
+        #@@  bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+          #@@bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
+          #@@scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
+          #@@training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
+          #@@bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
+          #@@subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
+          #@@subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
+          #@@subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
+          #@@subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
 
         #subprocess.call("tail -47 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex >> /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",shell=True)
         #f = open("/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",'rb')
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
 
-          fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
-          with open(fname) as f:
-            content = f.readlines()
-          f.close()
-          x = PrettyTable()
-          x.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
-          x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
+          #@@fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
+          #@@with open(fname) as f:
+          #@@  content = f.readlines()
+          #@@f.close()
+          #@@x = PrettyTable()
+          #@@x.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          #@@x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
           #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
           #bot.sendMessage('@ringer_tuning',x.get_string())
-          x2 = PrettyTable()
-          x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
-          x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
-          x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
+          #@@x2 = PrettyTable()
+          #@@x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          #@@x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
+          #@@x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
+          #@@x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
 
-          bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
+          #@@bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
           #bot.sendMessage('@ringer_tuning',x2.get_string())
-          x3 = PrettyTable()
-          x3.field_names = list(trnMetrics.keys())
-          x3.add_row(list(trnMetrics.values()))
-          x3.add_row(list(valMetrics.values()))
+          #@@x3 = PrettyTable()
+          #@@x3.field_names = list(trnMetrics.keys())
+          #@@x3.add_row(list(trnMetrics.values()))
+          #@@x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
-          if('AE' in str(ppChain.shortName())):
-            png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendPhoto('@ringer_tuning',png_f)
+          #@@if('AE' in str(ppChain.shortName())):
+            #@@png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+            #@@for png_file in png_files:
+              #@@png_f = open(png_file,'rb')
+              #@@bot.sendPhoto('@ringer_tuning',png_f)
 
-          dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
-          for dl_png_files in dl_png_files:
-            dl_png_f = open(dl_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',dl_png_f)
+          #@@dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
+          #@@for dl_png_files in dl_png_files:
+            #@@dl_png_f = open(dl_png_file,'rb')
+            #@@bot.sendPhoto('@ringer_tuning',dl_png_f)
 
-          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          for roc_png_files in roc_png_files:
-            roc_png_f = open(roc_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',roc_png_f)
+          #@@roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          #@@for roc_png_files in roc_png_files:
+            #@@roc_png_f = open(roc_png_file,'rb')
+            #@@bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
+          #@@bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
 
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
