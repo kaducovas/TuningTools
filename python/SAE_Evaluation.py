@@ -511,7 +511,7 @@ def cross_val_analysis_nn(n_split=10, classifier=None, x=None, y=None, model_nam
   plt.show()
 
   return metrics_,trn_desc
-  
+
 def createClassifierTable(model_name,script_time):
   import dataset
   from prettytable import PrettyTable
@@ -522,7 +522,7 @@ def createClassifierTable(model_name,script_time):
   #table = db['classifier']
 
   #query = 'select model,time,phase, avg(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples,avg(threshold) as threshold,  avg(sp) || "+-" || stdev(sp) as sp, avg(pd) || "+-" || stdev(pd) as pd, avg(pf) || "+-" || stdev(pf) as pf, avg(accuracy) || "+-" || stdev(accuracy) as accuracy, avg(f1) || "+-" || stdev(f1) as f1, avg(auc) || "+-" || stdev(auc) as auc,  avg(precision) || "+-" || stdev(precision) as precision, avg(recall) || "+-" || stdev(recall) as recall from classifier group by model,time,phase'
- 
+
   query = 'select model,time,phase, max(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifier where model = "'+model_name+'" and time = "'+script_time+'" group by model,time,phase'
   trnquery = 'select model,time,phase, max(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifier where model = "'+model_name+'" and time = "'+script_time+'" and phase = "Train" group by model,time,phase'
   valquery = 'select model,time,phase, max(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifier where model = "'+model_name+'" and time = "'+script_time+'" and phase = "Validation" group by model,time,phase'
@@ -535,15 +535,15 @@ def createClassifierTable(model_name,script_time):
 
   for row in trnresult:
     trn= row.values()
-  
+
   for row in valresult:
     val= row.values()
 
   for k in chave:
-    x.add_row([chave,trn[chave],val[chave]]) 
-  
+    x.add_row([chave,trn[chave],val[chave]])
+
   return x
-  
+
 def plot_Roc(fname,dirout, model_name=""):
   import os
   from RingerCore import load
@@ -558,7 +558,7 @@ def plot_Roc(fname,dirout, model_name=""):
   for idx,file in enumerate(history_files):
     discr=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
-    pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pds']    
+    pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pds']
     pfs=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pfs']
     sps=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['sps']
     idxSP = np.argmax(sps)
@@ -570,7 +570,6 @@ def plot_Roc(fname,dirout, model_name=""):
   plt.ylim([0.0, 1.05])
   plt.xlabel('Probabilidade de Falso Positivo',fontsize= 'xx-large')
   plt.ylabel(r'Probabilidade de $Detec\c{}\~ao$ ',fontsize= 'xx-large')
-  plt.ylabel('Probabilidade de detecção')
   plt.title(model_name+' Curva ROC - Treino',fontsize= 'xx-large')
   plt.legend(loc="lower right")
 
@@ -578,7 +577,7 @@ def plot_Roc(fname,dirout, model_name=""):
   for idx,file in enumerate(history_files):
     discr=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
-    pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['pds']    
+    pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['pds']
     pfs=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['pfs']
     sps=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['sps']
     idxSP = np.argmax(sps)
@@ -590,7 +589,6 @@ def plot_Roc(fname,dirout, model_name=""):
   plt.ylim([0.0, 1.05])
   plt.xlabel('Probabilidade de Falso Positivo',fontsize= 'xx-large')
   plt.ylabel(r'Probabilidade de $Detec\c{}\~ao$ ',fontsize= 'xx-large')
-  plt.ylabel('Probabilidade de detecção')
   plt.title(model_name+' Curva ROC - Teste',fontsize= 'xx-large')
   plt.legend(loc="lower right")
 
