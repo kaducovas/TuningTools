@@ -1594,7 +1594,7 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 3):
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
@@ -1653,7 +1653,7 @@ class TuningJob(Logger):
           for roc_png_files in roc_png_files:
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
-          
+
           bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
 
       # #Finished all configurations we had to do

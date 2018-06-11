@@ -91,7 +91,7 @@ def plot_AE_training(fname,dirout):
       val_kl[int(file_name.split('_')[27])] = job[0]['val_kullback_leibler_divergence']
     #print len(loss.values())
     #print list(loss.values())
-    max_epochs = int(np.max(epochs.values()))
+    max_epochs = np.max(epochs.values())
     print 'max_epochs', max_epochs, type(max_epochs)
     loss_mean = avgNestedLists(list(loss.values())) #np.mean(list(loss.values()),axis=0)
     loss_std = stdNestedLists(list(loss.values())) #np.std(loss.values(),axis=0)
