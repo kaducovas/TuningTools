@@ -1597,15 +1597,15 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
-        #@@if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 11):
           #remove temp file which stores starttime so that all the jobs have the same value
-        #@@  os.remove(work_path+ppChain.shortName()+".txt")
+          os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
-        #@@  bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-          #@@bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
-          #@@scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
-          #@@training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
-          #@@bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
+          bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+          bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
+          criptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
+          training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
+          bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
           #@@subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
           #@@subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
           #@@subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
