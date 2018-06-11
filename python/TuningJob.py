@@ -1637,7 +1637,7 @@ class TuningJob(Logger):
           x3.field_names = list(trnMetrics.keys())
           x3.add_row(list(trnMetrics.values()))
           x3.add_row(list(valMetrics.values()))
-          bot.sendMessage('@ringer_tuning',x3.get_string())
+          #bot.sendMessage('@ringer_tuning',x3.get_string())
           if('AE' in str(ppChain.shortName())):
             png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
