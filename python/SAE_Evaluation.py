@@ -556,7 +556,7 @@ def plot_Roc(fname,dirout, model_name=""):
   plt.figure(1)
   plt.subplot(221)
   for idx,file in enumerate(history_files):
-    discr=load(fname+'/'+file)
+    disc=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
     pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pds']
     pfs=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pfs']
