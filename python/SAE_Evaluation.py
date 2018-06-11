@@ -372,7 +372,7 @@ def print_metrics(metricsDict):
 
     return 0
 
-def report_performance(labels, predictions, elapsed=0, model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,point=None,report=True):
+def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,point=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
@@ -382,6 +382,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",time=None,s
   predictions[predictions >= point.thres_value] = 1
   predictions[predictions < point.thres_value] = -1
   metrics['Model'] = model_name
+  metrics['HL_Neuron'] = hl_neuron
   metrics['time'] = time
   metrics['sort'] = sort
   metrics['etBinIdx'] = etBinIdx
