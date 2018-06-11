@@ -835,7 +835,7 @@ class TuningWrapper(Logger):
 
       history = self._model.fit( self._trnData
                                     , self._trnTarget
-                                    , epochs          = self.trainOptions['nEpochs']
+                                    , epochs          = 5#self.trainOptions['nEpochs']
                                     , batch_size      = self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
                                     , callbacks       = [self._earlyStopping]
@@ -847,6 +847,7 @@ class TuningWrapper(Logger):
       rawDictTempl = { 'discriminator': None,
                        'benchmark': None }
       for idx,ref in enumerate(self.references):
+        print self.references[idx]
         # Retrieve raw network
         rawDictTempl['discriminator'] = self.__discr_to_dict( self._model )
         rawDictTempl['benchmark'] = self.references[idx]
@@ -876,7 +877,7 @@ class TuningWrapper(Logger):
             allOutput = np.concatenate([trnOutput,valOutput] )
             allTarget = np.concatenate([self._trnTarget,self._valTarget] )
           # Retrieve Rocs:
-          opRoc( allOutput, allTarget )
+          opRoc(trnOutput,self._trnTarget) #opRoc( allOutput, allTarget )
           if self._tstData: tstRoc( tstOutput, self._tstTarget )
           else: tstRoc( valOutput, self._valTarget )
           # Add rocs to output information
@@ -901,10 +902,15 @@ class TuningWrapper(Logger):
                       , tstPoint.pf_value
                       , tstPoint.thres_value )
       self._info("Finished trainC_Deep")
-
+    print self.references[0]
+    opPoint=opRoc.retrieve(self.references[0])
+    tstPoint=tstRoc.retrieve(self.references[0])
     self._debug("Finished trainC_Deep on python side.")
 
-    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput
+    #import dataset
+    #db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
+    #table= db['roc'] =
+    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoint,tstPoint
   # end of trainC_Deep
 
   def __discr_to_dict(self, model):

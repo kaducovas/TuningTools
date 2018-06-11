@@ -92,7 +92,7 @@ def plot_AE_training(fname,dirout):
     #print len(loss.values())
     #print list(loss.values())
     max_epochs = np.max(epochs.values())
-    print max_epochs
+    print 'max_epochs', max_epochs, type(max_epochs)
     loss_mean = avgNestedLists(list(loss.values())) #np.mean(list(loss.values()),axis=0)
     loss_std = stdNestedLists(list(loss.values())) #np.std(loss.values(),axis=0)
     val_loss_mean = avgNestedLists(list(val_loss.values())) #np.mean(val_loss.values(),axis=0)
@@ -219,7 +219,8 @@ def plot_classifier_training(fname,dirout):
   #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
   for file in history_files:
     job = load_dl_history(fname+'/'+file) #joblib.load(file.replace('\n','')+'_trn_desc.jbl')
-    sort = file.split('_')[2]
+    #print job.keys
+    sort = file.split('/')[-1].split('_')[2]
     #print file.split('_')[27]
     epochs[sort] = len(job['loss'])
     loss[sort] = job['loss']
@@ -243,7 +244,7 @@ def plot_classifier_training(fname,dirout):
   ##PLOT MSE TREINAMENTO
   #list_t = []
   plt.subplot(221)
-  print loss[0]
+  #print loss[0]
   #plt.errorbar(range(max_epochs+1),y=loss_mean,yerr=loss_std,errorevery=10)
   for i in range(len(epochs.keys())):
     plt.plot(loss[i])
@@ -371,25 +372,30 @@ def print_metrics(metricsDict):
 
     return 0
 
-def report_performance(labels, predictions, elapsed=0, model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,report=True):
+def report_performance(labels, predictions, elapsed=0, model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,point=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
-  table = db['classifier_pfm']
+  print point.sp_value
+  table = db['classifier']
   metrics = OrderedDict()
-  predictions[predictions >= 0] = 1
-  predictions[predictions < 0] = -1
+  predictions[predictions >= point.thres_value] = 1
+  predictions[predictions < point.thres_value] = -1
   metrics['Model'] = model_name
+  metrics['time'] = time
+  metrics['sort'] = sort
+  metrics['etBinIdx'] = etBinIdx
+  metrics['etaBinIdx'] = etaBinIdx
+  metrics['phase'] = phase
+  metrics['Elapsed'] = elapsed
   metrics['signal_samples'] = len(labels[labels==1])
   metrics['bkg_samples'] = len(labels[labels==-1])
   metrics['signal_pred_samples'] = len(predictions[predictions==1])
   metrics['bkg_pred_samples'] = len(predictions[predictions==-1])
-  metrics['time'] = time
-  metrics['phase'] = phase
-  metrics['Elapsed'] = elapsed
-  metrics['sort'] = sort
-  metrics['etBinIdx'] = etBinIdx
-  metrics['etaBinIdx'] = etaBinIdx
+  metrics['threshold']=float(point.thres_value)
+  metrics['sp'] = float(point.sp_value)
+  metrics['pd'] = float(point.pd_value)
+  metrics['pf'] = float(point.pf_value)
   metrics['accuracy'] = accuracy_score(labels, predictions, normalize=True)
   metrics['f1'] = f1_score(labels, predictions)
   metrics['auc'] = roc_auc_score(labels, predictions)
