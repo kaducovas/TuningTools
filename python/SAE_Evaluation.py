@@ -554,7 +554,7 @@ def plot_Roc(fname,dirout, model_name=""):
   list_t=[]
   fig, axs = plt.subplots(1, 2, figsize=(24, 18))
   plt.figure(1)
-  plt.subplot(221)
+  plt.subplot(121)
   for idx,file in enumerate(history_files):
     disc=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
@@ -564,7 +564,7 @@ def plot_Roc(fname,dirout, model_name=""):
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
     roc_auc = auc(pds, pfs)
-    plt.plot(pds, pfs,label='ROC - AUC = %0.2f, SP = '+str(sp)+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+    plt.plot(pfs, pds,label='ROC - AUC = '+str(roc_auc)+', SP = '+str(sp)+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 1.0])
   plt.ylim([0.0, 1.05])
@@ -573,7 +573,7 @@ def plot_Roc(fname,dirout, model_name=""):
   plt.title(model_name+' Curva ROC - Treino',fontsize= 'xx-large')
   plt.legend(loc="lower right")
 
-  plt.subplot(222)
+  plt.subplot(122)
   for idx,file in enumerate(history_files):
     discr=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
@@ -583,7 +583,7 @@ def plot_Roc(fname,dirout, model_name=""):
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
     roc_auc = auc(pds, pfs)
-    plt.plot(pds, pfs,label='ROC - AUC = %0.2f, SP = '+str(sp)+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+    plt.plot(pfs, pds,label='ROC - AUC = '+str(roc_auc)+', SP = '+str(sp)+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 1.0])
   plt.ylim([0.0, 1.05])
