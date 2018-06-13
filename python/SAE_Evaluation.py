@@ -265,7 +265,7 @@ def plot_classifier_training(fname,dirout):
   plt.tick_params(axis='both',labelsize=16)
   #plt.xlim(0)
   #plt.grid()
-  #plt.yscale('log')
+  plt.yscale('log')
   ##PLOT MSE Val
   #list_t = []
   plt.subplot(222)
@@ -285,7 +285,7 @@ def plot_classifier_training(fname,dirout):
   plt.tick_params(axis='both',labelsize=16)
   #plt.xlim(0)
   #plt.grid()
-  #plt.yscale('log')
+  plt.yscale('log')
 
   ##PLOT KL TREINAMENTO
 
