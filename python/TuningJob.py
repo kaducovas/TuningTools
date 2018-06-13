@@ -1387,7 +1387,9 @@ class TuningJob(Logger):
               patterns[i] = ppChain.concatenate(patterns[i], baseInfo)
 
           self._info('Extracting cross validation sort %d%s.', sort, binStr)
+          print 'AKIIIIIIII'
           if clusterCol:
+            print '222222'
             cluster = clusterCol[etBinIdx][etaBinIdx][sort]
             # Setting extra information if needed.
             if cluster.isDependent():
@@ -1395,6 +1397,7 @@ class TuningJob(Logger):
               cluster.setDependentPatterns( baseInfo )
             # Cluster is a LimitedList of clusters [cl_pattern1, cl_pattern2, ...]
             # TODO
+            print 'PATTERNS', len(patterns)
             if len(patterns) == 1:
               trnData, valData, tstData = crossValid( patterns[0], sort, cluster )
             else:
@@ -1402,7 +1405,8 @@ class TuningJob(Logger):
               for i in range(len(patterns)):
                 trnData[i], valData[i], tstData[i] = crossValid( patterns[i], sort, cluster )
           else:
-            # Here, not apply subset generator
+            # Here, not apply subset generatori
+            print 'COEEEEEEEE',len(patterns)
             if len(patterns) == 1:
               trnData, valData, tstData = crossValid( patterns[0], sort  )
             else:
