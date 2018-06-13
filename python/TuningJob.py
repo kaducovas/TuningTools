@@ -1198,7 +1198,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[90])] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level)] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[90])] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[80]),StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1439,6 +1439,64 @@ class TuningJob(Logger):
             os.makedirs(outputDir+'/files/'+tuning_folder_name+'/results')
           if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/models'):
             os.makedirs(outputDir+'/files/'+tuning_folder_name+'/models')
+          ##########################################################################
+          ##APAGAR DEPOIS
+          import sys
+          sys.path.insert(0,'/home/users/caducovas')
+          from load_dataset import load_dataset
+          from sklearn.model_selection import train_test_split
+          import dirs
+          import defines as defs
+          from preproc import preproc,dimension_reduction
+          from sklearn.model_selection import KFold
+
+          dataDf,labels = load_dataset(dirs.dataset,randomState=defs.standardSample,fracPos=defs.fracPos,fracNeg=defs.fracNeg)
+          print dataDf[0].shape, dataDf[1].shape
+          testsizePos=int(round((dataDf[0].shape[0]*defs.fracTest)))
+          testsizeNeg=int(round((dataDf[1].shape[0]*defs.fracTest)))
+          #print testsize
+          trainDfPos,testDfPos,y_trainPos,y_testPos = train_test_split(dataDf[0],labels[0],test_size=testsizePos) #,ramdom_state=defs.standardSample)
+          trainDfNeg,testDfNeg,y_trainNeg,y_testNeg = train_test_split(dataDf[1],labels[1],test_size=testsizeNeg)
+
+          kf=KFold(n_splits=10,random_state=17)
+          #print len(kf.split(trainDfNeg))
+          kfGenPos=[]
+          kfGenNeg=[]
+          for trainNegIdx,valNegIdx in kf.split(trainDfNeg):
+            kfGenNeg.append((trainNegIdx,valNegIdx))
+          for trainPosIdx,valPosIdx in kf.split(trainDfPos):
+            kfGenPos.append((trainPosIdx,valPosIdx))
+            #  print trainIdx,testIdx
+          #print len(kfGen),sort
+          #print kfGenNeg[sort]
+          trainPosIdx,valPosIdx=kfGenPos[sort]
+          trainNegIdx,valNegIdx=kfGenNeg[sort]
+
+          trainDf=[]
+          trainDf.append(trainDfNeg[trainNegIdx])
+          trainDf.append(trainDfPos[trainPosIdx])
+          valDf=[]
+          valDf.append(trainDfNeg[valNegIdx])
+          valDf.append(trainDfPos[valPosIdx])
+          testDf=[]
+          testDf.append(testDfNeg)
+          testDf.append(testDfPos)
+
+          #print dataDf.values.shape,trainDf.values.shape,testDf.values.shape
+          #print y_train.shape, y_test.shape
+          #print np.unique(y_train), np.unique(y_test)
+          ############################################################################
+          print 'REDUCAO DE DATASET - ANTES'
+          print 'trnData',len(trnData),trnData[0].shape,trnData[1].shape
+          print 'valData',len(valData),valData[0].shape,valData[1].shape
+
+          #trnData,valData,tstData = trainDf,valDf,testDf
+          trnData,valData= trainDf,valDf
+
+          print 'DEPOIS'
+          print 'trnData',len(trnData),trnData[0].shape,trnData[1].shape
+          print 'valData',len(valData),valData[0].shape,valData[1].shape
+          #print 'tstData',len(tstData),tstData[0].shape,tstData[1].shape
 
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
@@ -1449,9 +1507,7 @@ class TuningJob(Logger):
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
           #trnData,valData = ppChain.getNorm1()
-          self._info(len(trnData))
-          self._info(len(valData))
-          #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+         #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
@@ -1610,35 +1666,35 @@ class TuningJob(Logger):
           scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
           training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
           bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
-          subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
-          subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
-          subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
-          subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
+          #@@subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
+          #@@subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
+          #@@subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
+          #@@subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
 
         #subprocess.call("tail -47 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex >> /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",shell=True)
         #f = open("/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",'rb')
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
 
-          fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
-          with open(fname) as f:
-            content = f.readlines()
-          f.close()
-          x = PrettyTable()
-          x.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
-          x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
+          #@@fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
+          #@@with open(fname) as f:
+          #@@  content = f.readlines()
+          #@@f.close()
+          #@@x = PrettyTable()
+          #@@x.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          #@@x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
           #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
           #bot.sendMessage('@ringer_tuning',x.get_string())
-          x2 = PrettyTable()
-          x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
-          x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
-          x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
+          #@@x2 = PrettyTable()
+          #@@x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          #@@x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
+          #@@x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
+          #@@x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
 
-          bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
+          #@@bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
           #bot.sendMessage('@ringer_tuning',x2.get_string())
           #x3 = PrettyTable()
           #x3.field_names = list(trnMetrics.keys())

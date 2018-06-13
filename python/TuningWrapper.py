@@ -832,7 +832,13 @@ class TuningWrapper(Logger):
       #for idx, ref in enumerate(references):
       #rawDictTempl = { 'discriminator' : None,
       #                 'benchmark' : None }
-
+      ##########################################################
+      ##APAGAR
+      print 'WRAPPER DDMF'
+      print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget)
+      print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape
+      print np.unique(self._trnTarget), np.unique(self._valTarget)
+      ########################################################
       history = self._model.fit( self._trnData
                                     , self._trnTarget
                                     , epochs          = self.trainOptions['nEpochs']
