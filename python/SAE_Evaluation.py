@@ -567,8 +567,8 @@ def plot_Roc(fname,dirout, model_name=""):
     sps=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['sps']
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
-    roc_auc = auc(pds, pfs)
-    plt.plot(pfs, pds,label='ROC - AUC = '+str(100*round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+    roc_auc = auc(pfs,pds)
+    plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 1.0])
   plt.ylim([0.0, 1.05])
@@ -587,7 +587,7 @@ def plot_Roc(fname,dirout, model_name=""):
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
     roc_auc = auc(pds, pfs)
-    plt.plot(pfs, pds,label='ROC - AUC = '+str(100*round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+    plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 1.0])
   plt.ylim([0.0, 1.05])

@@ -1716,12 +1716,12 @@ class TuningJob(Logger):
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
           bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
-      print 'TENTATIVA DE ENVIAR OS PLOTS'
-      dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
-      print dl_png_files
-      for dl_png_file in dl_png_files:
-        dl_png_f = open(dl_png_file,'rb')
-        bot.sendPhoto('@ringer_tuning',dl_png_f)
+          print 'TENTATIVA DE ENVIAR OS PLOTS'
+          dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
+          print dl_png_files
+          for dl_png_file in dl_png_files:
+            dl_png_f = open(dl_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',dl_png_f)
 
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
