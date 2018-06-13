@@ -92,7 +92,7 @@ class StackedAutoEncoders:
         if self.trn_params.params['norm'] == 'mapstd':
             scaler = preprocessing.StandardScaler().fit(data[train_id,:])
         elif self.trn_params.params['norm'] == 'mapstd_rob':
-            scaler = preprocessing.RobustScaler().fit(data[train_id,:])
+           scaler = preprocessing.RobustScaler().fit(data[train_id,:])
         elif self.trn_params.params['norm'] == 'mapminmax':
             scaler = preprocessing.MinMaxScaler().fit(data[train_id,:])
         norm_data = scaler.transform(data)
@@ -226,7 +226,7 @@ class StackedAutoEncoders:
 
         classifier = []
         trn_desc = {}
-        
+
         print 'Number of SAE training inits: '+str(self.n_inits)
         for i_init in range(self.n_inits):
             #print 'Number of SAE training inits: '+ str(self.n_inits)
@@ -300,7 +300,7 @@ class StackedAutoEncoders:
                                       nb_epoch=self.trn_params.params['n_epochs'],
                                       batch_size=self.trn_params.params['batch_size'],
                                       callbacks=[earlyStopping],
-                                      verbose=2, #self.trn_params.params['verbose'], 
+                                      verbose=2, #self.trn_params.params['verbose'],
                                       validation_data=(trgt,
                                                        trgt))
             if np.min(init_trn_desc.history['val_loss']) < best_loss:

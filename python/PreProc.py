@@ -893,6 +893,7 @@ class StackedAutoEncoder( PrepObj ):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
+    self._caltype = retrieve_kw(d,'caltype','all_calo')
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits
@@ -910,7 +911,6 @@ class StackedAutoEncoder( PrepObj ):
     self._trn_params = ''
     self._trn_desc = ''
     self._weights = ''
-
 
     #self._mean = np.array( [], dtype=npCurrent.dtype )
     #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
@@ -960,12 +960,21 @@ class StackedAutoEncoder( PrepObj ):
     self._sort = sort
     self._etBinIdx = etBinIdx
     self._etaBinIdx = etaBinIdx
-    self._info('Training Data Shape: '+str(trnData[0].shape))
-    self._info('Validation Data Shape: '+str(valData[0].shape))
+
 
     import copy
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
+
+    if self._caltype == 'em_calo':
+      data = [d[:,:88] for d in data]
+      val_Data = [d[:,:88] for d in val_Data]
+    elif self._caltype == 'had_calo':
+      data = [d[:,88:] for d in data]
+      val_Data = [d[:,88:] for d in val_Data]
+
+    self._info('Training Data Shape: '+str(trnData[0].shape,trnData[1].shape))
+    self._info('Validation Data Shape: '+str(valData[0].shape,valData[1].shape))
 
     #data = [d[:100] for d in data]
     #val_Data = [d[:100] for d in val_Data]
@@ -1006,7 +1015,8 @@ class StackedAutoEncoder( PrepObj ):
     SAE = StackedAutoEncoders(params = trn_params,
                               development_flag = False,
                               n_folds = 1,
-                              save_path = results_path
+                              save_path = results_path,
+                              prefix_str=self._caltype
                               )
 
     self._SAE = SAE
