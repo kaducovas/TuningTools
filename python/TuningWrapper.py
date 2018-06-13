@@ -836,7 +836,7 @@ class TuningWrapper(Logger):
       ##APAGAR
       print 'WRAPPER DDMF'
       print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget)
-      print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape
+      print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
       print np.unique(self._trnTarget), np.unique(self._valTarget)
       ########################################################
       history = self._model.fit( self._trnData

@@ -1657,11 +1657,12 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
+        bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
         if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
-          bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+          #bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
           bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
           scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
           training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
@@ -1708,9 +1709,6 @@ class TuningJob(Logger):
               #@@bot.sendPhoto('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
-          #for dl_png_files in dl_png_files:
-          #  dl_png_f = open(dl_png_file,'rb')
-          #  bot.sendPhoto('@ringer_tuning',dl_png_f)
 
           roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
           for roc_png_file in roc_png_files:
@@ -1718,6 +1716,12 @@ class TuningJob(Logger):
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
           bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
+      print 'TENTATIVA DE ENVIAR OS PLOTS'
+      dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
+      print dl_png_files
+      for dl_png_file in dl_png_files:
+        dl_png_f = open(dl_png_file,'rb')
+        bot.sendPhoto('@ringer_tuning',dl_png_f)
 
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')

@@ -219,8 +219,9 @@ def plot_classifier_training(fname,dirout):
   #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
   for file in history_files:
     job = load_dl_history(fname+'/'+file) #joblib.load(file.replace('\n','')+'_trn_desc.jbl')
-    #print job.keys
-    sort = file.split('/')[-1].split('_')[2]
+    #print job.keys()
+    sort = int(file.split('/')[-1].split('_')[2])
+    #print sort
     #print file.split('_')[27]
     epochs[sort] = len(job['loss'])
     loss[sort] = job['loss']
@@ -238,7 +239,7 @@ def plot_classifier_training(fname,dirout):
   #acc_std = stdNestedLists(list(acc.values())) #np.std(kl.values(),axis=0)
   #val_acc_mean = avgNestedLists(list(val_acc.values())) #np.mean(val_kl.values(),axis=0)
   #val_acc_std = stdNestedLists(list(val_acc.values())) #np.std(val_kl.values(),axis=0)
-
+    #print loss[sort]
   fig, axs = plt.subplots(2, 2, figsize=(24, 18))
   plt.figure(1)
   ##PLOT MSE TREINAMENTO
@@ -247,7 +248,9 @@ def plot_classifier_training(fname,dirout):
   #print loss[0]
   #plt.errorbar(range(max_epochs+1),y=loss_mean,yerr=loss_std,errorevery=10)
   for i in range(len(epochs.keys())):
+    #print i,loss[i]
     plt.plot(loss[i])
+
     #plt.plot(max_epochs,loss_mean)
   #plt.plot(T[i].history['val_loss'])
     list_t.append('Sorteio %.f'%(i+1))
@@ -565,7 +568,7 @@ def plot_Roc(fname,dirout, model_name=""):
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
     roc_auc = auc(pds, pfs)
-    plt.plot(pfs, pds,label='ROC - AUC = '+str(roc_auc)+', SP = '+str(sp)+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+    plt.plot(pfs, pds,label='ROC - AUC = '+str(100*round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 1.0])
   plt.ylim([0.0, 1.05])
@@ -584,7 +587,7 @@ def plot_Roc(fname,dirout, model_name=""):
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
     roc_auc = auc(pds, pfs)
-    plt.plot(pfs, pds,label='ROC - AUC = '+str(roc_auc)+', SP = '+str(sp)+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+    plt.plot(pfs, pds,label='ROC - AUC = '+str(100*round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 1.0])
   plt.ylim([0.0, 1.05])
