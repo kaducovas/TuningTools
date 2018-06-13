@@ -556,7 +556,7 @@ def plot_Roc(fname,dirout, model_name=""):
   png_files=[]
 
   list_t=[]
-  fig, axs = plt.subplots(1, 2, figsize=(24, 18))
+  fig, axs = plt.subplots(1, 2, figsize=(24, 16))
   plt.figure(1)
   plt.subplot(121)
   for idx,file in enumerate(history_files):
@@ -586,7 +586,7 @@ def plot_Roc(fname,dirout, model_name=""):
     sps=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['sps']
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
-    roc_auc = auc(pds, pfs)
+    roc_auc = auc(pfs,pds)
     plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 1.0])
