@@ -960,21 +960,23 @@ class StackedAutoEncoder( PrepObj ):
     self._sort = sort
     self._etBinIdx = etBinIdx
     self._etaBinIdx = etaBinIdx
-
+    print(self._caltype)
 
     import copy
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
 
     if self._caltype == 'em_calo':
+      print 'EMMMMMMMMMMM'
       data = [d[:,:88] for d in data]
       val_Data = [d[:,:88] for d in val_Data]
     elif self._caltype == 'had_calo':
+      print 'HAAAAAAAAAAAD'
       data = [d[:,88:] for d in data]
       val_Data = [d[:,88:] for d in val_Data]
 
-    self._info('Training Data Shape: '+str(trnData[0].shape,trnData[1].shape))
-    self._info('Validation Data Shape: '+str(valData[0].shape,valData[1].shape))
+    self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
+    self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
 
     #data = [d[:100] for d in data]
     #val_Data = [d[:100] for d in val_Data]
@@ -1044,13 +1046,29 @@ class StackedAutoEncoder( PrepObj ):
     """
       String representation of the object.
     """
-    return ("AutoEncoder_%d" % self._hidden_neurons[0])
+    if self._caltype == 'em_calo':
+      #print 'EMMMMMMMMMMM'
+      sname ='EM_Autoencoder'
+
+    elif self._caltype == 'had_calo':
+      sname='HAD_Autoencoder'
+    else:
+      sname='Autoencoder'
+    return (sname+"_%d" % self._hidden_neurons[0])
 
   def shortName(self):
     """
       Short string representation of the object.
     """
-    return ("AE_%d" % self._hidden_neurons[0])
+    if self._caltype == 'em_calo':
+      #print 'EMMMMMMMMMMM'
+      sname ='EM_AE'
+
+    elif self._caltype == 'had_calo':
+      sname='HAD_AE'
+    else:
+      sname='AE'
+    return (sname+"_%d" % self._hidden_neurons[0])
 
   def _apply(self, data):
     #self._info(pp.shortName())
@@ -1061,6 +1079,14 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
+      if self._caltype == 'em_calo':
+        #print 'EMMMMMMMMMMM'
+        data = [d[:,:88] for d in data]
+        #val_Data = [d[:,:88] for d in val_Data]
+      elif self._caltype == 'had_calo':
+        #print 'HAAAAAAAAAAAD'
+        data = [d[:,88:] for d in data]
+        #val_Data = [d[:,88:] for d in val_Data]
       #data = [d[:100] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
@@ -1600,7 +1626,7 @@ class PreProcChain ( Logger ):
       return
     for pp in self:
       self._info(pp.shortName())
-      if pp.shortName()[:2] == 'AE':
+      if 'AE' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
         trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder)
         valData = pp(valData, False)
       else:
@@ -1637,7 +1663,7 @@ class PreProcChain ( Logger ):
     weights=[]
     config=[]
     for pp in self:
-      if pp.shortName()[:2] == 'AE':
+      if 'AE' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
             #self._info(pp._weights)
             hidden_neurons.append(int(pp.shortName().split('_')[1]))
             weights.append(pp._weights)
