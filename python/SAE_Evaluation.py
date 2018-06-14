@@ -83,7 +83,7 @@ def plot_AE_training(fname,dirout):
     for file in files:
       job = joblib.load(file.replace('\n','')+'_trn_desc.jbl')
       file_name = file.split('/')[-1]
-      #print file.split('_')[27]
+      print file,file.split('_')[27]
       epochs[int(file_name.split('_')[27])] = job[0]['epochs']
       loss[int(file_name.split('_')[27])] = job[0]['loss']
       kl[int(file_name.split('_')[27])] = job[0]['kullback_leibler_divergence']
