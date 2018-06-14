@@ -1543,8 +1543,8 @@ class TuningJob(Logger):
             for init in initBounds():
               self._info('Training <Neuron = %d, sort = %d, init = %d>%s...', \
                   neuron, sort, init, binStr)
-              deep=True
-              concat=False
+              deep=False#True
+              concat=True #False
               if merged:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             (nInputs[0]+nInputs[1]), neuron, 1)
