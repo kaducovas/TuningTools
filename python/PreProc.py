@@ -1631,9 +1631,9 @@ class PreProcChain ( Logger ):
         valData = pp(valData, False)
       else:
         trnData = pp.takeParams(trnData)
-        #pp._trn_norm1 = trnData
+        pp._trn_norm1 = trnData
         valData = pp(valData, False)
-        #pp._val_norm1 = valData
+        pp._val_norm1 = valData
     pp._SAE = ''
     return trnData,valData
 

@@ -1506,8 +1506,8 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
-          #trnData,valData = ppChain.getNorm1()
-         #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          trnData,valData = ppChain.getNorm1()
+          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
@@ -1554,8 +1554,8 @@ class TuningJob(Logger):
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
                 #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
-                tuningWrapper.deepff2([nInputs, neuron,1])
-                #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
+                #tuningWrapper.deepff2([nInputs, neuron,1])
+                tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 start_model=datetime.now()
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.trainC_Deep()
                 model_time=str(datetime.now() - start_model).split('.')[0]
