@@ -240,6 +240,8 @@ class StackedAutoEncoders:
             #proj_all_data = norm_data
             proj_all_data = data
             if layer == 1:
+                print 'LAYER 1'
+                print hidden_neurons[layer-1], data.shape[1]
                 model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1]))
                 model.add(Activation(self.trn_params.params['hidden_activation']))
                 model.add(Dense(data.shape[1]))
