@@ -942,7 +942,7 @@ class TuningWrapper(Logger):
           # propagate inputs:
           trnOutput = self._model.predict([self._trnData[:,:88],self._trnData[:,88:]])
           valOutput = self._model.predict([self._valData[:,:88],self._valData[:,88:]])
-          tstOutput = self._model.predict([self._tstData[:,:88],self._tstData[:,88:]) if self._tstData else npCurrent.fp_array([])
+          tstOutput = self._model.predict([self._tstData[:,:88],self._tstData[:,88:]]) if self._tstData else npCurrent.fp_array([])
           try:
             allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
             allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
