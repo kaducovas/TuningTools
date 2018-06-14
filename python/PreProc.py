@@ -889,11 +889,11 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=1001,patience=10,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=1000,patience=10,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
-    self._caltype = retrieve_kw(d,'caltype','all_calo')
+    self._caltype = retrieve_kw(d,'caltype','allcalo')
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits
@@ -966,11 +966,11 @@ class StackedAutoEncoder( PrepObj ):
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
 
-    if self._caltype == 'em_calo' and data[0].shape[1] == 100:
+    if self._caltype == 'emcalo' and data[0].shape[1] == 100:
       print 'EMMMMMMMMMMM'
       data = [d[:,:88] for d in data]
       val_Data = [d[:,:88] for d in val_Data]
-    elif self._caltype == 'had_calo' and data[0].shape[1] == 100:
+    elif self._caltype == 'hadcalo' and data[0].shape[1] == 100:
       print 'HAAAAAAAAAAAD'
       data = [d[:,88:] for d in data]
       val_Data = [d[:,88:] for d in val_Data]
@@ -1046,12 +1046,12 @@ class StackedAutoEncoder( PrepObj ):
     """
       String representation of the object.
     """
-    if self._caltype == 'em_calo':
+    if self._caltype == 'emcalo':
       #print 'EMMMMMMMMMMM'
-      sname ='EM_Autoencoder'
+      sname ='EMAutoencoder'
 
-    elif self._caltype == 'had_calo':
-      sname='HAD_Autoencoder'
+    elif self._caltype == 'hadcalo':
+      sname='HADAutoencoder'
     else:
       sname='Autoencoder'
     return (sname+"_%d" % self._hidden_neurons[0])
@@ -1060,12 +1060,12 @@ class StackedAutoEncoder( PrepObj ):
     """
       Short string representation of the object.
     """
-    if self._caltype == 'em_calo':
+    if self._caltype == 'emcalo':
       #print 'EMMMMMMMMMMM'
-      sname ='EM_AE'
+      sname ='EMAE'
 
-    elif self._caltype == 'had_calo':
-      sname='HAD_AE'
+    elif self._caltype == 'hadcalo':
+      sname='HADAE'
     else:
       sname='AE'
     return (sname+"_%d" % self._hidden_neurons[0])
@@ -1079,11 +1079,11 @@ class StackedAutoEncoder( PrepObj ):
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
       ret = []
-      if self._caltype == 'em_calo' and data[0].shape[1] == 100:
+      if self._caltype == 'emcalo' and data[0].shape[1] == 100:
         #print 'EMMMMMMMMMMM'
         data = [d[:,:88] for d in data]
         #val_Data = [d[:,:88] for d in val_Data]
-      elif self._caltype == 'had_calo' and data[0].shape[1] == 100:
+      elif self._caltype == 'hadcalo' and data[0].shape[1] == 100:
         #print 'HAAAAAAAAAAAD'
         data = [d[:,88:] for d in data]
         #val_Data = [d[:,88:] for d in val_Data]
