@@ -1702,11 +1702,11 @@ class TuningJob(Logger):
           #x3.add_row(list(trnMetrics.values()))
           #x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
-          if('AE' in str(ppChain.shortName())):
-            png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendPhoto('@ringer_tuning',png_f)
+          #@@if('AE' in str(ppChain.shortName())):
+          #@@  png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          #@@  for png_file in png_files:
+          #@@    png_f = open(png_file,'rb')
+          #@@    bot.sendPhoto('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
