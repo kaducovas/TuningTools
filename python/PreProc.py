@@ -1644,12 +1644,27 @@ class PreProcChain ( Logger ):
     if not self:
       self._warning("No pre-processing available in this chan.")
       return
+    emcalo = False
+    hadcalo = False
     for pp in self:
       if pp.shortName() == 'N1':
         trnData = pp._trn_norm1
         valData = pp._val_norm1
         pp._trn_norm1=''
         pp._val_norm1=''
+      if 'EM' in str(pp.shortName()):
+        emcalo=True
+      if 'HAD' in str(pp.shortName()):
+        hadcalo=True
+    if emcalo:
+      #print 'EMMMMMMMMMMM'
+      trnData = [d[:,:88] for d in trnData]
+      valData = [d[:,:88] for d in valData]
+    if hadcalo:
+      #print 'HAAAAAAAAAAAD'
+      trnData = [d[:,88:] for d in trnData]
+      valData = [d[:,88:] for d in valData]
+
     return trnData,valData
 
   def getHiddenLayer(self):

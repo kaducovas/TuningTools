@@ -497,7 +497,7 @@ class TuningWrapper(Logger):
         weight = layers_weights[i_hn][:2]
         print weight[0].shape,weight[1].shape
         if i_hn == 0:
-          model.add(Dense(hidden_neurons[0],input_dim=100,weights=weight,trainable=True))
+          model.add(Dense(hidden_neurons[0],input_dim=nodes[0],weights=weight,trainable=True))
           model.add(Activation('tanh'))
           #model.add(Dropout(rate=0.5))
         else:
