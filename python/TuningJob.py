@@ -1557,7 +1557,7 @@ class TuningJob(Logger):
                 tuningWrapper.deepff2([nInputs, neuron,1])
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 start_model=datetime.now()
-                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint = tuningWrapper.trainC_Deep()
+                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.trainC_Deep()
                 model_time=str(datetime.now() - start_model).split('.')[0]
                 save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
                 save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
@@ -1567,8 +1567,8 @@ class TuningJob(Logger):
                 #trnOutput[trnOutput < 0] = -1
                 #print trnOutput
                 ###Create dict with metrics and store in a local database
-                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',point=opPoint,report=True)
-                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',point=tstPoint,report=True)
+                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',point=opPoint,fine_tuning=fine_tuningreport=True)
+                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',point=tstPoint,fine_tuning=fine_tuning,report=True)
 
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\

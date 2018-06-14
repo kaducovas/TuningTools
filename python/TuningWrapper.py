@@ -487,6 +487,7 @@ class TuningWrapper(Logger):
       if not self._core.newff(nodes, funcTrans, self._core.trainFcn):
         self._fatal("Couldn't allocate new feed-forward!")
     elif coreConf() is TuningToolCores.keras:
+      self._fine_tuning='yes'
       from keras.models import Sequential
       from keras.layers.core import Dense, Dropout, Activation
       model = Sequential()
@@ -548,6 +549,7 @@ class TuningWrapper(Logger):
     elif coreConf() is TuningToolCores.keras:
       from keras.models import Sequential
       from keras.layers.core import Dense, Dropout, Activation
+      self._fine_tuning= 'no'
       self._info("Using Keras")
       model = Sequential()
       model.add( Dense( nodes[0]
@@ -916,7 +918,7 @@ class TuningWrapper(Logger):
     #import dataset
     #db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
     #table= db['roc'] =
-    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoint,tstPoint
+    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoint,tstPoint,self._fine_tuning
   # end of trainC_Deep
 
   def __discr_to_dict(self, model):
