@@ -588,23 +588,29 @@ class TuningWrapper(Logger):
         self._fatal("Couldn't allocate new feed-forward!")
     elif coreConf() is TuningToolCores.keras:
 
-      from keras.models import Sequential
+      from keras.models import Sequential,Model
       from keras.layers.core import Dense, Dropout, Activation
+      from SAE_Evaluation import *
+      from keras.layers import *
+
       self._fine_tuning= 'concatEM-HAD'
       self._info("Using Keras")
 
-      EMmodel = load_dl_model(path=empath)	  
-      HADmodel = load_dl_model(path=hadpath)	  
-
-      EMmodel.pop()
-      EMmodel.pop()
+      EMmodel = load_dl_model(path=empath)
+      HADmodel = load_dl_model(path=hadpath)
+      print EMmodel.summary()
+      #EMmodel.pop()
+      #EMmodel.pop()
+      print 'DEPOIS'
+      print EMmodel.summary()
       #print 'EMmodel after pop...'
       #print EMmodel.layers[-1].get_config()
       #EMmodel.get_layer(name='dropout_1').name='dropout_1'+'_EM'
       EMmodel.get_layer(name='dense_1').name='dense_1'+'_EM'
+      EMmodel.get_layer(name='dense_2').name='dense_2'+'_EM'
       HADmodel.pop()
-      HADmodel.pop()  
-      
+      HADmodel.pop()
+      HADmodel.get_layer(name='dense_1_input').name='dense_1_input'+'_HAD'
       for layer in HADmodel.layers:
         #iprint 'Before change name...'
         #print layer
@@ -614,15 +620,15 @@ class TuningWrapper(Logger):
         #print new_name
         layer.name = unicode(new_name)
         #print 'After change name...'
-        #print layer.name  
-        
+        #print layer.name
+
       # Concatenate
       conc = Concatenate()([EMmodel.output, HADmodel.output])
       out = Dense(10, activation='tanh')(conc)
       #out = Dropout(0.5)(out)
       out = Dense(1, activation='tanh')(out)
-      model = Model([EMmodel.input, HADmodel.input], out)  
-  
+      model = Model([EMmodel.input, HADmodel.input], out)
+
       model.compile( loss=self.trainOptions['costFunction']
                    , optimizer = self.trainOptions['optmin_alg']
                    , metrics = self.trainOptions['metrics'] )
@@ -900,14 +906,14 @@ class TuningWrapper(Logger):
       print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
       print np.unique(self._trnTarget), np.unique(self._valTarget)
       ########################################################
-      history = self._model.fit( self._trnData
+      history = self._model.fit( [self._trnData[:,:88],self._trnData[:,88:]]#self._trnData
                                     , self._trnTarget
                                     , epochs          = 1000 #self.trainOptions['nEpochs']
                                     , batch_size      = self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
                                     , callbacks       = [self._earlyStopping]
                                     , verbose         = 2
-                                    , validation_data = ( self._valData , self._valTarget )
+                                    , validation_data = ( [self._valData[:,:88],self._valData[:,88:]] , self._valTarget )
                                     , shuffle         = self.trainOptions['shuffle']
                                     )
 

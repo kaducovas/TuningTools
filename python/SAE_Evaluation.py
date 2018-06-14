@@ -356,6 +356,8 @@ def save_dl_model(path=None,model=None):
   #print("Saved model to disk")
 
 def load_dl_model(path=None,model=None):
+  from keras.models import model_from_json
+  import json
   # load json and create model
   json_file = open(path+".json", 'r')
   loaded_model_json = json_file.read()
