@@ -573,6 +573,65 @@ class TuningWrapper(Logger):
       self._model = model
       self._historyCallback.model = model
 
+  def concatff(self, nodes,empath,hadpath):
+    """
+      Creates new feedforward neural network
+    """
+    self._debug('Initalizing CONCAT EM and HAD...')
+    models = {}
+    if coreConf() is TuningToolCores.ExMachina:
+      if funcTrans is NotSet: funcTrans = ['tanh', 'tanh']
+      self._model = self._core.FeedForward(nodes, funcTrans, 'nw')
+    elif coreConf() is TuningToolCores.FastNet:
+      if funcTrans is NotSet: funcTrans = ['tansig', 'tansig']
+      if not self._core.newff(nodes, funcTrans, self._core.trainFcn):
+        self._fatal("Couldn't allocate new feed-forward!")
+    elif coreConf() is TuningToolCores.keras:
+
+      from keras.models import Sequential
+      from keras.layers.core import Dense, Dropout, Activation
+      self._fine_tuning= 'concatEM-HAD'
+      self._info("Using Keras")
+
+      EMmodel = load_dl_model(path=empath)	  
+      HADmodel = load_dl_model(path=hadpath)	  
+
+      EMmodel.pop()
+      EMmodel.pop()
+      #print 'EMmodel after pop...'
+      #print EMmodel.layers[-1].get_config()
+      #EMmodel.get_layer(name='dropout_1').name='dropout_1'+'_EM'
+      EMmodel.get_layer(name='dense_1').name='dense_1'+'_EM'
+      HADmodel.pop()
+      HADmodel.pop()  
+      
+      for layer in HADmodel.layers:
+        #iprint 'Before change name...'
+        #print layer
+        #print type(layer.name)
+        aux_name = layer.name.encode('ascii', 'ignore')
+        new_name = aux_name + '_HAD'
+        #print new_name
+        layer.name = unicode(new_name)
+        #print 'After change name...'
+        #print layer.name  
+        
+      # Concatenate
+      conc = Concatenate()([EMmodel.output, HADmodel.output])
+      out = Dense(10, activation='tanh')(conc)
+      #out = Dropout(0.5)(out)
+      out = Dense(1, activation='tanh')(out)
+      model = Model([EMmodel.input, HADmodel.input], out)  
+  
+      model.compile( loss=self.trainOptions['costFunction']
+                   , optimizer = self.trainOptions['optmin_alg']
+                   , metrics = self.trainOptions['metrics'] )
+      # #keras.callbacks.History()
+      # #keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
+      model.summary()
+      self._model = model
+      self._historyCallback.model = model
+
 
   def train_c(self):
     """

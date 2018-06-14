@@ -1543,7 +1543,8 @@ class TuningJob(Logger):
             for init in initBounds():
               self._info('Training <Neuron = %d, sort = %d, init = %d>%s...', \
                   neuron, sort, init, binStr)
-              deep=True
+              deep=False
+              concat=True
               if merged:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             (nInputs[0]+nInputs[1]), neuron, 1)
@@ -1551,7 +1552,7 @@ class TuningJob(Logger):
                 cTunedDiscr, cTuningInfo = tuningWrapper.trainC_Exp()
 
               elif deep:
-                self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
+                self._info( 'DEEEP Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
                 #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
                 #tuningWrapper.deepff2([nInputs, neuron,1])
@@ -1570,7 +1571,33 @@ class TuningJob(Logger):
                 trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',point=opPoint,fine_tuning=fine_tuning,report=True)
                 valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',point=tstPoint,fine_tuning=fine_tuning,report=True)
 
-              else:
+              elif concat:
+                self._info( 'CONCAAAAT Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
+                            nInputs, neuron, 1)
+                #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
+                #tuningWrapper.deepff2([nInputs, neuron,1])
+                em2comb='N1-EMAE_60-EMAE_40-EMAE_20_20180614054100'
+                had2comb='N1-HADAE_10-HADAE_8-HADAE_6_20180614041713'
+                
+                empath='/scratch/22061a/caducovas/run/files/'+em2comb+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
+                hadpath='/scratch/22061a/caducovas/run/files/'+had2comb+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
+                
+                tuningWrapper.concatff([nInputs,neuron,1],empath,hadpath)
+                start_model=datetime.now()
+                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.trainC_Deep()
+                model_time=str(datetime.now() - start_model).split('.')[0]
+                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
+                save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
+                #print trnTarget
+                #print trnOutput
+                #trnOutput[trnOutput >= 0] = 1
+                #trnOutput[trnOutput < 0] = -1
+                #print trnOutput
+                ###Create dict with metrics and store in a local database
+                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',point=opPoint,fine_tuning=fine_tuning,report=True)
+                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',point=tstPoint,fine_tuning=fine_tuning,report=True)
+
+                else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
                 #print "NINPUUUUTS "+ str(nInputs)+ "NEURON "+str(neuron)
