@@ -902,13 +902,13 @@ class TuningWrapper(Logger):
       ##########################################################
       ##APAGAR
       print 'WRAPPER DDMF'
-      print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget)
+      print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
       print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
-      print np.unique(self._trnTarget), np.unique(self._valTarget)
+      print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
       ########################################################
       history = self._model.fit( self._trnData
                                     , self._trnTarget
-                                    , epochs          = 1000 #self.trainOptions['nEpochs']
+                                    , epochs          = self.trainOptions['nEpochs']
                                     , batch_size      = self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
                                     , callbacks       = [self._earlyStopping]
@@ -942,7 +942,7 @@ class TuningWrapper(Logger):
           # propagate inputs:
           trnOutput = self._model.predict(self._trnData)
           valOutput = self._model.predict(self._valData)
-          tstOutput = self._model.predict(self._tstData) if self._tstData else npCurrent.fp_array([])
+          tstOutput = self._model.predict(self._tstData) #if self._tstData else npCurrent.fp_array([])
           try:
             allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
             allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
@@ -950,9 +950,10 @@ class TuningWrapper(Logger):
             allOutput = np.concatenate([trnOutput,valOutput] )
             allTarget = np.concatenate([self._trnTarget,self._valTarget] )
           # Retrieve Rocs:
-          opRoc(trnOutput,self._trnTarget) #opRoc( allOutput, allTarget )
-          if self._tstData: tstRoc( tstOutput, self._tstTarget )
-          else: tstRoc( valOutput, self._valTarget )
+          opRoc(valOutput,self._valTarget) #opRoc( allOutput, allTarget )
+          #if self._tstData: tstRoc( tstOutput, self._tstTarget )
+          tstRoc( tstOutput, self._tstTarget )
+          #else: tstRoc( valOutput, self._valTarget )
           # Add rocs to output information
           # TODO Change this to raw object
           tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),

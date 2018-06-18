@@ -519,8 +519,8 @@ class Norm1(PrepObj):
 
   def _apply(self, data):
     norms = self.__retrieveNorm(data)
-    self._info("norma1 list")
-    self._info(self.__retrieveNorm(data))
+    #self._info("norma1 list")
+    #self._info(self.__retrieveNorm(data))
     #self._beforenorm = data
     #self._normslist = self.__retrieveNorm(data)
     if isinstance(data, (tuple, list,)):

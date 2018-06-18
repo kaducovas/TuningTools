@@ -1198,7 +1198,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level)] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[6],caltype='hadcalo')  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo') ])) #,StackedAutoEncoder(level = self.level,hidden_neurons=[70]),StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level)] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[8],caltype='hadcalo')  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1490,7 +1490,7 @@ class TuningJob(Logger):
           print 'trnData',len(trnData),trnData[0].shape,trnData[1].shape
           print 'valData',len(valData),valData[0].shape,valData[1].shape
 
-          #trnData,valData,tstData = trainDf,valDf,testDf
+          trnData,valData,tstData = trainDf,valDf,testDf
           #trnData,valData= trainDf,valDf
 
           print 'DEPOIS'
@@ -1515,7 +1515,7 @@ class TuningJob(Logger):
           #self._info('Applying pp chain to validation dataset...')
           #valData = ppChain( valData )
           #self._info('Applying pp chain to test dataset...')
-          #tstData = ppChain( tstData )
+          tstData = ppChain( tstData )
           #vaidarerroaqui
           self._info('Done applying the pre-processing chain to all sets!')
 
@@ -1543,8 +1543,8 @@ class TuningJob(Logger):
             for init in initBounds():
               self._info('Training <Neuron = %d, sort = %d, init = %d>%s...', \
                   neuron, sort, init, binStr)
-              deep=False#True
-              concat=True #False
+              deep=True#False#True
+              concat=False# True #False
               if merged:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             (nInputs[0]+nInputs[1]), neuron, 1)
@@ -1729,26 +1729,26 @@ class TuningJob(Logger):
           #x3.add_row(list(trnMetrics.values()))
           #x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
-          #@@if('AE' in str(ppChain.shortName())):
-          #@@  png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-          #@@  for png_file in png_files:
-          #@@    png_f = open(png_file,'rb')
-          #@@    bot.sendPhoto('@ringer_tuning',png_f)
+        if('AE' in str(ppChain.shortName())):
+          png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          for png_file in png_files:
+            png_f = open(png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
-          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          for roc_png_file in roc_png_files:
-            roc_png_f = open(roc_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',roc_png_f)
+          #@@iroc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          #@@for roc_png_file in roc_png_files:
+            #@@roc_png_f = open(roc_png_file,'rb')
+            #@@bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
-          print 'TENTATIVA DE ENVIAR OS PLOTS'
-          dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
-          print dl_png_files
-          for dl_png_file in dl_png_files:
-            dl_png_f = open(dl_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',dl_png_f)
+          #bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
+          #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
+          #@@dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
+          #@@print dl_png_files
+          #@@for dl_png_file in dl_png_files:
+            #@@dl_png_f = open(dl_png_file,'rb')
+            #@@bot.sendPhoto('@ringer_tuning',dl_png_f)
 
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
