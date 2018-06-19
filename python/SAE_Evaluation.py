@@ -380,7 +380,7 @@ def print_metrics(metricsDict):
 def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,point=None,fine_tuning=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/coc800.db')
   print point.sp_value
   table = db['classifier_dl']
   metrics = OrderedDict()
