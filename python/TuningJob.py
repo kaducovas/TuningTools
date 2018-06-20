@@ -1730,26 +1730,26 @@ class TuningJob(Logger):
           #x3.add_row(list(trnMetrics.values()))
           #x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
-        if('AE' in str(ppChain.shortName())):
-          png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-          for png_file in png_files:
-            png_f = open(png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',png_f)
+          if('AE' in str(ppChain.shortName())):
+            png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendPhoto('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
-          #@@iroc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          #@@for roc_png_file in roc_png_files:
-            #@@roc_png_f = open(roc_png_file,'rb')
-            #@@bot.sendPhoto('@ringer_tuning',roc_png_f)
+          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          for roc_png_file in roc_png_files:
+            roc_png_f = open(roc_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          #bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
+          bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
-          #@@dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
-          #@@print dl_png_files
-          #@@for dl_png_file in dl_png_files:
-            #@@dl_png_f = open(dl_png_file,'rb')
-            #@@bot.sendPhoto('@ringer_tuning',dl_png_f)
+          dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
+          print dl_png_files
+          for dl_png_file in dl_png_files:
+            dl_png_f = open(dl_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',dl_png_f)
 
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
