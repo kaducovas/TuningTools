@@ -1562,8 +1562,8 @@ class TuningJob(Logger):
                 #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.trainC_Deep()
                 cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
                 model_time=str(datetime.now() - start_model).split('.')[0]
-                save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
-                save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
+                #@@save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
+                #@@save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
                 #print trnTarget
                 #print trnOutput
                 #trnOutput[trnOutput >= 0] = 1
@@ -1747,11 +1747,11 @@ class TuningJob(Logger):
 
           bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName(),startTime).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
-          dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
-          print dl_png_files
-          for dl_png_file in dl_png_files:
-            dl_png_f = open(dl_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',dl_png_f)
+          #@@dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
+          #@@print dl_png_files
+          #@@for dl_png_file in dl_png_files:
+            #@@dl_png_f = open(dl_png_file,'rb')
+            #@@bot.sendPhoto('@ringer_tuning',dl_png_f)
 
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')

@@ -1013,7 +1013,7 @@ class TuningWrapper(Logger):
       tuningInfo = {}
 
       import sys
-      sys.path.insert(0,'../../../../COC800_DataMining')
+      sys.path.insert(0,'/home/users/caducovas/COC800_DataMining')
       from analysis_functions import gaussian_naive_bayes,log_reg,perceptron,nearest_neighbours,decision_tree,random_forest, ada_boost,linear_discriminant_analysis,quadratic_discriminant_analysis,svm,linear_svm
       #for idx, ref in enumerate(references):
       #rawDictTempl = { 'discriminator' : None,
@@ -1035,7 +1035,7 @@ class TuningWrapper(Logger):
       #                              , validation_data = ( self._valData , self._valTarget )
       #                              , shuffle         = self.trainOptions['shuffle']
       #                              )
-      self._model = svm(self._trnData,self._trnTarget,self._valData,self._valTarget,compute_threshold=False)
+      predTest,predTrain,self._model = svm(self._trnData,self._trnTarget,self._valData,self._valTarget,compute_threshold=False)
       mname="svm"
       history = self._model
       rawDictTempl = { 'discriminator': None,
