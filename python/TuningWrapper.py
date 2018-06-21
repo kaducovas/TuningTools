@@ -1035,8 +1035,8 @@ class TuningWrapper(Logger):
       #                              , validation_data = ( self._valData , self._valTarget )
       #                              , shuffle         = self.trainOptions['shuffle']
       #                              )
-      predTest,predTrain,self._model = svm(self._trnData,self._trnTarget,self._valData,self._valTarget,compute_threshold=False)
-      mname="svm"
+      predTest,predTrain,self._model = log_reg(self._trnData,self._trnTarget,self._valData,self._valTarget,compute_threshold=False)
+      mname="log_reg"
       history = self._model
       rawDictTempl = { 'discriminator': None,
                        'benchmark': None }
