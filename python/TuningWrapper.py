@@ -1064,14 +1064,18 @@ class TuningWrapper(Logger):
           trnOutput = self._model.predict(self._trnData)
           valOutput = self._model.predict(self._valData)
           tstOutput = self._model.predict(self._tstData) #if self._tstData else npCurrent.fp_array([])
-          try:
-            allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
-            allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
-          except ValueError:
-            allOutput = np.concatenate([trnOutput,valOutput] )
-            allTarget = np.concatenate([self._trnTarget,self._valTarget] )
+          #try:
+          #  allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
+          #  allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
+          #except ValueError:
+          #  allOutput = np.concatenate([trnOutput,valOutput] )
+          #  allTarget = np.concatenate([self._trnTarget,self._valTarget] )
+
+          allOutput = np.concatenate([trnOutput,valOutput] )
+          allTarget = np.concatenate([self._trnTarget,self._valTarget] )
           # Retrieve Rocs:
-          opRoc(valOutput,self._valTarget) #opRoc( allOutput, allTarget )
+          #opRoc(valOutput,self._valTarget) #opRoc( allOutput, allTarget )
+          opRoc( allOutput, allTarget )
           #if self._tstData: tstRoc( tstOutput, self._tstTarget )
           tstRoc( tstOutput, self._tstTarget )
           #else: tstRoc( valOutput, self._valTarget )
