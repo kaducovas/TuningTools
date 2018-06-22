@@ -386,6 +386,9 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   metrics = OrderedDict()
   predictions[predictions >= point.thres_value] = 1
   predictions[predictions < point.thres_value] = -1
+  print 'debugging report_performance'
+  print labels
+  print predictions
   metrics['Model'] = model_name
   metrics['HL_Neuron'] = hl_neuron
   metrics['time'] = time

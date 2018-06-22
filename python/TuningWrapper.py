@@ -1061,9 +1061,10 @@ class TuningWrapper(Logger):
         if self.doPerf:
           self._debug('Retrieving performance...')
           # propagate inputs:
-          trnOutput = self._model.predict(self._trnData)
-          valOutput = self._model.predict(self._valData)
-          tstOutput = self._model.predict(self._tstData) #if self._tstData else npCurrent.fp_array([])
+          trnOutput = self._model.predict_proba(self._trnData)[:,1]
+          valOutput = self._model.predict_proba(self._valData)[:,1]
+          tstOutput = self._model.predict_proba(self._tstData)[:,1] #if self._tstData else npCurrent.fp_array([])
+          print 'classes', self._model.classes_
           #try:
           #  allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
           #  allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
@@ -1075,6 +1076,14 @@ class TuningWrapper(Logger):
           allTarget = np.concatenate([self._trnTarget,self._valTarget] )
           # Retrieve Rocs:
           #opRoc(valOutput,self._valTarget) #opRoc( allOutput, allTarget )
+
+          from sklearn.metrics import roc_curve
+          pfs,pds,ths = roc_curve(allTarget,allOutput,pos_label=1,drop_intermediate=False)
+          print ths,len(ths),len(allTarget),len(allOutput)
+
+          print trnOutput.shape,valOutput.shape,self._trnTarget.shape,self._valTarget.shape
+          print allOutput.shape, allTarget.shape
+
           opRoc( allOutput, allTarget )
           #if self._tstData: tstRoc( tstOutput, self._tstTarget )
           tstRoc( tstOutput, self._tstTarget )
