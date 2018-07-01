@@ -1062,9 +1062,10 @@ class TuningWrapper(Logger):
           self._debug('Retrieving performance...')
           # propagate inputs:
           trnOutput = self._model.predict_proba(self._trnData)[:,1]
-          valOutput = self._model.predict_proba(self._valData)[:,1]
+          valOutput = self._model.predict_proba(self._valData)
           tstOutput = self._model.predict_proba(self._tstData)[:,1] #if self._tstData else npCurrent.fp_array([])
           print 'classes', self._model.classes_
+          print valOutput[:,0],valOutput[:,1]
           #try:
           #  allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
           #  allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
