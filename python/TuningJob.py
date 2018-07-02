@@ -1717,8 +1717,8 @@ class TuningJob(Logger):
           x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
           x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
           x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
-          bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
-          bot.sendMessage('@ringer_tuning',x.get_string())
+          #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
+          #bot.sendMessage('@ringer_tuning',x.get_string())
           x2 = PrettyTable()
           x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
           x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
@@ -1726,7 +1726,7 @@ class TuningJob(Logger):
           x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
 
           bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
-          bot.sendMessage('@ringer_tuning',x2.get_string())
+          #bot.sendMessage('@ringer_tuning',x2.get_string())
           #x3 = PrettyTable()
           #x3.field_names = list(trnMetrics.keys())
           #x3.add_row(list(trnMetrics.values()))
