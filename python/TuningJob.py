@@ -1740,10 +1740,10 @@ class TuningJob(Logger):
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
-          #@@roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          #@@for roc_png_file in roc_png_files:
-          #@@  roc_png_f = open(roc_png_file,'rb')
-          #@@  bot.sendPhoto('@ringer_tuning',roc_png_f)
+          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          for roc_png_file in roc_png_files:
+            roc_png_f = open(roc_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',roc_png_f)
 
           #@@bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
