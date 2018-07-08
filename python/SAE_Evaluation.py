@@ -562,28 +562,29 @@ def plot_Roc(fname,dirout, model_name=""):
   png_files=[]
 
   list_t=[]
-  fig, axs = plt.subplots(1, 2, figsize=(24, 18))
+  #fig, axs = plt.subplots(1, 2, figsize=(24, 18))
+  fig, axs = plt.subplots(1, 1, figsize=(24, 18))
   plt.figure(1)
-  plt.subplot(121)
-  for idx,file in enumerate(history_files):
-    disc=load(fname+'/'+file)
+  #@@plt.subplot(121)
+  #@@for idx,file in enumerate(history_files):
+    #@@disc=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
-    pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pds']
-    pfs=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pfs']
-    sps=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['sps']
-    idxSP = np.argmax(sps)
-    sp=sps[idxSP]
-    roc_auc = auc(pfs,pds)
-    plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
-  plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
-  plt.xlim([0.0, 1.0])
-  plt.ylim([0.0, 1.05])
-  plt.xlabel('Probabilidade de Falso Positivo',fontsize= 'xx-large')
-  plt.ylabel(r'Probabilidade de $Detec\c{}\~ao$ ',fontsize= 'xx-large')
-  plt.title(model_name+' Curva ROC - Treino',fontsize= 'xx-large')
-  plt.legend(loc="lower right")
+    #@@pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pds']
+    #@@pfs=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['pfs']
+    #@@sps=disc['tunedDiscr'][0][0]['summaryInfo']['roc_operation']['sps']
+    #@@idxSP = np.argmax(sps)
+    #@@sp=sps[idxSP]
+    #@@roc_auc = auc(pfs,pds)
+    #@@plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+  #@@plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
+  #@@plt.xlim([0.0, 1.0])
+  #@@plt.ylim([0.0, 1.05])
+  #@@plt.xlabel('Probabilidade de Falso Positivo',fontsize= 'xx-large')
+  #@@plt.ylabel(r'Probabilidade de $Detec\c{}\~ao$ ',fontsize= 'xx-large')
+  #@@plt.title(model_name+' Curva ROC - Treino',fontsize= 'xx-large')
+  #@@plt.legend(loc="lower right")
 
-  plt.subplot(122)
+  plt.subplot(111)
   for idx,file in enumerate(history_files):
     disc=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
