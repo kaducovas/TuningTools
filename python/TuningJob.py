@@ -1543,7 +1543,7 @@ class TuningJob(Logger):
             for init in initBounds():
               self._info('Training <Neuron = %d, sort = %d, init = %d>%s...', \
                   neuron, sort, init, binStr)
-              deep=False#True
+              deep=True
               concat=False# True #False
               if merged:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
@@ -1555,12 +1555,14 @@ class TuningJob(Logger):
                 self._info( 'DEEEP Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
                 #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
+                tuningWrapper.newff([nInputs, neuron,1])
                 tuningWrapper.deepff2([nInputs, neuron,1])
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 start_model=datetime.now()
                 mname=""
+                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.train_c
                 #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.trainC_Deep()
-                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
+                #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
                 model_time=str(datetime.now() - start_model).split('.')[0]
                 #@@save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
                 #@@save_dl_history(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),obj=modelHistory.history)
@@ -1745,7 +1747,7 @@ class TuningJob(Logger):
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          #@@bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime).get_string())
+          bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
           #@@dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
           #@@print dl_png_files

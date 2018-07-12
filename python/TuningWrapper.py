@@ -766,8 +766,11 @@ class TuningWrapper(Logger):
             break
 
     self._debug("Finished train_c on python side.")
-
-    return tunedDiscrList, tuningInfo
+    history = None
+    self._model = None
+    self._fine_tuning= 'no'
+    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoint,tstPoint,mname,self._fine_tuning
+    #return tunedDiscrList, tuningInfo
   # end of train_c
 
   def trainC_Exp( self ):

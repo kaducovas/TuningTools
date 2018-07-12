@@ -563,8 +563,8 @@ def plot_Roc(fname,dirout, model_name=""):
 
   list_t=[]
   #fig, axs = plt.subplots(1, 2, figsize=(24, 18))
-  fig, axs = plt.subplots(1, 1, figsize=(24, 18))
-  plt.figure(1)
+  #fig, axs = plt.subplots(1, 1, figsize=(24, 18))
+  #plt.figure(1)
   #@@plt.subplot(121)
   #@@for idx,file in enumerate(history_files):
     #@@disc=load(fname+'/'+file)
@@ -584,7 +584,7 @@ def plot_Roc(fname,dirout, model_name=""):
   #@@plt.title(model_name+' Curva ROC - Treino',fontsize= 'xx-large')
   #@@plt.legend(loc="lower right")
 
-  plt.subplot(111)
+  #plt.subplot(111)
   for idx,file in enumerate(history_files):
     disc=load(fname+'/'+file)
     #files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer)]
