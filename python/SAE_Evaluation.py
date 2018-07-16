@@ -381,9 +381,10 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
-  print point.sp_value
+  #print point.sp_value
   table = db['classifier_dm']
   metrics = OrderedDict()
+  print len(predictions)
   predictions[predictions >= point.thres_value] = 1
   predictions[predictions < point.thres_value] = -1
   print 'debugging report_performance'

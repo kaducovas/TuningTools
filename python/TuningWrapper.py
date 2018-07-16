@@ -292,6 +292,9 @@ class TuningWrapper(Logger):
       elif coreConf() is TuningToolCores.FastNet:
         self._trnData = data
         self._core.setTrainData( data )
+        if target is None:
+          data, target = self.__concatenate_patterns(data)
+        self._trnTarget = target
 
 
   def valData(self, release = False):
@@ -332,6 +335,9 @@ class TuningWrapper(Logger):
       elif coreConf() is TuningToolCores.FastNet:
         self._valData = data
         self._core.setValData( data )
+        if target is None:
+          data, target = self.__concatenate_patterns(data)
+        self._valTarget = target
 
   def testData(self, release = False):
     if coreConf() is TuningToolCores.keras:
@@ -769,7 +775,16 @@ class TuningWrapper(Logger):
     history = None
     self._model = None
     self._fine_tuning= 'no'
-    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoint,tstPoint,mname,self._fine_tuning
+    print 'AQUII'
+    print len(self._trnTarget),len(self._valTarget)
+    print len(np.asarray(perfList[2]+perfList[3])), len(np.asarray(perfList[4]+perfList[5]))
+    #print len(perfList[0][0]),len(perfList[0][1]),len(perfList[0][2]),len(perfList[0][3])
+    #print len(perfList[1][0]),len(perfList[1][1]),len(perfList[1][2]),len(perfList[1][3])
+    #print len(perfList[2]),len(perfList[3]),len(perfList[4]),len(perfList[5])
+    #print len(self._trnTarget),self._trnTarget.count(1),self._trnTarget.count(-1)
+    #print type(perfList[2]+perfList[3])
+    #print len(perfList[5])
+    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,np.asarray(perfList[4]+perfList[5]),self._trnTarget,np.asarray(perfList[2]+perfList[3]),opPoint,tstPoint,self._fine_tuning
     #return tunedDiscrList, tuningInfo
   # end of train_c
 
