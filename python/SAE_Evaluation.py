@@ -196,6 +196,7 @@ def plot_AE_training(fname,dirout):
   #plt.grid()
   plt.savefig(dirout+'layer_'+layer+'_'+fname.split('/')[-1]+'.png')
   png_files.append(dirout+'layer_'+layer+'_'+fname.split('/')[-1]+'.png')
+  plt.clf()
   plt.close()
   return png_files
 
