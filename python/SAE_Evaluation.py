@@ -564,6 +564,9 @@ def plot_Roc(fname,dirout, model_name=""):
   history_files=[x for x in os.listdir(fname) if x.endswith(".pic")]
   png_files=[]
 
+  fig, axs = plt.subplots(1, 1, figsize=(24, 18))
+  plt.figure(1)
+
   list_t=[]
   #fig, axs = plt.subplots(1, 2, figsize=(24, 18))
   #fig, axs = plt.subplots(1, 1, figsize=(24, 18))
