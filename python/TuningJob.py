@@ -1699,35 +1699,35 @@ class TuningJob(Logger):
           scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
           training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
           bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
-          subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
-          subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
-          subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
-          subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
+          #@@subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
+          #@@subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
+          #@@subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
+          #@@subprocess.call("mv ./report_et2_eta0 "+work_path+"files/"+tuning_folder_name,shell=True)
 
         #subprocess.call("tail -47 /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex >> /afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",shell=True)
         #f = open("/afs/cern.ch/work/w/wsfreund/sae/run/files/"+tuning_folder_name+"/send_"+tuning_folder_name+".tex",'rb')
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
 
-          fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
-          with open(fname) as f:
-            content = f.readlines()
-          f.close()
-          x = PrettyTable()
-          x.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
-          x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
+          #@@fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
+          #@@with open(fname) as f:
+          #@@  content = f.readlines()
+          #@@f.close()
+          #@@x = PrettyTable()
+          #@@x.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          #@@x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
+          #@@x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
           #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
           #bot.sendMessage('@ringer_tuning',x.get_string())
-          x2 = PrettyTable()
-          x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
-          x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
-          x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
+          #@@x2 = PrettyTable()
+          #@@x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
+          #@@x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
+          #@@x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
+          #@@x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
 
-          bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
+          #@@bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
           #bot.sendMessage('@ringer_tuning',x2.get_string())
           #x3 = PrettyTable()
           #x3.field_names = list(trnMetrics.keys())
