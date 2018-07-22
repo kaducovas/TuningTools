@@ -392,6 +392,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   print 'debugging report_performance'
   print labels
   print predictions
+  print float(point.sp_value)
   metrics['Model'] = model_name
   metrics['HL_Neuron'] = hl_neuron
   metrics['time'] = time
@@ -597,8 +598,10 @@ def plot_Roc(fname,dirout, model_name=""):
     pds=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['pds']
     pfs=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['pfs']
     sps=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['sps']
+    ths=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['thresholds']
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
+    print ths[idxSP]
     roc_auc = auc(pfs,pds)
     plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
