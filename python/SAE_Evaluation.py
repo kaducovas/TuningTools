@@ -392,7 +392,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   print 'debugging report_performance'
   print labels
   print predictions
-  print float(point.sp_value)
+  print 'SP',float(point.sp_value)
   metrics['Model'] = model_name
   metrics['HL_Neuron'] = hl_neuron
   metrics['time'] = time
