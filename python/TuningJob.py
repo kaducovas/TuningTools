@@ -1515,7 +1515,7 @@ class TuningJob(Logger):
           #self._info('Applying pp chain to validation dataset...')
           #valData = ppChain( valData )
           #self._info('Applying pp chain to test dataset...')
-          tstData = ppChain( tstData )
+          #tstData = ppChain( tstData )
           #vaidarerroaqui
           self._info('Done applying the pre-processing chain to all sets!')
 
