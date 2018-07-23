@@ -324,6 +324,7 @@ class StackedAutoEncoders:
                 trn_desc['kullback_leibler_divergence'] = init_trn_desc.history['kullback_leibler_divergence']
                 trn_desc['val_kullback_leibler_divergence'] = init_trn_desc.history['val_kullback_leibler_divergence']
 
+        model.summary()
         # save model
         if not self.development_flag:
             file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx)
