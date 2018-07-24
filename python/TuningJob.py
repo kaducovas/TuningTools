@@ -1507,6 +1507,7 @@ class TuningJob(Logger):
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
           #trnData,valData = ppChain.getNorm1()
+          norm1Par = ppChain.getNorm1Parameters()
           #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           ###self._info(hidden_neurons)
           #self._info(config)

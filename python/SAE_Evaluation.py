@@ -615,3 +615,90 @@ def plot_Roc(fname,dirout, model_name=""):
   plt.savefig(dirout+'roc_'+fname.split('/')[-1]+'.png')
   png_files.append(dirout+'roc_'+fname.split('/')[-1]+'.png')
   return png_files
+
+def getReconstruct(self,fname,norm1Par,sort):
+  from SAE_Evaluation import *
+
+  predict_data = {}
+  reconstruct = {}
+  modelo={}
+  enc_model={}
+  dec_model={}
+
+  #if K.backend() == 'tensorflow':
+  #    K.clear_session()
+
+  with open(fname) as f:
+    content = f.readlines()
+  f.close()
+  layers_list =[f.split('/')[-1].split('_')[24] for f in content]
+  layers=sorted(list(set(layers_list)),cmp=layer2number)
+
+  #dirin='/home/caducovas/DeepRinger/data/run_layer1/adam_80/'
+  #layers = ['100x80','80x60','60x40','40x10']
+  #nsorts=10
+
+  #for i in [len(layers)]:
+  for i in range(len(layers)):
+    nlayers=i+1
+    layers_list=layers[:nlayers]
+    print layers_list
+    
+    predict_data = {} ##predict data junta os sortes
+    
+    #for isort in range(nsorts):
+    for isort in [sort]:
+      enc_model={}
+      dec_model={}
+      print "Sort: "+str(isort)
+      
+      #Itera sobre os layers para adquirir o encoder e o decoder
+      for layer in layers_list: #Different archtectures (each time one more autoencoder)
+        #print "Reading files of: "+layer
+        
+        neuron = int(layer.split('x')[1])
+        files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort))]
+        ifile=files[0]
+        #print ifile
+        modelo = load_model(file.replace('\n','')+'_model.h5')
+        #modelo = load_model(dirin+ifile)
+        enc_model[layer] = modelo.layers[0].get_weights() 
+        dec_model[layer] = modelo.layers[2].get_weights()
+      
+      #print "Creating the model"
+      model = Sequential()
+      print "just to make sure it is the first key "+list(enc_model.keys())[0]
+      first_layer = [k for k in list(enc_model.keys()) if '100x' in k][0]
+      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=100, weights=enc_model[first_layer]))
+      
+      if(nlayers >1):
+        ## Add encoders
+        for layer in layers_list[1:]:
+          neuron = int(layer.split('x')[1])
+          model.add(Dense(neuron, weights=enc_model[layer]))
+      
+      ## Add decoders
+      for layer in reversed(layers_list):
+        print layer
+        neuron = int(layer.split('x')[0])
+        model.add(Dense(neuron, weights=dec_model[layer]))
+      model.add(Activation('tanh'))
+      
+      print model.summary()
+      model.compile('adam','mse')
+
+      ###################                
+      bottleneck=int(layers_list[-1].split('x')[1])
+      afternorm = norm1Par[2]
+      if isinstance(afternorm, (tuple, list,)):
+        predict = []
+        for i, cdata in enumerate(afternorm):
+          predict.append(model.predict(cdata, batch_size=cdata.shape[0], verbose=1))
+      #print isort
+      #@@predict_data[int(isort)] = predict
+      #print predict_data
+      #@@reconstruct[bottleneck] = predict_data
+      reconstruct[bottleneck] = predict
+      return reconstruct
+      #if K.backend() == 'tensorflow':
+      #    K.clear_session()

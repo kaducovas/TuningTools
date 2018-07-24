@@ -521,15 +521,15 @@ class Norm1(PrepObj):
     norms = self.__retrieveNorm(data)
     #self._info("norma1 list")
     #self._info(self.__retrieveNorm(data))
-    #self._beforenorm = data
-    #self._normslist = self.__retrieveNorm(data)
+    self._beforenorm = data
+    self._normslist = self.__retrieveNorm(data)
     if isinstance(data, (tuple, list,)):
       ret = []
       for i, cdata in enumerate(data):
         ret.append( cdata / norms[i] )
     else:
       ret = data / norms
-    #self._afternorm=ret #.append(ret)
+    self._afternorm=ret #.append(ret)
     return ret
 
 class ExpertNetworksSimpleNorm(PrepObj):
@@ -1674,6 +1674,48 @@ class PreProcChain ( Logger ):
       valData = [d[:,88:] for d in valData]
 
     return trnData,valData
+
+  def getNorm1Parameters(self):
+    """
+      Returns the output of Reconstruction. 
+    """
+    from SAE_Evaluation import *
+    norm1Par=[]
+    if not self:
+      self._warning("No pre-processing available in this chan.")
+      return
+    emcalo = False
+    hadcalo = False
+    for pp in self:
+      if pp.shortName() == 'N1':
+        ##starts
+        norm1Par.append(pp._beforenorm)
+        norm1Par.append(pp._normslist)
+        norm1Par.append(pp._afternorm)
+        print len(pp._beforenorm),pp._beforenorm[0].shape,pp._beforenorm[1].shape
+        print len(pp._afternorm),pp._afternorm[0].shape,pp._afternorm[1].shape
+        print len(pp._normslist),pp._normslist[0].shape,pp._normslist[1].shape
+        self._normslist = ''
+        self._beforenorm = ''
+        self._afternorm = ''
+        
+        # valData = pp._val_norm1
+        # pp._trn_norm1=''
+        # pp._val_norm1=''
+      # if 'EM' in str(pp.shortName()):
+        # emcalo=True
+      # if 'HAD' in str(pp.shortName()):
+        # hadcalo=True
+    # if emcalo:
+      # #print 'EMMMMMMMMMMM'
+      # trnData = [d[:,:88] for d in trnData]
+      # valData = [d[:,:88] for d in valData]
+    # if hadcalo:
+      # #print 'HAAAAAAAAAAAD'
+      # trnData = [d[:,88:] for d in trnData]
+      # valData = [d[:,88:] for d in valData]
+
+    return norm1Par
 
   def getHiddenLayer(self):
     """
