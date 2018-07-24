@@ -7,6 +7,14 @@ import scipy
 from sklearn.externals import joblib
 from sklearn import preprocessing
 from sklearn import metrics
+import keras
+from keras.models import Sequential
+from keras.regularizers import l1,l2
+from keras.layers.core import Dense, Activation, Dropout
+from keras.optimizers import Adam, SGD
+from keras.utils import np_utils
+from keras.models import load_model
+from keras import backend as K
 import pandas as pd
 import numpy
 import numpy as np
@@ -14,6 +22,7 @@ import os
 import re
 import matplotlib.pyplot as plt
 from collections import OrderedDict
+
 
 def calc_MI(x, y):
   max_value = max(max(x),max(y))
@@ -616,7 +625,7 @@ def plot_Roc(fname,dirout, model_name=""):
   png_files.append(dirout+'roc_'+fname.split('/')[-1]+'.png')
   return png_files
 
-def getReconstruct(self,fname,norm1Par,sort):
+def getReconstruct(fname,norm1Par,sort):
   from SAE_Evaluation import *
 
   predict_data = {}
@@ -633,7 +642,7 @@ def getReconstruct(self,fname,norm1Par,sort):
   f.close()
   layers_list =[f.split('/')[-1].split('_')[24] for f in content]
   layers=sorted(list(set(layers_list)),cmp=layer2number)
-
+  print layers
   #dirin='/home/caducovas/DeepRinger/data/run_layer1/adam_80/'
   #layers = ['100x80','80x60','60x40','40x10']
   #nsorts=10
@@ -642,52 +651,52 @@ def getReconstruct(self,fname,norm1Par,sort):
   for i in range(len(layers)):
     nlayers=i+1
     layers_list=layers[:nlayers]
-    print layers_list
-    
+    print range(len(layers)),nlayers,layers_list
+
     predict_data = {} ##predict data junta os sortes
-    
+
     #for isort in range(nsorts):
     for isort in [sort]:
       enc_model={}
       dec_model={}
       print "Sort: "+str(isort)
-      
+
       #Itera sobre os layers para adquirir o encoder e o decoder
       for layer in layers_list: #Different archtectures (each time one more autoencoder)
         #print "Reading files of: "+layer
-        
+
         neuron = int(layer.split('x')[1])
         files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort))]
         ifile=files[0]
         #print ifile
-        modelo = load_model(file.replace('\n','')+'_model.h5')
+        modelo = load_model(ifile.replace('\n','')+'_model.h5')
         #modelo = load_model(dirin+ifile)
-        enc_model[layer] = modelo.layers[0].get_weights() 
+        enc_model[layer] = modelo.layers[0].get_weights()
         dec_model[layer] = modelo.layers[2].get_weights()
-      
+
       #print "Creating the model"
       model = Sequential()
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
       first_layer = [k for k in list(enc_model.keys()) if '100x' in k][0]
       model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=100, weights=enc_model[first_layer]))
-      
+
       if(nlayers >1):
         ## Add encoders
         for layer in layers_list[1:]:
           neuron = int(layer.split('x')[1])
           model.add(Dense(neuron, weights=enc_model[layer]))
-      
+
       ## Add decoders
       for layer in reversed(layers_list):
         print layer
         neuron = int(layer.split('x')[0])
         model.add(Dense(neuron, weights=dec_model[layer]))
       model.add(Activation('tanh'))
-      
+
       print model.summary()
       model.compile('adam','mse')
 
-      ###################                
+      ###################
       bottleneck=int(layers_list[-1].split('x')[1])
       afternorm = norm1Par[2]
       if isinstance(afternorm, (tuple, list,)):
@@ -699,6 +708,6 @@ def getReconstruct(self,fname,norm1Par,sort):
       #print predict_data
       #@@reconstruct[bottleneck] = predict_data
       reconstruct[bottleneck] = predict
-      return reconstruct
-      #if K.backend() == 'tensorflow':
-      #    K.clear_session()
+  return reconstruct
+  #if K.backend() == 'tensorflow':
+  #    K.clear_session()
