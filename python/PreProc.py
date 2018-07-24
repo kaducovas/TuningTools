@@ -1677,7 +1677,7 @@ class PreProcChain ( Logger ):
 
   def getNorm1Parameters(self):
     """
-      Returns the output of Reconstruction. 
+      Returns the output of Reconstruction.
     """
     from SAE_Evaluation import *
     norm1Par=[]
@@ -1692,13 +1692,14 @@ class PreProcChain ( Logger ):
         norm1Par.append(pp._beforenorm)
         norm1Par.append(pp._normslist)
         norm1Par.append(pp._afternorm)
+        print 'NORM1 PAR'
         print len(pp._beforenorm),pp._beforenorm[0].shape,pp._beforenorm[1].shape
         print len(pp._afternorm),pp._afternorm[0].shape,pp._afternorm[1].shape
         print len(pp._normslist),pp._normslist[0].shape,pp._normslist[1].shape
         self._normslist = ''
         self._beforenorm = ''
         self._afternorm = ''
-        
+
         # valData = pp._val_norm1
         # pp._trn_norm1=''
         # pp._val_norm1=''
