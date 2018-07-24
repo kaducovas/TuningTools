@@ -889,7 +889,7 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=1000,patience=10,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=10,patience=10,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
@@ -1167,7 +1167,7 @@ class PCA( PrepObj ):
     self._pca = decomposition.PCA(n_components = self.energy)
 
     #fix energy value
-    if self.energy:  self.energy=int(100*self.energy)
+    if self.energy:  self.energy=int(self.energy)
     else:  self.energy=100 #total energy
     del d
 
@@ -1181,15 +1181,21 @@ class PCA( PrepObj ):
     return self._pca.get_covariance()
 
   def ncomponents(self):
-    return self.variance().shape[npCurrent.pdim]
+    return self.variance().shape[0]
 
   def takeParams(self, trnData):
-    if isinstance(trnData, (tuple, list,)):
-      trnData = np.concatenate( trnData )
-    self._pca.fit(trnData)
+    import copy
+    data = copy.deepcopy(trnData)
+    #val_Data = copy.deepcopy(valData)
+
+    if isinstance(data, (tuple, list,)):
+      data = np.concatenate( data )
+    self._pca.fit(data)
+    print 'WTF', self.variance().shape
     self._info('PCA are aplied (%d of energy). Using only %d components of %d',
-                      self.energy, self.ncomponents(), trnData.shape[np.pdim])
-    return trnData
+                      self.energy, self.ncomponents(), data.shape[1])
+    #return trnData
+    return self._apply(trnData)
 
   def __str__(self):
     """
@@ -1209,7 +1215,8 @@ class PCA( PrepObj ):
       for cdata in data:
         # FIXME Test this!
         if npCurrent.isfortran:
-          ret.append( self._pca.transform(cdata.T).T )
+          print cdata.shape #,self._pca.transform(cdata.T).shape
+          ret.append( self._pca.transform(cdata) )
         else:
           ret.append( self._pca.transform(cdata) )
     else:
@@ -1218,6 +1225,7 @@ class PCA( PrepObj ):
         ret = self._pca.transform(cdata.T).T
       else:
         ret = self._pca.transform(cdata)
+    print len(ret),ret[0].shape,ret[1].shape
     return ret
 
   #def _undo(self, data):
