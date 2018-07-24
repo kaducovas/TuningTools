@@ -1509,7 +1509,8 @@ class TuningJob(Logger):
           #trnData,valData = ppChain.getNorm1()
           norm1Par = ppChain.getNorm1Parameters()
           #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
-          reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
+          if('AE' in str(ppChain.shortName())):
+            reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
