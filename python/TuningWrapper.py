@@ -754,9 +754,15 @@ class TuningWrapper(Logger):
 
           opPoint = opRoc.retrieve( ref )
           tstPoint = tstRoc.retrieve( ref )
-          if ref.name == 'Tuning_Offline_LH_Medium_SP':
-            SP_opPoint = opPoint
-            SP_tstPoint= tstPoint
+
+          opPoints=[]
+          tstPoints=[]
+          opPoints.append([ref.name,opPoint])
+          tstPoints.append([ref.name,tstPoint])
+
+          #if 'SP' in ref.name: #== 'Tuning_Offline_LH_Medium_SP':
+          #  SP_opPoint = opPoint
+          #  SP_tstPoint= tstPoint
 
           # Print information:
           self._info( 'Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
@@ -777,7 +783,7 @@ class TuningWrapper(Logger):
 
     #SP_opPoint = opRoc.retrieve( self.references[0] )
     #SP_tstPoint = tstRoc.retrieve( self.references[0] )
-    print SP_tstPoint.sp_value,SP_tstPoint.thres_value
+    #print SP_tstPoint.sp_value,SP_tstPoint.thres_value
     self._debug("Finished train_c on python side.")
     history = None
     self._model = None
@@ -792,7 +798,7 @@ class TuningWrapper(Logger):
     #print len(self._trnTarget),self._trnTarget.count(1),self._trnTarget.count(-1)
     #print type(perfList[2]+perfList[3])
     #print len(perfList[5])
-    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,np.asarray(perfList[4]+perfList[5]),self._trnTarget,np.asarray(perfList[2]+perfList[3]),SP_opPoint,SP_tstPoint,self._fine_tuning
+    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,np.asarray(perfList[4]+perfList[5]),self._trnTarget,np.asarray(perfList[2]+perfList[3]),opPoints,tstPoints,self._fine_tuning
     #return tunedDiscrList, tuningInfo
   # end of train_c
 
