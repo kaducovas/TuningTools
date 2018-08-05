@@ -1604,8 +1604,8 @@ class TuningJob(Logger):
                 #trnOutput[trnOutput < 0] = -1
                 #print trnOutput
                 ###Create dict with metrics and store in a local database
-                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',point=opPoint,fine_tuning=fine_tuning,report=True)
-                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',point=tstPoint,fine_tuning=fine_tuning,report=True)
+                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',points=opPoint,fine_tuning=fine_tuning,report=True)
+                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName(),hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',points=tstPoint,fine_tuning=fine_tuning,report=True)
 
               else:
                 self._info( 'Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
