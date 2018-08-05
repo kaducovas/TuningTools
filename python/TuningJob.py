@@ -1578,8 +1578,8 @@ class TuningJob(Logger):
                 #print trnOutput
                 ###Create dict with metrics and store in a local database
                 time.sleep(int(20*sort))
-                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',point=opPoint,fine_tuning=fine_tuning,report=True)
-                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',point=tstPoint,fine_tuning=fine_tuning,report=True)
+                trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',points=opPoint,fine_tuning=fine_tuning,report=True)
+                valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',points=tstPoint,fine_tuning=fine_tuning,report=True)
 
               elif concat:
                 self._info( 'CONCAAAAT Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
