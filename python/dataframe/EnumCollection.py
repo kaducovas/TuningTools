@@ -18,44 +18,48 @@ class Dataframe(EnumStringification):
 class RingerOperation(EnumStringification):
   """
     Select which framework ringer will operate
-    - Positive values for Online operation; and 
+    - Positive values for Online operation; and
     - Negative values for Offline operation.
   """
   _ignoreCase = True
+  Offline_LH_DataDriven2016_Rel21_VeryLoose = -49
+  Offline_LH_DataDriven2016_Rel21_Loose = -48
+  Offline_LH_DataDriven2016_Rel21_Medium = -47
+  Offline_LH_DataDriven2016_Rel21_Tight = -46
   Offline = -44
-  Offline_LHCalo_MC14_Truth_VeryLoose = -43 
-  Offline_LHCalo_MC14_Truth_Loose = -42 
-  Offline_LHCalo_MC14_Truth_Medium = -41 
-  Offline_LHCalo_MC14_Truth_Tight = -40 
-  Offline_LHCalo_MC14_TaP_VeryLoose = -39 
-  Offline_LHCalo_MC14_TaP_Loose = -38 
-  Offline_LHCalo_MC14_TaP_Medium = -37 
-  Offline_LHCalo_MC14_TaP_Tight = -36 
-  Offline_LHCalo_v8_VeryLoose = -35 
-  Offline_LHCalo_v8_Loose = -34 
-  Offline_LHCalo_v8_Medium = -33 
-  Offline_LHCalo_v8_Tight = -32 
-  Offline_LH_v8_VeryLoose = -31 
-  Offline_LH_v8_Loose = -30 
-  Offline_LH_v8_Medium = -29 
-  Offline_LH_v8_Tight = -28 
-  Offline_LHCalo_v11_VeryLoose = -27 
-  Offline_LHCalo_v11_Loose = -26 
-  Offline_LHCalo_v11_Medium = -25 
-  Offline_LHCalo_v11_Tight = -24 
-  Offline_LH_v11_VeryLoose = -23 
-  Offline_LH_v11_Loose = -22 
-  Offline_LH_v11_Medium = -21 
-  Offline_LH_v11_Tight = -20 
-  Offline_LHCalo_v11_Smooth_Tight = -19 
-  Offline_LHCalo_v11_Smooth_Medium = -18 
-  Offline_LHCalo_v11_Smooth_Loose = -17 
-  Offline_LHCalo_v11_Smooth_VeryLoose = -16 
-  Offline_LH_v11_Smooth_Tight = -15 
-  Offline_LH_v11_Smooth_Medium = -14 
-  Offline_LH_v11_Smooth_Loose = -13 
-  Offline_LH_v11_Smooth_LooseAndBLayer = -44 
-  Offline_LH_v11_Smooth_VeryLoose = -12 
+  Offline_LHCalo_MC14_Truth_VeryLoose = -43
+  Offline_LHCalo_MC14_Truth_Loose = -42
+  Offline_LHCalo_MC14_Truth_Medium = -41
+  Offline_LHCalo_MC14_Truth_Tight = -40
+  Offline_LHCalo_MC14_TaP_VeryLoose = -39
+  Offline_LHCalo_MC14_TaP_Loose = -38
+  Offline_LHCalo_MC14_TaP_Medium = -37
+  Offline_LHCalo_MC14_TaP_Tight = -36
+  Offline_LHCalo_v8_VeryLoose = -35
+  Offline_LHCalo_v8_Loose = -34
+  Offline_LHCalo_v8_Medium = -33
+  Offline_LHCalo_v8_Tight = -32
+  Offline_LH_v8_VeryLoose = -31
+  Offline_LH_v8_Loose = -30
+  Offline_LH_v8_Medium = -29
+  Offline_LH_v8_Tight = -28
+  Offline_LHCalo_v11_VeryLoose = -27
+  Offline_LHCalo_v11_Loose = -26
+  Offline_LHCalo_v11_Medium = -25
+  Offline_LHCalo_v11_Tight = -24
+  Offline_LH_v11_VeryLoose = -23
+  Offline_LH_v11_Loose = -22
+  Offline_LH_v11_Medium = -21
+  Offline_LH_v11_Tight = -20
+  Offline_LHCalo_v11_Smooth_Tight = -19
+  Offline_LHCalo_v11_Smooth_Medium = -18
+  Offline_LHCalo_v11_Smooth_Loose = -17
+  Offline_LHCalo_v11_Smooth_VeryLoose = -16
+  Offline_LH_v11_Smooth_Tight = -15
+  Offline_LH_v11_Smooth_Medium = -14
+  Offline_LH_v11_Smooth_Loose = -13
+  Offline_LH_v11_Smooth_LooseAndBLayer = -44
+  Offline_LH_v11_Smooth_VeryLoose = -12
   Offline_All = -9
   Offline_CutBased_Tight = -8
   Offline_CutBased_Medium = -7
@@ -89,7 +93,7 @@ class RingerOperation(EnumStringification):
     from TuningTools.coreDef import dataframeConf
     if dataframeConf.configured() or dataframeConf.can_autoconfigure():
       if not dataframeConf.configured() and dataframeConf.can_autoconfigure(): dataframeConf.auto()
-      return cls.efficiencyBranches()[val] 
+      return cls.efficiencyBranches()[val]
     else:
       self._warning("Attempting to guess the branch name as dataframe is not configured.")
       branchDict = efficiencyBranches(cls, frameConf = Dataframe.PhysVal)
@@ -143,7 +147,7 @@ class RingerOperation(EnumStringification):
              , cls.Trigger                     : 'Trigger'
              , cls.Offline                     : 'Offline'
              }
- 
+
     elif frameConf is Dataframe.SkimmedNtuple:
       return { cls.L2Calo:                                     None
              , cls.L2:                                         None
@@ -209,7 +213,7 @@ class Reference(EnumStringification):
   Off_Likelihood = 2
   elCand2_trig_EF_VeryLooseLLH_z0offlineMatch_Smooth_Probe = 3
   elCand2_passTrackQuality = 4
-  
+
 class FilterType(EnumStringification):
   """
     Enumeration if selection event type w.r.t reference
@@ -221,7 +225,7 @@ class FilterType(EnumStringification):
   Signal = 2
 
 class Target(EnumStringification):
-  """ 
+  """
     Holds the target value for the discrimination method
   """
   _ignoreCase = True
