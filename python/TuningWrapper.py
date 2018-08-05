@@ -713,6 +713,9 @@ class TuningWrapper(Logger):
 
     # Retrieve performance:
     opRoc, tstRoc, trnRoc = Roc(), Roc(), Roc()
+    opPoints=[]
+    tstPoints=[]
+    refName=[]
     for idx, tunedDiscrDict in enumerate(tunedDiscrList):
       discr = tunedDiscrDict['discriminator']
       if self.doPerf:
@@ -746,7 +749,6 @@ class TuningWrapper(Logger):
           tunedDiscrDict['summaryInfo']['trnOutput'] = [perfList[2],perfList[3]] if coreConf() is TuningToolCores.FastNet else trnOutput
           tunedDiscrDict['summaryInfo']['valOutput'] = [perfList[4],perfList[5]] if coreConf() is TuningToolCores.FastNet else valOutput
 
-
         for ref in self.references:
           if coreConf() is TuningToolCores.FastNet:
             # FastNet won't loop on this, this is just looping for keras right now
@@ -755,11 +757,9 @@ class TuningWrapper(Logger):
           opPoint = opRoc.retrieve( ref )
           tstPoint = tstRoc.retrieve( ref )
 
-          opPoints=[]
-          tstPoints=[]
           opPoints.append([ref.name,opPoint])
           tstPoints.append([ref.name,tstPoint])
-
+          refName.append(ref.name)
           #if 'SP' in ref.name: #== 'Tuning_Offline_LH_Medium_SP':
           #  SP_opPoint = opPoint
           #  SP_tstPoint= tstPoint
@@ -798,7 +798,7 @@ class TuningWrapper(Logger):
     #print len(self._trnTarget),self._trnTarget.count(1),self._trnTarget.count(-1)
     #print type(perfList[2]+perfList[3])
     #print len(perfList[5])
-    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,np.asarray(perfList[4]+perfList[5]),self._trnTarget,np.asarray(perfList[2]+perfList[3]),opPoints,tstPoints,self._fine_tuning
+    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,np.asarray(perfList[4]+perfList[5]),self._trnTarget,np.asarray(perfList[2]+perfList[3]),opPoints,tstPoints,self._fine_tuning,refName
     #return tunedDiscrList, tuningInfo
   # end of train_c
 

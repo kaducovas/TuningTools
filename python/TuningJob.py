@@ -1565,7 +1565,7 @@ class TuningJob(Logger):
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 start_model=datetime.now()
                 mname=""
-                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.train_c()
+                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.train_c()
                 #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning = tuningWrapper.trainC_Deep()
                 #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
                 model_time=str(datetime.now() - start_model).split('.')[0]
@@ -1752,7 +1752,8 @@ class TuningJob(Logger):
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,'Tuning_Offline_LH_Medium_SP').get_string())
+          for refN in refName:
+            bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
           #@@dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
           #@@print dl_png_files
