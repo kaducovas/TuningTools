@@ -1739,18 +1739,18 @@ class TuningJob(Logger):
           #x3.add_row(list(trnMetrics.values()))
           #x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
-          #@@if('AE' in str(ppChain.shortName())):
-          #@@  png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-          #@@  for png_file in png_files:
-          #@@    png_f = open(png_file,'rb')
-          #@@    bot.sendPhoto('@ringer_tuning',png_f)
+          if('AE' in str(ppChain.shortName())):
+            png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendPhoto('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
-          #@@roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          #@@for roc_png_file in roc_png_files:
-          #@@  roc_png_f = open(roc_png_file,'rb')
-          #@@  bot.sendPhoto('@ringer_tuning',roc_png_f)
+          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          for roc_png_file in roc_png_files:
+            roc_png_f = open(roc_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',roc_png_f)
 
           #@@for refN in refName:
           #@@  bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
