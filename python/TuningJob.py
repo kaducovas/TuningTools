@@ -1693,16 +1693,16 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
-        bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
+        #@@bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+        ###if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           #remove temp file which stores starttime so that all the jobs have the same value
-          os.remove(work_path+ppChain.shortName()+".txt")
+          #@@os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
           #bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-          bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
-          scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
-          training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
-          bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
+          #@@bot_message = ppChain.shortName()+'\nFinished all Jobs for '+fulloutput
+          #@@scriptStartTime=datetime.strptime(startTime[0:4]+'-'+startTime[4:6]+'-'+startTime[6:8]+' '+startTime[8:10]+':'+startTime[10:12]+':'+startTime[12:14],'%Y-%m-%d %H:%M:%S')
+          #@@training_time='Training took: '+str(datetime.now() - scriptStartTime).split('.')[0]
+          #@@bot.sendMessage('@ringer_tuning',bot_message+'\n'+training_time)
           ###subprocess.call(work_path+"teste_crossvalstatanalysis.sh "+tuning_folder_name,shell=True)
           ###subprocess.call(work_path+"teste_monitoring.sh "+tuning_folder_name,shell=True)
           ###subprocess.call("mv ./tuningMonitoring_et_2_eta_0.tex "+work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex",shell=True)
@@ -1738,21 +1738,21 @@ class TuningJob(Logger):
           #x3.add_row(list(trnMetrics.values()))
           #x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
-          if('AE' in str(ppChain.shortName())):
-            png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendPhoto('@ringer_tuning',png_f)
+          #@@if('AE' in str(ppChain.shortName())):
+          #@@  png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          #@@  for png_file in png_files:
+          #@@    png_f = open(png_file,'rb')
+          #@@    bot.sendPhoto('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
-          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          for roc_png_file in roc_png_files:
-            roc_png_f = open(roc_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',roc_png_f)
+          #@@roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          #@@for roc_png_file in roc_png_files:
+          #@@  roc_png_f = open(roc_png_file,'rb')
+          #@@  bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          for refN in refName:
-            bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
+          #@@for refN in refName:
+          #@@  bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
           #@@dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
           #@@print dl_png_files
