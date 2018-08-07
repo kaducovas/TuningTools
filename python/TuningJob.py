@@ -1693,7 +1693,7 @@ class TuningJob(Logger):
                                       ).save( fulloutput, compress )
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
-        #@@bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
+        bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
         if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           print "oi"
           #remove temp file which stores starttime so that all the jobs have the same value
