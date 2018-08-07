@@ -1752,8 +1752,8 @@ class TuningJob(Logger):
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          #@@for refN in refName:
-          #@@  bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
+          for refN in refName:
+            bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
           #@@dl_png_files= plot_classifier_training('/scratch/22061a/caducovas/run/files/N1_20180613130104/models/','/scratch/22061a/caducovas/run/files/N1_20180613130104/models/')
           #@@print dl_png_files
