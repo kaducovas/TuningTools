@@ -1695,6 +1695,7 @@ class TuningJob(Logger):
         #print(work_path+ppChain.shortName())
         #@@bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
         if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
+          print "oi"
           #remove temp file which stores starttime so that all the jobs have the same value
           #@@os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
