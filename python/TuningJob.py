@@ -1659,7 +1659,6 @@ class TuningJob(Logger):
 
         #tuning_folder_name=ppChain.shortName()+'_'+str(startTime).split('.')[0].replace('-','').replace(' ','').replace(':','')
 
-        return
         # Define output file name:
         fulloutput = os.path.join(
             #outputDir
