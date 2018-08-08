@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict
 import itertools
 from sklearn.metrics import confusion_matrix
-
+from SAE_Evaluation import *
 
 def calc_MI(x, y):
   max_value = max(max(x),max(y))
@@ -635,7 +635,7 @@ def plot_Roc(fname,dirout, model_name=""):
   return png_files
 
 def getReconstruct(fname,norm1Par,sort):
-  from SAE_Evaluation import *
+  #from SAE_Evaluation import *
 
   predict_data = {}
   reconstruct = {}
@@ -782,7 +782,7 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   return png_files
 
 def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None):
-  from SAE_Evaluation import *
+  #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
