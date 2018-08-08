@@ -396,7 +396,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer.db')
   #print point.sp_value
   tabela = db['classificadores']
-  print len(points)
+  print "QNT DE PONTOS",len(points)
   for refName,point in points:
     data = dict() #OrderedDict()
     print len(predictions)

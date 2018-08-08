@@ -1578,6 +1578,7 @@ class TuningJob(Logger):
                 #print trnOutput
                 ###Create dict with metrics and store in a local database
                 time.sleep(int(11*sort))
+                'HEEEEEELP'
                 trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',points=opPoint,fine_tuning=fine_tuning,report=True)
                 valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',points=tstPoint,fine_tuning=fine_tuning,report=True)
 
