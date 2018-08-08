@@ -402,7 +402,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     print len(predictions)
     predictions[predictions >= point.thres_value] = 1
     predictions[predictions < point.thres_value] = -1
-    print 'debugging report_performance'
+    print 'debugging report_performance????'
     #print labels
     #print predictions
     print 'REF',refName
