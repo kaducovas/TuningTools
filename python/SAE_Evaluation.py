@@ -757,6 +757,8 @@ def plot_confusion_matrix(cm, classes,
 
 def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   refName,point = points
+  print point.thres_value
+  print 'Pd:',point.pd,' SP:',point.sp,' Pf:',point.pf
   y_pred[y_pred >= point.thres_value] = 1
   y_pred[y_pred < point.thres_value] = -1
   png_files = []
