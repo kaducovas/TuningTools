@@ -764,7 +764,7 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   np.set_printoptions(precision=2)
   # Plot non-normalized confusion matrix
   #fig,axs = plt.subplots(1,2)
-  plt.figure(figsize=(9,6))
+  #plt.figure(figsize=(9,6))
   plt.subplot(1,2,1)
   plot_confusion_matrix(cnf_matrix, classes=class_names,
               title='Confusion matrix')
