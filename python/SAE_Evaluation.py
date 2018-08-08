@@ -752,7 +752,10 @@ def plot_confusion_matrix(cm, classes,
   plt.ylabel('True label')
   plt.xlabel('Predicted label')
 
-def send_confusion_matrix(fname,dirout,y_test,y_pred):
+def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
+  refName,point = points 
+  y_pred[y_pred >= point.thres_value] = 1
+  y_pred[y_pred < point.thres_value] = -1
   png_files = []
   class_names=['Background','Signal']
   # Compute confusion matrix
@@ -770,6 +773,129 @@ def send_confusion_matrix(fname,dirout,y_test,y_pred):
               title='Normalized confusion matrix')
   #plt.show()
   plt.tight_layout()
+  plt.suptitle(refName.split('_')[-1]+" - "+model, fontsize=16)
   plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
+  
+def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None):
+  from SAE_Evaluation import *
+  from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
+  import dataset
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
+  #print point.sp_value
+  table = db['reconstruction_new']
+  metrics = OrderedDict()
+  beforenorm = norm1Par[0]
+  normlist = norm1Par[1]
+  afternorm = norm1Par[2]
+
+  for layer in reconstruct.keys():
+  #for nsort in reconstruct[layer].keys():
+  #print "Sort: "+str(nsort)
+    if isinstance(reconstruct[layer], (tuple, list,)):
+      unnorm_reconstruct = []
+      for i, cdata in enumerate(reconstruct[layer]):
+        unnorm_reconstruct.append( cdata * norms[i])
+
+        unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+        beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+        ##ALL LABELS
+        metrics['Class'] = 'All'
+        metrics['Model'] = model_name
+        metrics['time'] = time
+        metrics['Measure'] = 'Normalized_MI'
+        #metrics['HL_Neuron'] = hl_neuron
+        metrics['sort'] = sort
+        metrics['etBinIdx'] = etBinIdx
+        metrics['etaBinIdx'] = etaBinIdx
+        metrics['phase'] = phase
+        #metrics['Elapsed'] = elapsed
+        #metrics['fine_tuning'] = fine_tuning
+
+        for anel in range(100):
+          rr = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+          #pdf = drv.information_mutual(rr)[0][1]
+          mi_score = np.sqrt(1. - np.exp(-2 * rr))
+          #kl_tot_sort[nsort] = pdf
+          metrics[str(anel+1)] = mi_score
+        table.insert(metrics)
+
+        metrics = OrderedDict()        
+        #SIGNAL
+        metrics['Class'] = 'Signal'
+        metrics['Model'] = model_name
+        metrics['time'] = time
+        metrics['Measure'] = 'Normalized_MI'
+        #metrics['HL_Neuron'] = hl_neuron
+        metrics['sort'] = sort
+        metrics['etBinIdx'] = etBinIdx
+        metrics['etaBinIdx'] = etaBinIdx
+        metrics['phase'] = phase
+        #metrics['Elapsed'] = elapsed
+        #metrics['fine_tuning'] = fine_tuning
+
+        for anel in range(100):
+          rr = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+          #pdf = drv.information_mutual(rr)[0][1]
+          mi_score = np.sqrt(1. - np.exp(-2 * rr))
+          #kl_tot_sort[nsort] = pdf
+          metrics[str(anel+1)] = mi_score
+        table.insert(metrics)     
+
+        metrics = OrderedDict()
+        #BACKGROUND
+        metrics['Class'] = 'Background'
+        metrics['Model'] = model_name
+        metrics['time'] = time
+        metrics['Measure'] = 'Normalized_MI'
+        #metrics['HL_Neuron'] = hl_neuron
+        metrics['sort'] = sort
+        metrics['etBinIdx'] = etBinIdx
+        metrics['etaBinIdx'] = etaBinIdx
+        metrics['phase'] = phase
+        #metrics['Elapsed'] = elapsed
+        #metrics['fine_tuning'] = fine_tuning
+
+        for anel in range(100):
+          rr = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+          #pdf = drv.information_mutual(rr)[0][1]
+          mi_score = np.sqrt(1. - np.exp(-2 * rr))
+          #kl_tot_sort[nsort] = pdf
+          metrics[str(anel+1)] = mi_score
+        table.insert(metrics)
+  
+def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,points=None,fine_tuning=None,report=True):
+  from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
+  import dataset
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
+  #print point.sp_value
+  table = db['classifier_new']
+  print len(points)
+  for refName,point in points:
+    metrics = OrderedDict()
+    print len(predictions)
+    predictions[predictions >= point.thres_value] = 1
+    predictions[predictions < point.thres_value] = -1
+    print 'debugging report_performance'
+    #print labels
+    #print predictions
+    print 'REF',refName
+    print 'SP',float(point.sp_value)
+    metrics['Point'] = refName
+    metrics['Model'] = model_name
+    metrics['HL_Neuron'] = hl_neuron
+    metrics['time'] = time
+    metrics['sort'] = sort
+    metrics['etBinIdx'] = etBinIdx
+    metrics['etaBinIdx'] = etaBinIdx
+    metrics['phase'] = phase
+    metrics['Elapsed'] = elapsed
+    metrics['fine_tuning'] = fine_tuning
+    metrics['signal_samples'] = len(labels[labels==1])
+    metrics['bkg_samples'] = len(labels[labels==-1])
+    metrics['signal_pred_samples'] = len(predictions[predictions==1])
+    metrics['bkg_pred_samples'] = len(predictions[predictions==-1])
+    metrics['threshold']=float(point.thres_value)
+    metrics['sp'] = float(point.sp_value)
+    metrics['pd'] = float(point.pd_value)
