@@ -395,7 +395,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
   #print point.sp_value
-  table = db['classifier_new']
+  table = db['classifiers']
   print len(points)
   for refName,point in points:
     metrics = OrderedDict()
@@ -552,9 +552,9 @@ def createClassifierTable(model_name,script_time,Point):
 
   #query = 'select model,time,phase, avg(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples,avg(threshold) as threshold,  avg(sp) || "+-" || stdev(sp) as sp, avg(pd) || "+-" || stdev(pd) as pd, avg(pf) || "+-" || stdev(pf) as pf, avg(accuracy) || "+-" || stdev(accuracy) as accuracy, avg(f1) || "+-" || stdev(f1) as f1, avg(auc) || "+-" || stdev(auc) as auc,  avg(precision) || "+-" || stdev(precision) as precision, avg(recall) || "+-" || stdev(recall) as recall from classifier group by model,time,phase'
 
-  query = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifier_new where model = "'+model_name+'" and time = "'+script_time+'" group by point,model,time,phase,fine_tuning'
-  trnquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer)  as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifier_new where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifier_new where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Train" group by sort,time) group by point,model,time,phase,fine_tuning'
-  valquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer) as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifier_new where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifier_new where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Validation" group by sort,time) group by point,model,time,phase,fine_tuning'
+  query = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers where model = "'+model_name+'" and time = "'+script_time+'" group by point,model,time,phase,fine_tuning'
+  trnquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer)  as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifiers where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Train" group by sort,time) group by point,model,time,phase,fine_tuning'
+  valquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer) as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifiers where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Validation" group by sort,time) group by point,model,time,phase,fine_tuning'
 
   result = db.query(trnquery)
   trnresult = db.query(trnquery)
@@ -753,7 +753,7 @@ def plot_confusion_matrix(cm, classes,
   plt.xlabel('Predicted label')
 
 def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
-  refName,point = points 
+  refName,point = points
   y_pred[y_pred >= point.thres_value] = 1
   y_pred[y_pred < point.thres_value] = -1
   png_files = []
@@ -777,7 +777,7 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
-  
+
 def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None):
   from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
@@ -821,7 +821,7 @@ def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",t
           metrics[str(anel+1)] = mi_score
         table.insert(metrics)
 
-        metrics = OrderedDict()        
+        metrics = OrderedDict()
         #SIGNAL
         metrics['Class'] = 'Signal'
         metrics['Model'] = model_name
@@ -841,7 +841,7 @@ def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",t
           mi_score = np.sqrt(1. - np.exp(-2 * rr))
           #kl_tot_sort[nsort] = pdf
           metrics[str(anel+1)] = mi_score
-        table.insert(metrics)     
+        table.insert(metrics)
 
         metrics = OrderedDict()
         #BACKGROUND
@@ -864,7 +864,7 @@ def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",t
           #kl_tot_sort[nsort] = pdf
           metrics[str(anel+1)] = mi_score
         table.insert(metrics)
-  
+
 def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,points=None,fine_tuning=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
