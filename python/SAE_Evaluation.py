@@ -759,14 +759,16 @@ def send_confusion_matrix(fname,dirout,y_test,y_pred):
   cnf_matrix = confusion_matrix(y_test, y_pred)
   np.set_printoptions(precision=2)
   # Plot non-normalized confusion matrix
-  plt.figure()
+  #fig,axs = plt.subplots(1,2)
+  plt.subplot(1,2,1)
   plot_confusion_matrix(cnf_matrix, classes=class_names,
               title='Confusion matrix, without normalization')
   # Plot normalized confusion matrix
-  plt.figure()
+  plt.subplot(1,2,2)
   plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
               title='Normalized confusion matrix')
   #plt.show()
+  plt.tight_layout()
   plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
