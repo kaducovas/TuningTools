@@ -730,7 +730,7 @@ def plot_confusion_matrix(cm, classes,
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     print("Normalized confusion matrix")
   else:
-    print('Confusion matrix, without normalization')
+    print('Confusion matrix')
 
   print(cm)
 
@@ -763,7 +763,7 @@ def send_confusion_matrix(fname,dirout,y_test,y_pred):
   plt.figure(figsize=(9,6))
   plt.subplot(1,2,1)
   plot_confusion_matrix(cnf_matrix, classes=class_names,
-              title='Confusion matrix, without normalization')
+              title='Confusion matrix')
   # Plot normalized confusion matrix
   plt.subplot(1,2,2)
   plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
