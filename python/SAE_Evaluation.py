@@ -737,7 +737,7 @@ def plot_confusion_matrix(cm, classes,
 
   plt.imshow(cm, interpolation='nearest', cmap=cmap)
   plt.title(title)
-  plt.colorbar()
+  #plt.colorbar()
   tick_marks = np.arange(len(classes))
   plt.xticks(tick_marks, classes, rotation=45)
   plt.yticks(tick_marks, classes)
@@ -764,7 +764,7 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   np.set_printoptions(precision=2)
   # Plot non-normalized confusion matrix
   #fig,axs = plt.subplots(1,2)
-  #plt.figure(figsize=(9,6))
+  plt.figure(figsize=(9,6))
   plt.subplot(1,2,1)
   plot_confusion_matrix(cnf_matrix, classes=class_names,
               title='Confusion matrix')
