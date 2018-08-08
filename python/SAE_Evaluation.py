@@ -431,6 +431,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     #data['precision'] = precision_score(labels, predictions)
     #data['recall'] = recall_score(labels, predictions)
     print 'OK insert'
+    print data
     tabela.insert(data,ensure=True)
   #if report == True:
   #  print_metrics(data)
