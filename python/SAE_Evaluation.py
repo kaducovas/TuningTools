@@ -774,7 +774,7 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
               title='Normalized confusion matrix')
   #plt.show()
   plt.tight_layout()
-  plt.suptitle(refName.split('_')[-1]+" - "+model, fontsize=16)
+  plt.suptitle(refName.split('_')[-1]+" - "+model, fontsize=24)
   plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
