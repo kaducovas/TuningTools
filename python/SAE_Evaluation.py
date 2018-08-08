@@ -867,38 +867,4 @@ def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",t
           #kl_tot_sort[nsort] = pdf
           metrics[str(anel+1)] = mi_score
         table.insert(metrics)
-
-def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,points=None,fine_tuning=None,report=True):
-  from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
-  import dataset
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
-  #print point.sp_value
-  table = db['classifier_new']
-  print len(points)
-  for refName,point in points:
-    metrics = OrderedDict()
-    print len(predictions)
-    predictions[predictions >= point.thres_value] = 1
-    predictions[predictions < point.thres_value] = -1
-    print 'debugging report_performance'
-    #print labels
-    #print predictions
-    print 'REF',refName
-    print 'SP',float(point.sp_value)
-    metrics['Point'] = refName
-    metrics['Model'] = model_name
-    metrics['HL_Neuron'] = hl_neuron
-    metrics['time'] = time
-    metrics['sort'] = sort
-    metrics['etBinIdx'] = etBinIdx
-    metrics['etaBinIdx'] = etaBinIdx
-    metrics['phase'] = phase
-    metrics['Elapsed'] = elapsed
-    metrics['fine_tuning'] = fine_tuning
-    metrics['signal_samples'] = len(labels[labels==1])
-    metrics['bkg_samples'] = len(labels[labels==-1])
-    metrics['signal_pred_samples'] = len(predictions[predictions==1])
-    metrics['bkg_pred_samples'] = len(predictions[predictions==-1])
-    metrics['threshold']=float(point.thres_value)
-    metrics['sp'] = float(point.sp_value)
-    metrics['pd'] = float(point.pd_value)
+  return metrics

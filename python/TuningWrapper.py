@@ -788,7 +788,7 @@ class TuningWrapper(Logger):
     history = None
     self._model = None
     self._fine_tuning= 'no'
-    print 'AQUII'
+    print 'nao sei o que ta rolando'
     print
     print len(self._trnTarget),len(self._valTarget)
     print len(np.asarray(perfList[2]+perfList[3])), len(np.asarray(perfList[4]+perfList[5]))

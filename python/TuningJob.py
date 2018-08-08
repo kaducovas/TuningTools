@@ -1521,7 +1521,7 @@ class TuningJob(Logger):
           #tstData = ppChain( tstData )
           #vaidarerroaqui
           self._info('Done applying the pre-processing chain to all sets!')
-
+          print 'QUE PORRA TA ACONTECENDO??????????'
           # Retrieve resulting data shape
           if merged:
             nInputs = [trnData[0][0].shape[npCurrent.pdim], trnData[1][0].shape[npCurrent.pdim]]
@@ -1561,7 +1561,7 @@ class TuningJob(Logger):
                             nInputs, neuron, 1)
                 #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
                 tuningWrapper.newff([nInputs, neuron,1])
-                tuningWrapper.deepff2([nInputs, neuron,1])
+                #tuningWrapper.deepff2([nInputs, neuron,1])
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 start_model=datetime.now()
                 mname=""
