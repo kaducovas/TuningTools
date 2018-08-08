@@ -407,6 +407,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     #print predictions
     print 'REF',refName
     print 'SP',float(point.sp_value)
+    print 'WTF'
     #data['Point'] = refName
     #data['Model'] = model_name
     #data['HL_Neuron'] = hl_neuron
