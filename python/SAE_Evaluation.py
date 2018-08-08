@@ -430,6 +430,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     metrics['auc'] = roc_auc_score(labels, predictions)
     metrics['precision'] = precision_score(labels, predictions)
     metrics['recall'] = recall_score(labels, predictions)
+    print 'OK insert'
     table.insert(metrics)
   if report == True:
     print_metrics(metrics)
