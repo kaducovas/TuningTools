@@ -753,6 +753,7 @@ def plot_confusion_matrix(cm, classes,
   plt.xlabel('Predicted label')
 
 def send_confusion_matrix(fname,dirout,y_test,y_pred):
+  png_files = []
   class_names=['Signal','Background']
   # Compute confusion matrix
   cnf_matrix = confusion_matrix(y_test, y_pred)
