@@ -1752,7 +1752,7 @@ class TuningJob(Logger):
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          confMatrix_png_file=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,valTarget,valOutput)
+          confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,valTarget,valOutput)
           for confMatrix_png_file in confMatrix_png_files:
             confMatrix_png_f = open(confMatrix_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
