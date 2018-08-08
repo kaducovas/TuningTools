@@ -398,7 +398,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   table = db['classifiers']
   print len(points)
   for refName,point in points:
-    metrics = OrderedDict()
+    data = dict() #OrderedDict()
     print len(predictions)
     predictions[predictions >= point.thres_value] = 1
     predictions[predictions < point.thres_value] = -1
@@ -407,35 +407,35 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     #print predictions
     print 'REF',refName
     print 'SP',float(point.sp_value)
-    metrics['Point'] = refName
-    metrics['Model'] = model_name
-    metrics['HL_Neuron'] = hl_neuron
-    metrics['time'] = time
-    metrics['sort'] = sort
-    metrics['etBinIdx'] = etBinIdx
-    metrics['etaBinIdx'] = etaBinIdx
-    metrics['phase'] = phase
-    metrics['Elapsed'] = elapsed
-    metrics['fine_tuning'] = fine_tuning
-    metrics['signal_samples'] = len(labels[labels==1])
-    metrics['bkg_samples'] = len(labels[labels==-1])
-    metrics['signal_pred_samples'] = len(predictions[predictions==1])
-    metrics['bkg_pred_samples'] = len(predictions[predictions==-1])
-    metrics['threshold']=float(point.thres_value)
-    metrics['sp'] = float(point.sp_value)
-    metrics['pd'] = float(point.pd_value)
-    metrics['pf'] = float(point.pf_value)
-    metrics['accuracy'] = accuracy_score(labels, predictions, normalize=True)
-    metrics['f1'] = f1_score(labels, predictions)
-    metrics['auc'] = roc_auc_score(labels, predictions)
-    metrics['precision'] = precision_score(labels, predictions)
-    metrics['recall'] = recall_score(labels, predictions)
+    data['Point'] = refName
+    data['Model'] = model_name
+    data['HL_Neuron'] = hl_neuron
+    data['time'] = time
+    data['sort'] = sort
+    data['etBinIdx'] = etBinIdx
+    data['etaBinIdx'] = etaBinIdx
+    data['phase'] = phase
+    data['Elapsed'] = elapsed
+    data['fine_tuning'] = fine_tuning
+    data['signal_samples'] = len(labels[labels==1])
+    data['bkg_samples'] = len(labels[labels==-1])
+    data['signal_pred_samples'] = len(predictions[predictions==1])
+    data['bkg_pred_samples'] = len(predictions[predictions==-1])
+    data['threshold']=float(point.thres_value)
+    data['sp'] = float(point.sp_value)
+    data['pd'] = float(point.pd_value)
+    data['pf'] = float(point.pf_value)
+    data['accuracy'] = accuracy_score(labels, predictions, normalize=True)
+    data['f1'] = f1_score(labels, predictions)
+    data['auc'] = roc_auc_score(labels, predictions)
+    data['precision'] = precision_score(labels, predictions)
+    data['recall'] = recall_score(labels, predictions)
     print 'OK insert'
-    table.insert(metrics)
-  if report == True:
-    print_metrics(metrics)
+    table.insert(data)
+  #if report == True:
+  #  print_metrics(data)
 
-  return metrics
+  return data
 
 def cross_val_analysis_nn(n_split=10, classifier=None, x=None, y=None, model_name="",
               patience=30, train_verbose=2, n_epochs=500):
