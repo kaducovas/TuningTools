@@ -408,28 +408,28 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     print 'REF',refName
     print 'SP',float(point.sp_value)
     data['Point'] = refName
-    data['Model'] = model_name
-    data['HL_Neuron'] = hl_neuron
-    data['time'] = time
-    data['sort'] = sort
-    data['etBinIdx'] = etBinIdx
-    data['etaBinIdx'] = etaBinIdx
-    data['phase'] = phase
-    data['Elapsed'] = elapsed
-    data['fine_tuning'] = fine_tuning
-    data['signal_samples'] = len(labels[labels==1])
-    data['bkg_samples'] = len(labels[labels==-1])
-    data['signal_pred_samples'] = len(predictions[predictions==1])
-    data['bkg_pred_samples'] = len(predictions[predictions==-1])
-    data['threshold']=float(point.thres_value)
-    data['sp'] = float(point.sp_value)
-    data['pd'] = float(point.pd_value)
-    data['pf'] = float(point.pf_value)
-    data['accuracy'] = accuracy_score(labels, predictions, normalize=True)
-    data['f1'] = f1_score(labels, predictions)
-    data['auc'] = roc_auc_score(labels, predictions)
-    data['precision'] = precision_score(labels, predictions)
-    data['recall'] = recall_score(labels, predictions)
+    #data['Model'] = model_name
+    #data['HL_Neuron'] = hl_neuron
+    #data['time'] = time
+    #data['sort'] = sort
+    #data['etBinIdx'] = etBinIdx
+    #data['etaBinIdx'] = etaBinIdx
+    #data['phase'] = phase
+    #data['Elapsed'] = elapsed
+    #data['fine_tuning'] = fine_tuning
+    #data['signal_samples'] = len(labels[labels==1])
+    #data['bkg_samples'] = len(labels[labels==-1])
+    #data['signal_pred_samples'] = len(predictions[predictions==1])
+    #data['bkg_pred_samples'] = len(predictions[predictions==-1])
+    #data['threshold']=float(point.thres_value)
+    #data['sp'] = float(point.sp_value)
+    #data['pd'] = float(point.pd_value)
+    #data['pf'] = float(point.pf_value)
+    #data['accuracy'] = accuracy_score(labels, predictions, normalize=True)
+    #data['f1'] = f1_score(labels, predictions)
+    #data['auc'] = roc_auc_score(labels, predictions)
+    #data['precision'] = precision_score(labels, predictions)
+    #data['recall'] = recall_score(labels, predictions)
     print 'OK insert'
     table.insert(data)
   #if report == True:
