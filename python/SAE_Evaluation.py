@@ -395,7 +395,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer.db')
   #print point.sp_value
-  table = db['classifiers']
+  tabela = db['classificadores']
   print len(points)
   for refName,point in points:
     data = dict() #OrderedDict()
@@ -407,11 +407,11 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     #print predictions
     print 'REF',refName
     print 'SP',float(point.sp_value)
-    data['Point'] = refName
+    #data['Point'] = refName
     #data['Model'] = model_name
     #data['HL_Neuron'] = hl_neuron
     #data['time'] = time
-    #data['sort'] = sort
+    data['sort'] = sort
     #data['etBinIdx'] = etBinIdx
     #data['etaBinIdx'] = etaBinIdx
     #data['phase'] = phase
@@ -431,7 +431,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     #data['precision'] = precision_score(labels, predictions)
     #data['recall'] = recall_score(labels, predictions)
     print 'OK insert'
-    table.insert(data)
+    tabela.insert(data,ensure=True)
   #if report == True:
   #  print_metrics(data)
 
