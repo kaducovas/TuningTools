@@ -1032,7 +1032,7 @@ class StackedAutoEncoder( PrepObj ):
                                         trgt=val_Data,
                                         ifold=0,
                                         hidden_neurons=self._hidden_neurons,
-                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder,regularizer='l1',regularizer_param=10e-5)
+                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder) #,regularizer='l1',regularizer_param=10e-5)
     self._trn_desc = trn_desc
     self._weights = model.get_weights()
     self._trn_params = model.get_config()
