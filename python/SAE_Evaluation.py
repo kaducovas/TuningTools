@@ -393,12 +393,12 @@ def print_metrics(metricsDict):
 def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,points=None,fine_tuning=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
   #print point.sp_value
   tabela = db['classifiers']
   print "QNT DE PONTOS",len(points)
   for refName,point in points:
-    data = dict() #OrderedDict()
+    data = OrderedDict()
     print len(predictions)
     predictions[predictions >= point.thres_value] = 1
     predictions[predictions < point.thres_value] = -1
@@ -550,7 +550,7 @@ def createClassifierTable(model_name,script_time,Point):
   print Point
   x = PrettyTable()
   x.field_names = ["KPI", "Train", "Validation"]
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
   #table = db['classifier']
 
   #query = 'select model,time,phase, avg(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples,avg(threshold) as threshold,  avg(sp) || "+-" || stdev(sp) as sp, avg(pd) || "+-" || stdev(pd) as pd, avg(pf) || "+-" || stdev(pf) as pf, avg(accuracy) || "+-" || stdev(accuracy) as accuracy, avg(f1) || "+-" || stdev(f1) as f1, avg(auc) || "+-" || stdev(auc) as auc,  avg(precision) || "+-" || stdev(precision) as precision, avg(recall) || "+-" || stdev(recall) as recall from classifier group by model,time,phase'
