@@ -792,12 +792,12 @@ class TuningWrapper(Logger):
     print
     print len(self._trnTarget),len(self._valTarget)
     print len(np.asarray(perfList[2]+perfList[3])), len(np.asarray(perfList[4]+perfList[5]))
-    #print len(perfList[0][0]),len(perfList[0][1]),len(perfList[0][2]),len(perfList[0][3])
-    #print len(perfList[1][0]),len(perfList[1][1]),len(perfList[1][2]),len(perfList[1][3])
-    #print len(perfList[2]),len(perfList[3]),len(perfList[4]),len(perfList[5])
-    #print len(self._trnTarget),self._trnTarget.count(1),self._trnTarget.count(-1)
-    #print type(perfList[2]+perfList[3])
-    #print len(perfList[5])
+    print len(perfList[0][0]),len(perfList[0][1]),len(perfList[0][2]),len(perfList[0][3])
+    print len(perfList[1][0]),len(perfList[1][1]),len(perfList[1][2]),len(perfList[1][3])
+    print len(perfList[2]),len(perfList[3]),len(perfList[4]),len(perfList[5])
+    print len(self._trnTarget),self._trnTarget.count(1),self._trnTarget.count(-1)
+    print type(perfList[2]+perfList[3])
+    print len(perfList[5])
     return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,np.asarray(perfList[4]+perfList[5]),self._trnTarget,np.asarray(perfList[2]+perfList[3]),opPoints,tstPoints,self._fine_tuning,refName
     #return tunedDiscrList, tuningInfo
   # end of train_c
