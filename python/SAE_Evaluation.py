@@ -784,11 +784,11 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
 
-def reconstruct_performance(fname,norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None):
+def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None):
   #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer.db')
   #print point.sp_value
   table = db['reconstruction_new']
   metrics = OrderedDict()
