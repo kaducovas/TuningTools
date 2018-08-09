@@ -1580,6 +1580,7 @@ class TuningJob(Logger):
                 time.sleep(int(13*int(sort)))
                 'HEEEEEELP'
                 trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',points=opPoint,fine_tuning=fine_tuning,report=True)
+                time.sleep(10)
                 valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',points=tstPoint,fine_tuning=fine_tuning,report=True)
 
               elif concat:
