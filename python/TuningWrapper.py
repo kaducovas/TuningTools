@@ -791,13 +791,13 @@ class TuningWrapper(Logger):
     print 'nao sei o que ta rolando'
     print
     print len(self._trnTarget),len(self._valTarget)
-    print len(np.asarray(perfList[2]+perfList[3])), len(np.asarray(perfList[4]+perfList[5]))
-    print len(perfList[0][0]),len(perfList[0][1]),len(perfList[0][2]),len(perfList[0][3])
-    print len(perfList[1][0]),len(perfList[1][1]),len(perfList[1][2]),len(perfList[1][3])
-    print len(perfList[2]),len(perfList[3]),len(perfList[4]),len(perfList[5])
-    print len(self._trnTarget),self._trnTarget.count(1),self._trnTarget.count(-1)
-    print type(perfList[2]+perfList[3])
-    print len(perfList[5])
+    #print len(np.asarray(perfList[2]+perfList[3])), len(np.asarray(perfList[4]+perfList[5]))
+    #print len(perfList[0][0]),len(perfList[0][1]),len(perfList[0][2]),len(perfList[0][3])
+    #print len(perfList[1][0]),len(perfList[1][1]),len(perfList[1][2]),len(perfList[1][3])
+    #print len(perfList[2]),len(perfList[3]),len(perfList[4]),len(perfList[5])
+    #print len(self._trnTarget),self._trnTarget.count(1),self._trnTarget.count(-1)
+    #print type(perfList[2]+perfList[3])
+    #print len(perfList[5])
     return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,np.asarray(perfList[4]+perfList[5]),self._trnTarget,np.asarray(perfList[2]+perfList[3]),opPoints,tstPoints,self._fine_tuning,refName
     #return tunedDiscrList, tuningInfo
   # end of train_c
@@ -966,7 +966,10 @@ class TuningWrapper(Logger):
         raise ImportError("sklearn is not available, please install it.")
 
       # Retrieve performance:
-      opRoc, tstRoc = Roc(), Roc()
+      opRoc, tstRoc = Roc(), Roc()i
+      opPoints=[]
+      tstPoints=[]
+      refName=[]
       for idx, tunedDiscrDict in enumerate(tunedDiscrList):
         discr = tunedDiscrDict['discriminator']
         if self.doPerf:
@@ -974,7 +977,7 @@ class TuningWrapper(Logger):
           # propagate inputs:
           trnOutput = self._model.predict(self._trnData)
           valOutput = self._model.predict(self._valData)
-          tstOutput = self._model.predict(self._tstData) #if self._tstData else npCurrent.fp_array([])
+          tstOutput = self._model.predict(self._tstData) if self._tstData else npCurrent.fp_array([])
           try:
             allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
             allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
@@ -982,10 +985,11 @@ class TuningWrapper(Logger):
             allOutput = np.concatenate([trnOutput,valOutput] )
             allTarget = np.concatenate([self._trnTarget,self._valTarget] )
           # Retrieve Rocs:
-          opRoc(valOutput,self._valTarget) #opRoc( allOutput, allTarget )
-          #if self._tstData: tstRoc( tstOutput, self._tstTarget )
-          tstRoc( tstOutput, self._tstTarget )
-          #else: tstRoc( valOutput, self._valTarget )
+          #opRoc(valOutput,self._valTarget)
+          opRoc( allOutput, allTarget )
+          if self._tstData: tstRoc( tstOutput, self._tstTarget )
+          #tstRoc( tstOutput, self._tstTarget )
+          else: tstRoc( valOutput, self._valTarget )
           # Add rocs to output information
           # TODO Change this to raw object
           tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
@@ -994,6 +998,10 @@ class TuningWrapper(Logger):
           for ref2 in self.references:
             opPoint = opRoc.retrieve( ref2 )
             tstPoint = tstRoc.retrieve( ref2 )
+
+            opPoints.append([ref2.name,opPoint])
+            tstPoints.append([ref2.name,tstPoint])
+            refName.append(ref.name)
             # Print information:
             self._info( 'Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
                       , ref2.name
@@ -1016,7 +1024,7 @@ class TuningWrapper(Logger):
     #import dataset
     #db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
     #table= db['roc'] =
-    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoint,tstPoint,self._fine_tuning
+    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoints,tstPoints,self._fine_tuning,refName
   # end of trainC_Deep
 
   def trainC_Models( self ):
