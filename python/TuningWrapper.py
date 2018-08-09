@@ -1002,7 +1002,7 @@ class TuningWrapper(Logger):
 
             opPoints.append([ref2.name,opPoint])
             tstPoints.append([ref2.name,tstPoint])
-            refName.append(ref.name)
+            refName.append(ref2.name)
             # Print information:
             self._info( 'Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
                       , ref2.name
