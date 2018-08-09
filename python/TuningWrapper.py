@@ -967,10 +967,11 @@ class TuningWrapper(Logger):
 
       # Retrieve performance:
       opRoc, tstRoc = Roc(), Roc()
-      opPoints=[]
-      tstPoints=[]
-      refName=[]
+
       for idx, tunedDiscrDict in enumerate(tunedDiscrList):
+        opPoints=[]
+        tstPoints=[]
+        refName=[]
         discr = tunedDiscrDict['discriminator']
         if self.doPerf:
           self._debug('Retrieving performance...')
