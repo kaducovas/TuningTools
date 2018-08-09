@@ -966,7 +966,7 @@ class TuningWrapper(Logger):
         raise ImportError("sklearn is not available, please install it.")
 
       # Retrieve performance:
-      opRoc, tstRoc = Roc(), Roc()i
+      opRoc, tstRoc = Roc(), Roc()
       opPoints=[]
       tstPoints=[]
       refName=[]
