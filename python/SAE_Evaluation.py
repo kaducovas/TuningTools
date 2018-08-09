@@ -26,7 +26,7 @@ import itertools
 from sklearn.metrics import confusion_matrix
 from SAE_Evaluation import *
 
-def calc_MI(x, y):
+def calc_MI2(x, y):
   max_value = max(max(x),max(y))
   min_value = min(min(x),min(y))
   bins = min( len(np.histogram(x,'fd')[0]), len(np.histogram(y,'fd')[0]))
