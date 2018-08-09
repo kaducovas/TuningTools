@@ -1560,13 +1560,13 @@ class TuningJob(Logger):
                 self._info( 'DEEEP Discriminator Configuration: input = %d, hidden layer = %d, output = %d',\
                             nInputs, neuron, 1)
                 #self._info( 'Deep Learning Discriminator Configuration: input = %d, hidden layer - %d, output = %d', (nInputs[0]+nInputs[1]),neuron,1)
-                #tuningWrapper.newff([nInputs, neuron,1])
-                tuningWrapper.deepff2([nInputs, neuron,1])
+                tuningWrapper.newff([nInputs, neuron,1])
+                #tuningWrapper.deepff2([nInputs, neuron,1])
                 #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                 start_model=datetime.now()
                 mname=""
-                #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.train_c()
-                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep()
+                cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.train_c()
+                #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep()
                 #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
                 model_time=str(datetime.now() - start_model).split('.')[0]
                 #@@save_dl_model(path=outputDir+'/files/'+tuning_folder_name+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),model=dlModel)
@@ -1577,7 +1577,7 @@ class TuningJob(Logger):
                 #trnOutput[trnOutput < 0] = -1
                 #print trnOutput
                 ###Create dict with metrics and store in a local database
-                time.sleep(int(11*sort))
+                time.sleep(int(13*int(sort)))
                 'HEEEEEELP'
                 trnMetrics=report_performance(trnTarget, trnOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Train',points=opPoint,fine_tuning=fine_tuning,report=True)
                 valMetrics=report_performance(valTarget, valOutput, elapsed=model_time, model_name=ppChain.shortName()+"_"+mname,hl_neuron=neuron,time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',points=tstPoint,fine_tuning=fine_tuning,report=True)
