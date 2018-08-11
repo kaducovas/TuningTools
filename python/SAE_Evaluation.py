@@ -820,6 +820,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         #metrics['fine_tuning'] = fine_tuning
 
         for anel in range(100):
+          print anel
+          print beforenorm_val_Data[:,anel].shape,unnorm_reconstruct_val_Data[:,anel].shape
           rr = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
           #pdf = drv.information_mutual(rr)[0][1]
           mi_score = np.sqrt(1. - np.exp(-2 * rr))
