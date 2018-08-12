@@ -797,7 +797,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   afternorm = norm1Par[2]
 
   for layer in reconstruct.keys():
-    print 'LAYER: '+layer
+    print 'LAYER: '+str(layer)
   #for nsort in reconstruct[layer].keys():
   #print "Sort: "+str(nsort)
     if isinstance(reconstruct[layer], (tuple, list,)):
