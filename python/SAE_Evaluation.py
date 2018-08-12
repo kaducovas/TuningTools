@@ -711,6 +711,7 @@ def getReconstruct(fname,norm1Par,sort):
       if isinstance(afternorm, (tuple, list,)):
         predict = []
         for i, cdata in enumerate(afternorm):
+          print,cdata.shape
           predict.append(model.predict(cdata, batch_size=cdata.shape[0], verbose=1))
       #print isort
       #@@predict_data[int(isort)] = predict
