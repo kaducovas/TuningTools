@@ -1515,7 +1515,7 @@ class TuningJob(Logger):
           hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           if('AE' in str(ppChain.shortName())):
             reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
-            #print 'RECONS',reconstruct[40][0].shape,reconstruct[40][1].shape
+            print 'RECONS',reconstruct.keys()
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation')
           ###self._info(hidden_neurons)
           #self._info(config)
