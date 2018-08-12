@@ -717,6 +717,7 @@ def getReconstruct(fname,norm1Par,sort):
       #print predict_data
       #@@reconstruct[bottleneck] = predict_data
       reconstruct[bottleneck] = predict
+      predict.shape
   return reconstruct
   #if K.backend() == 'tensorflow':
   #    K.clear_session()
@@ -788,7 +789,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
   #print point.sp_value
   table = db['reconstruction_new']
   metrics = OrderedDict()
