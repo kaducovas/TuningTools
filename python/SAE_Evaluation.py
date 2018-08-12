@@ -708,6 +708,8 @@ def getReconstruct(fname,norm1Par,sort):
       ###################
       bottleneck=int(layers_list[-1].split('x')[1])
       afternorm = norm1Par[2]
+      print type(afternorm)
+      print len(afternorm)
       if isinstance(afternorm, (tuple, list,)):
         predict = []
         for i, cdata in enumerate(afternorm):
