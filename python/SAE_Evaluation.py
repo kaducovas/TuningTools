@@ -717,7 +717,7 @@ def getReconstruct(fname,norm1Par,sort):
       #print predict_data
       #@@reconstruct[bottleneck] = predict_data
       reconstruct[bottleneck] = predict
-      predict.shape
+      print predict.shape
   return reconstruct
   #if K.backend() == 'tensorflow':
   #    K.clear_session()
