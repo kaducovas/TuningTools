@@ -623,7 +623,7 @@ def plot_Roc(fname,dirout, model_name=""):
     roc_auc = auc(pfs,pds)
     plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
-  plt.xlim([0.0, 1.0])
+  plt.xlim([0.0, 0.4])
   plt.ylim([0.6, 1.05])
   plt.xlabel('Probabilidade de Falso Positivo',fontsize= 'xx-large')
   plt.ylabel(r'Probabilidade de $Detec\c{}\~ao$ ',fontsize= 'xx-large')
