@@ -1510,9 +1510,9 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
-          trnData,valData = ppChain.getNorm1()
+          #trnData,valData = ppChain.getNorm1()
           norm1Par = ppChain.getNorm1Parameters()
-          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           if('AE' in str(ppChain.shortName())):
             reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
             print 'RECONS',reconstruct.keys()
