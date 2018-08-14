@@ -714,8 +714,10 @@ def getReconstruct(fname,norm1Par,sort):
         predict = []
         for i, cdata in enumerate(afternorm):
           print i,cdata.shape
-          predict.append(model.predict(cdata, batch_size=cdata.shape[0], verbose=1))
+          model_predict = model.predict(cdata, batch_size=cdata.shape[0], verbose=2)
           print 'what now?'
+          predict.append(model_predict)
+      print 'Predictions Done'
       #print isort
       #@@predict_data[int(isort)] = predict
       #print predict_data
