@@ -803,18 +803,18 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   normlist = norm1Par[1]
   afternorm = norm1Par[2]
 
-  ###for layer in reconstruct.keys():
-  ###  print 'LAYER: '+str(layer)
+  for layer in reconstruct.keys():
+    print 'LAYER: '+str(layer)
   #for nsort in reconstruct[layer].keys():
   #print "Sort: "+str(nsort)
-  ###  if isinstance(reconstruct[layer], (tuple, list,)):
-  ###    unnorm_reconstruct = []
-  ###    for i, cdata in enumerate(reconstruct[layer]):
-  ###      #print i,cdata.shape
-  ###      unnorm_reconstruct.append( cdata * normlist[i])
+    if isinstance(reconstruct[layer], (tuple, list,)):
+      unnorm_reconstruct = []
+      for i, cdata in enumerate(reconstruct[layer]):
+        #print i,cdata.shape
+        unnorm_reconstruct.append( cdata * normlist[i])
 
-     ### unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
-      ###beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+      unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+      beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
       ##ALL LABELS
       ###metrics['Class'] = 'All'
       ###metrics['Model'] = model_name
