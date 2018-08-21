@@ -1502,6 +1502,10 @@ class TuningJob(Logger):
           print 'valData',len(valData),valData[0].shape,valData[1].shape
           #print 'tstData',len(tstData),tstData[0].shape,tstData[1].shape
 
+          np.savez_compressed(work_path+'signal_sort'+str(sort),valData[0])
+          np.savez_compressed(work_path+'bkg_sort'+str(sort),valData[1])
+
+
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
           self._info('Tuning pre-processing chain (%s)...', ppChain)
@@ -1516,7 +1520,7 @@ class TuningJob(Logger):
           if('AE' in str(ppChain.shortName())):
             reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
             print 'RECONS',reconstruct.keys()
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation')
+            #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation')
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
