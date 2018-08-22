@@ -1202,7 +1202,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),StackedAutoEncoder(level=self.level,hidden_neurons=[40])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[2])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level)] ))#,StackedAutoEncoder(level=self.level,hidden_neurons=[40])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[2])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1519,12 +1519,12 @@ class TuningJob(Logger):
           os.makedirs(work_path+'fold_'+str(sort+1))
           os.makedirs(work_path+'fold_'+str(sort+1)+'/signal')
           for amostra in range(valData[0].shape[0]):
-            wavfile.write(work_path+'fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0])
+            wavfile.write(work_path+'fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0][amostra,:])
 
 
           os.makedirs(work_path+'fold_'+str(sort+1)+'/background')
           for amostra in range(valData[1].shape[0]):
-            wavfile.write(work_path+'fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1])
+            wavfile.write(work_path+'fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
           #np.savez_compressed(work_path+'signal_sort'+str(sort),valData[0])
           #np.savez_compressed(work_path+'bkg_sort'+str(sort),valData[1])
 
