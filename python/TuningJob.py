@@ -1519,12 +1519,12 @@ class TuningJob(Logger):
           os.makedirs(work_path+'fold_'+str(sort+1))
           os.makedirs(work_path+'fold_'+str(sort+1)+'/signal')
           for amostra in range(valData[0].shape[0]):
-            wavfile.write(work_path+'fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0][amostra,:])
+            wavfile.write(work_path+'wav/fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0][amostra,:])
 
 
           os.makedirs(work_path+'fold_'+str(sort+1)+'/background')
           for amostra in range(valData[1].shape[0]):
-            wavfile.write(work_path+'fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
+            wavfile.write(work_path+'wav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
           #np.savez_compressed(work_path+'signal_sort'+str(sort),valData[0])
           #np.savez_compressed(work_path+'bkg_sort'+str(sort),valData[1])
 
