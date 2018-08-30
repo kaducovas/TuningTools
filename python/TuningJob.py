@@ -1514,17 +1514,17 @@ class TuningJob(Logger):
           norm1Par = ppChain.getNorm1Parameters()
           #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
-          from scipy.io import wavfile
-          fs=44100
-          os.makedirs(work_path+'wav/fold_'+str(sort+1))
-          os.makedirs(work_path+'wav/fold_'+str(sort+1)+'/signal')
-          for amostra in range(valData[0].shape[0]):
-            wavfile.write(work_path+'wav/fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0][amostra,:])
+          #from scipy.io import wavfile
+          #fs=44100
+          #os.makedirs(work_path+'wav/fold_'+str(sort+1))
+          #os.makedirs(work_path+'wav/fold_'+str(sort+1)+'/signal')
+          #for amostra in range(valData[0].shape[0]):
+          #  wavfile.write(work_path+'wav/fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0][amostra,:])
 
 
-          os.makedirs(work_path+'wav/fold_'+str(sort+1)+'/background')
-          for amostra in range(valData[1].shape[0]):
-            wavfile.write(work_path+'wav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
+          #os.makedirs(work_path+'wav/fold_'+str(sort+1)+'/background')
+          #for amostra in range(valData[1].shape[0]):
+          #  wavfile.write(work_path+'wav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
           #np.savez_compressed(work_path+'signal_sort'+str(sort),valData[0])
           #np.savez_compressed(work_path+'bkg_sort'+str(sort),valData[1])
 
