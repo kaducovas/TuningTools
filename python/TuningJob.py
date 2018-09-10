@@ -1525,8 +1525,10 @@ class TuningJob(Logger):
           #os.makedirs(work_path+'newwav/fold_'+str(sort+1)+'/background')
           #for amostra in range(valData[1].shape[0]):
           #  wavfile.write(work_path+'newwav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
-          #np.savez_compressed(work_path+'signal_sort'+str(sort),valData[0])
-          #np.savez_compressed(work_path+'bkg_sort'+str(sort),valData[1])
+          trn_all=np.concatenate( trnData, axis=npCurrent.odim)
+          np.savez_compressed(work_path+'Train_signal_sort'+str(sort),trnData[0])
+          np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
+          np.savez_compressed(work_path+'Train_sort'+str(sort),trn_all)
 
           if('AE' in str(ppChain.shortName())):
             reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
