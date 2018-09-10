@@ -1510,23 +1510,23 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
-          trnData,valData = ppChain.getNorm1()
+          #trnData,valData = ppChain.getNorm1()
           norm1Par = ppChain.getNorm1Parameters()
-          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
-          from scipy.io import wavfile
-          fs=44100
-          os.makedirs(work_path+'newwav/fold_'+str(sort+1))
-          os.makedirs(work_path+'newwav/fold_'+str(sort+1)+'/signal')
-          for amostra in range(6398): #range(valData[0].shape[0]):
-            wavfile.write(work_path+'newwav/fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0][amostra,:])
+          #from scipy.io import wavfile
+          #fs=44100
+          #os.makedirs(work_path+'newwav/fold_'+str(sort+1))
+          #os.makedirs(work_path+'newwav/fold_'+str(sort+1)+'/signal')
+          #for amostra in range(6398): #range(valData[0].shape[0]):
+          #  wavfile.write(work_path+'newwav/fold_'+str(sort+1)+'/signal/'+str(amostra)+'.wav',fs,valData[0][amostra,:])
 
 
-          os.makedirs(work_path+'newwav/fold_'+str(sort+1)+'/background')
-          for amostra in range(valData[1].shape[0]):
-            wavfile.write(work_path+'newwav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
-          np.savez_compressed(work_path+'signal_sort'+str(sort),valData[0])
-          np.savez_compressed(work_path+'bkg_sort'+str(sort),valData[1])
+          #os.makedirs(work_path+'newwav/fold_'+str(sort+1)+'/background')
+          #for amostra in range(valData[1].shape[0]):
+          #  wavfile.write(work_path+'newwav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
+          #np.savez_compressed(work_path+'signal_sort'+str(sort),valData[0])
+          #np.savez_compressed(work_path+'bkg_sort'+str(sort),valData[1])
 
           if('AE' in str(ppChain.shortName())):
             reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
