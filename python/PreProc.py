@@ -2,7 +2,7 @@ __all__ = ['PreProcArchieve', 'PrepObj', 'Projection',  'RemoveMean', 'RingerRp'
            'UndoPreProcError', 'UnitaryRMS', 'FirstNthPatterns', 'KernelPCA',
            'MapStd', 'MapStd_MassInvariant', 'NoPreProc', 'Norm1', 'PCA',
            'PreProcChain', 'PreProcCollection', 'RingerEtaMu', 'RingerFilterMu',
-           'StatReductionFactor','StackedAutoEncoder']
+           'StatReductionFactor','StackedAutoEncoder','LSTMAutoEncoder']
 
 from RingerCore import ( Logger, LoggerStreamable, checkForUnusedVars
                        , save, load, LimitedTypeList, LoggingLevel, LoggerRawDictStreamer
@@ -1116,7 +1116,7 @@ class LSTMAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_neurons=40,model_name='ringer_N1_et1_eta1',global_step=None,batch_size=10000,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_neurons=40,model_name="ringer_N1_et1_eta1",global_step=None,batch_size=10000,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     from audeep.backend.training.base import BaseFeatureLearningWrapper
@@ -1129,8 +1129,8 @@ class LSTMAutoEncoder( PrepObj ):
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._model_name=model_name,
-    self._model_filename='/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'
-    print self._model_filename
+    self._model_filename='/home/users/caducovas/output/ringer_N1_et1_eta1/t-2x256-x-b/logs/model'
+    #print self._model_filename
     #self._model_filename=Path('/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'),
     self._global_step=global_step,
     #self._data_set=input_data,
@@ -1275,6 +1275,7 @@ class LSTMAutoEncoder( PrepObj ):
     #self._info(self._etBinIdx)
     #self._info(self._etaBinIdx)
     ###get data projection
+    print 'model_filename',self._model_name,self._model_filename
     #if not self._mean.size or not self._invRMS.size:
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     wrapper = TimeAutoencoderWrapper()
@@ -1292,9 +1293,9 @@ class LSTMAutoEncoder( PrepObj ):
       for cdata in data:
         #self._info(cdata.shape)
         new_features = wrapper.generate_np_features(model_filename=Path(self._model_filename),
-                                                    global_step=self._global_step,
+                                                    global_step=None,
                                                     data_set=cdata,
-                                                    batch_size=self._batch_size)
+                                                    batch_size=10000)
         ret.append(new_features)
     else:
       new_features = wrapper.generate_np_features(model_filename=Path(self._model_filename),

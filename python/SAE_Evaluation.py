@@ -642,14 +642,22 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
   afternorm = norm1Par[2]
   reconstruct={}
   wrapper = TimeAutoencoderWrapper()
-  reconstruction = wrapper.generate_np_reconstruction(model_filename=Path('/home/users/caducovas/output/'+model_name+'/t-2x256-x-b/logs/model'),
-                                                      global_step=None,
-                                                      data_set=afternorm,
-                                                      batch_size=10000)
-  bottleneck=reconstruction.shape[1]
-  reconstruct[bottleneck]=reconstruction
-  
-  
+  if isinstance(afternorm, (tuple, list,)):
+    predict = []
+    for i, cdata in enumerate(afternorm):
+      print i,cdata.shape
+      reconstruction = wrapper.generate_np_reconstruction(model_filename=Path('/home/users/caducovas/output/'+model_name+'/t-2x256-x-b/logs/model'),
+                                                          global_step=None,
+                                                          data_set=cdata,
+                                                          batch_size=10000)
+      #model_predict = model.predict(cdata, batch_size=cdata.shape[0], verbose=2)
+      #print 'what now?'
+      predict.append(reconstruction)
+      print 'Reconstruction Done'
+      bottleneck=reconstruction.shape[1]
+  reconstruct[bottleneck]=predict
+  return reconstruct
+
 def getReconstruct(fname,norm1Par,sort):
   #from SAE_Evaluation import *
 
