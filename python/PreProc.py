@@ -1129,7 +1129,7 @@ class LSTMAutoEncoder( PrepObj ):
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._model_name=model_name,
-    self._model_filename=Path('/home/users/caducovas/output/'+str(self._model_name)+'/t-2x256-x-b/logs/model'),
+    self._model_filename=Path('/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'),
     self._global_step=global_step,
     #self._data_set=input_data,
     self._batch_size=batch_size
@@ -1152,6 +1152,11 @@ class LSTMAutoEncoder( PrepObj ):
 
 
   def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
+    from RingerCore import retrieve_kw
+    from audeep.backend.training.base import BaseFeatureLearningWrapper
+    from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
+    #import numpy as np
+    from pathlib import Path
 
   ###trainlayer
 
@@ -1259,6 +1264,11 @@ class LSTMAutoEncoder( PrepObj ):
     return ("LSTM_AE_%d" % self._hidden_neurons)
 
   def _apply(self, data):
+    from RingerCore import retrieve_kw
+    from audeep.backend.training.base import BaseFeatureLearningWrapper
+    from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
+    #import numpy as np
+    from pathlib import Path
     #self._info(pp.shortName())
     #self._info(self._etBinIdx)
     #self._info(self._etaBinIdx)
