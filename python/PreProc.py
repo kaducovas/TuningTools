@@ -1129,7 +1129,9 @@ class LSTMAutoEncoder( PrepObj ):
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._model_name=model_name,
-    self._model_filename=Path('/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'),
+    self._model_filename='/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'
+    print self._model_filename
+    #self._model_filename=Path('/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'),
     self._global_step=global_step,
     #self._data_set=input_data,
     self._batch_size=batch_size
@@ -1289,13 +1291,13 @@ class LSTMAutoEncoder( PrepObj ):
       #data = [d[:100] for d in data]
       for cdata in data:
         #self._info(cdata.shape)
-        new_features = wrapper.generate_np_features(model_filename=self._model_filename,
+        new_features = wrapper.generate_np_features(model_filename=Path(self._model_filename),
                                                     global_step=self._global_step,
                                                     data_set=cdata,
                                                     batch_size=self._batch_size)
         ret.append(new_features)
     else:
-      new_features = wrapper.generate_np_features(model_filename=self._model_filename,
+      new_features = wrapper.generate_np_features(model_filename=Path(self._model_filename),
                                                     global_step=self._global_step,
                                                     data_set=data,
                                                     batch_size=self._batch_size)
