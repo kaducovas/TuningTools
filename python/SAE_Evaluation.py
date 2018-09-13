@@ -634,6 +634,22 @@ def plot_Roc(fname,dirout, model_name=""):
   png_files.append(dirout+'roc_'+fname.split('/')[-1]+'.png')
   return png_files
 
+def getLSTMReconstruct(norm1Par,sort,model_name=None):
+  from audeep.backend.training.base import BaseFeatureLearningWrapper
+  from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
+  import numpy as np
+  from pathlib import Path
+  afternorm = norm1Par[2]
+  reconstruct={}
+  wrapper = TimeAutoencoderWrapper()
+  reconstruction = wrapper.generate_np_reconstruction(model_filename=Path('/home/users/caducovas/output/'+model_name+'/t-2x256-x-b/logs/model'),
+                                                      global_step=None,
+                                                      data_set=afternorm,
+                                                      batch_size=10000)
+  bottleneck=reconstruction.shape[1]
+  reconstruct[bottleneck]=reconstruction
+  
+  
 def getReconstruct(fname,norm1Par,sort):
   #from SAE_Evaluation import *
 

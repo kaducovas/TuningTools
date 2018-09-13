@@ -1107,6 +1107,203 @@ class StackedAutoEncoder( PrepObj ):
     #
     return ret
 
+class LSTMAutoEncoder( PrepObj ):
+  """
+    Train the encoders in order to stack them as pre-processing afterwards.
+  """
+
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_LSTMAE',})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {})
+
+
+  def __init__(self,n_inits=1,hidden_neurons=40,model_name='ringer_N1_et1_eta1',global_step=None,batch_size=10000,layer=1, d = {}, **kw):
+    d.update( kw ); del kw
+    from RingerCore import retrieve_kw
+    from audeep.backend.training.base import BaseFeatureLearningWrapper
+    from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
+    #import numpy as np
+    from pathlib import Path
+
+    # self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
+    # self._caltype = retrieve_kw(d,'caltype','allcalo')
+    PrepObj.__init__( self, d )
+    checkForUnusedVars(d, self._warning )
+    self._model_name=model_name,
+    self._model_filename=Path('/home/users/caducovas/output/'+self._model_name+'/t-2x256-x-b/logs/model'),
+    self._global_step=global_step,
+    #self._data_set=input_data,
+    self._batch_size=batch_size)
+    self._hidden_neurons = hidden_neurons
+    # self._n_inits = n_inits
+    # self._hidden_activation = hidden_activation
+    # self._output_activation = output_activation
+    # self._n_epochs = n_epochs
+    # self._patience = patience
+    # self._batch_size = batch_size
+    # self._layer= layer
+    del d
+    # self._sort = ''
+    # self._etBinIdx = ''
+    # self._etaBinIdx = ''
+    # self._SAE = ''
+    # self._trn_params = ''
+    # self._trn_desc = ''
+    # self._weights = ''
+
+
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
+
+  ###trainlayer
+
+    """
+      Perform the layerwise algorithm to train the SAE
+    """
+
+    # # TODO...
+    # self._sort = sort
+    # self._etBinIdx = etBinIdx
+    # self._etaBinIdx = etaBinIdx
+    # print(self._caltype)
+
+    # import copy
+    # data = copy.deepcopy(trnData)
+    # val_Data = copy.deepcopy(valData)
+
+    # if self._caltype == 'emcalo' and data[0].shape[1] == 100:
+      # print 'EMMMMMMMMMMM'
+      # data = [d[:,:88] for d in data]
+      # val_Data = [d[:,:88] for d in val_Data]
+    # elif self._caltype == 'hadcalo' and data[0].shape[1] == 100:
+      # print 'HAAAAAAAAAAAD'
+      # data = [d[:,88:] for d in data]
+      # val_Data = [d[:,88:] for d in val_Data]
+
+    # self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
+    # self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
+
+    # #data = [d[:100] for d in data]
+    # #val_Data = [d[:100] for d in val_Data]
+
+    # #print "TESTEEEE"+tuning_folder
+
+    # self._batch_size = min(data[0].shape[0],data[1].shape[0])
+
+    # if isinstance(data, (tuple, list,)):
+      # data = np.concatenate( data, axis=npCurrent.odim )
+    # if isinstance(val_Data, (tuple, list,)):
+      # val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
+
+    # import numpy
+    # work_path='/scratch/22061a/caducovas/run/'
+    # results_path = work_path+"StackedAutoEncoder_preproc/"
+    # numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0]),val_Data)
+    # trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'
+
+    # if os.path.exists(trn_params_folder):
+        # os.remove(trn_params_folder)
+    # if not os.path.exists(trn_params_folder):
+        # trn_params = trnparams.NeuralClassificationTrnParams(n_inits=self._n_inits,
+                                                             # hidden_activation=self._hidden_activation,
+                                                             # output_activation=self._output_activation,
+                                                             # n_epochs=self._n_epochs,
+                                                             # patience=self._patience,
+                                                             # batch_size=self._batch_size)
+    # trn_params.save(trn_params_folder)
+
+    # self._trn_params = trn_params
+
+    # self._info(trn_params.get_params_str())
+
+
+
+    # # Train Process
+    # SAE = StackedAutoEncoders(params = trn_params,
+                              # development_flag = False,
+                              # n_folds = 1,
+                              # save_path = results_path,
+                              # prefix_str=self._caltype
+                              # )
+
+    # self._SAE = SAE
+
+    # # Choose layer to be trained
+    # layer = self._layer
+
+    # #self._info(self._hidden_neurons)
+
+    # f, model, trn_desc = SAE.trainLayer(data=data,
+                                        # trgt=val_Data,
+                                        # ifold=0,
+                                        # hidden_neurons=self._hidden_neurons,
+                                        # layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder) #,regularizer='l1',regularizer_param=10e-5)
+    # self._trn_desc = trn_desc
+    # self._weights = model.get_weights()
+    # self._trn_params = model.get_config()
+    # #self._info(self._SAE)
+
+    return self._apply(trnData)
+
+
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+
+    return ("LSTMAutoEncoder_%d" % self._hidden_neurons)
+
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return ("LSTM_AE_%d" % self._hidden_neurons)
+
+  def _apply(self, data):
+    #self._info(pp.shortName())
+    #self._info(self._etBinIdx)
+    #self._info(self._etaBinIdx)
+    ###get data projection
+    #if not self._mean.size or not self._invRMS.size:
+    #  self._fatal("Attempted to apply MapStd before taking its parameters.")
+    wrapper = TimeAutoencoderWrapper()
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      # if self._caltype == 'emcalo' and data[0].shape[1] == 100:
+        # #print 'EMMMMMMMMMMM'
+        # data = [d[:,:88] for d in data]
+        # #val_Data = [d[:,:88] for d in val_Data]
+      # elif self._caltype == 'hadcalo' and data[0].shape[1] == 100:
+        # #print 'HAAAAAAAAAAAD'
+        # data = [d[:,88:] for d in data]
+        #val_Data = [d[:,88:] for d in val_Data]
+      #data = [d[:100] for d in data]
+      for cdata in data:
+        #self._info(cdata.shape)
+        new_features = wrapper.generate_np_features(model_filename=self._model_filename,
+                                                    global_step=self._global_step,
+                                                    data_set=cdata,
+                                                    batch_size=self._batch_size)
+        ret.append(new_features)
+    else:
+      new_features = wrapper.generate_np_features(model_filename=self._model_filename,
+                                                    global_step=self._global_step,
+                                                    data_set=data,
+                                                    batch_size=self._batch_size)
+      ret = new_features
+    return ret
+
+  # def _undo(self, data):
+    # if not self._mean.size or not self._invRMS.size:
+      # self._fatal("Attempted to undo MapStd before taking its parameters.")
+    # if isinstance(data, (tuple, list,)):
+      # ret = []
+      # for i, cdata in enumerate(data):
+        # ret.append( ( cdata / self._invRMS ) + self._mean )
+    # else:
+      # ret = ( data / self._invRMS ) + self._mean
+    #
+    return ret
+
 
 class MapStd_MassInvariant( MapStd ):
   """

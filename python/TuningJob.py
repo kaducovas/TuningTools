@@ -1525,13 +1525,17 @@ class TuningJob(Logger):
           #os.makedirs(work_path+'newwav/fold_'+str(sort+1)+'/background')
           #for amostra in range(valData[1].shape[0]):
           #  wavfile.write(work_path+'newwav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
-          trn_all=np.concatenate( trnData, axis=npCurrent.odim)
+          #trn_all=np.concatenate( trnData, axis=npCurrent.odim)
           #np.savez_compressed(work_path+'Train_signal_sort'+str(sort),trnData[0])
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
-          np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
+          #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
 
           if('AE' in str(ppChain.shortName())):
-            reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
+            if('LSTM' in str(ppChain.shortName()))
+              reconstruct = getLSTMReconstruct(norm1Par,sort,model_name='ringer_N1_et1_eta1')
+            else:
+              reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
+            
             print 'RECONS',reconstruct.keys()
             #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation')
           ###self._info(hidden_neurons)
