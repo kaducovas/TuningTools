@@ -1132,7 +1132,7 @@ class LSTMAutoEncoder( PrepObj ):
     self._model_filename=Path('/home/users/caducovas/output/'+self._model_name+'/t-2x256-x-b/logs/model'),
     self._global_step=global_step,
     #self._data_set=input_data,
-    self._batch_size=batch_size)
+    self._batch_size=batch_size
     self._hidden_neurons = hidden_neurons
     # self._n_inits = n_inits
     # self._hidden_activation = hidden_activation
