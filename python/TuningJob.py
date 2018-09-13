@@ -1531,11 +1531,11 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
 
           if('AE' in str(ppChain.shortName())):
-            if('LSTM' in str(ppChain.shortName()))
+            if('LSTM' in str(ppChain.shortName())):
               reconstruct = getLSTMReconstruct(norm1Par,sort,model_name='ringer_N1_et1_eta1')
             else:
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
-            
+
             print 'RECONS',reconstruct.keys()
             #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation')
           ###self._info(hidden_neurons)
