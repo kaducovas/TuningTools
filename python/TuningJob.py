@@ -1532,7 +1532,7 @@ class TuningJob(Logger):
 
           if('AE' in str(ppChain.shortName())):
             if('LSTM' in str(ppChain.shortName())):
-              reconstruct = getLSTMReconstruct(norm1Par,sort,model_name='ringer_N1_et1_eta1')
+              reconstruct = getLSTMReconstruct(norm1Par,sort,model_name='ringer_n1_leblon')
             else:
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
 
