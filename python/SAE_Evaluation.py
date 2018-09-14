@@ -867,60 +867,60 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics[str(anel+1)] = None
       table.insert(metrics)
 
-      ###metrics = OrderedDict()
-      ###print "SIGNAL"
+      metrics = OrderedDict()
+      print "SIGNAL"
       #SIGNAL
-      ###metrics['Class'] = 'Signal'
-      ###metrics['Model'] = model_name
-      ###metrics['time'] = time
-      ###metrics['Measure'] = 'Normalized_MI'
+      metrics['Class'] = 'Signal'
+      metrics['Model'] = model_name
+      metrics['time'] = time
+      metrics['Measure'] = 'Normalized_MI'
       #metrics['HL_Neuron'] = hl_neuron
-      ###metrics['sort'] = sort
-      ###metrics['etBinIdx'] = etBinIdx
-      ###metrics['etaBinIdx'] = etaBinIdx
-      ###metrics['phase'] = phase
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
       #metrics['Elapsed'] = elapsed
       #metrics['fine_tuning'] = fine_tuning
 
 
-      ###for anel in range(100):
+      for anel in range(100):
         #print anel
-        ###try:
-          ###rr = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+        try:
+          rr = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
           #pdf = drv.information_mutual(rr)[0][1]
-          ###mi_score = np.sqrt(1. - np.exp(-2 * rr))
+          mi_score = np.sqrt(1. - np.exp(-2 * rr))
           #kl_tot_sort[nsort] = pdf
-          ###metrics[str(anel+1)] = mi_score
-        ###except:
-          ###print 'Anel '+str(anel)+' apresenta erros de calculo.'
-          ###metrics[str(anel+1)] = None
-      ###table.insert(metrics)
+          metrics[str(anel+1)] = mi_score
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo.'
+          metrics[str(anel+1)] = None
+      table.insert(metrics)
 
-      ###metrics = OrderedDict()
-      ###print "BACKGROUND"
+      metrics = OrderedDict()
+      print "BACKGROUND"
       #BACKGROUND
-      ###metrics['Class'] = 'Background'
-      ###metrics['Model'] = model_name
-      ###metrics['time'] = time
-      ###metrics['Measure'] = 'Normalized_MI'
+      metrics['Class'] = 'Background'
+      metrics['Model'] = model_name
+      metrics['time'] = time
+      metrics['Measure'] = 'Normalized_MI'
       #metrics['HL_Neuron'] = hl_neuron
-      ###metrics['sort'] = sort
-      ###metrics['etBinIdx'] = etBinIdx
-      ###metrics['etaBinIdx'] = etaBinIdx
-      ###metrics['phase'] = phase
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
       #metrics['Elapsed'] = elapsed
       #metrics['fine_tuning'] = fine_tuning
 
-      ###for anel in range(100):
-        ###try:
-          ###rr = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+      for anel in range(100):
+        try:
+          rr = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
           #pdf = drv.information_mutual(rr)[0][1]
-          ###mi_score = np.sqrt(1. - np.exp(-2 * rr))
+          mi_score = np.sqrt(1. - np.exp(-2 * rr))
           #kl_tot_sort[nsort] = pdf
-          ###metrics[str(anel+1)] = mi_score
-        ###except:
-          ###print 'Anel '+str(anel)+' apresenta erros de calculo.'
-          ###metrics[str(anel+1)] = None
+          metrics[str(anel+1)] = mi_score
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo.'
+          metrics[str(anel+1)] = None
 
-      ###table.insert(metrics)
+      table.insert(metrics)
   return metrics

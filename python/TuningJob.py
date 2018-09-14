@@ -1537,7 +1537,7 @@ class TuningJob(Logger):
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
 
             print 'RECONS',reconstruct.keys()
-            time.sleep(int(3*int(sort)))
+            time.sleep(int(20*int(sort)))
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation')
           ###self._info(hidden_neurons)
           #self._info(config)
