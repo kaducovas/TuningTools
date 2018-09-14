@@ -1129,7 +1129,7 @@ class LSTMAutoEncoder( PrepObj ):
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._model_name=model_name,
-    self._model_filename='/home/users/caducovas/deep_output/ringer_1_1_24_epochs_1_layer_90_units/logs/model'
+    self._model_filename='/home/users/caducovas/deep_output/ringer_1_1_32_epochs_1_layer_90_units/logs/model'
     #print self._model_filename
     #self._model_filename=Path('/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'),
     self._global_step=global_step,
