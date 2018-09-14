@@ -1529,7 +1529,8 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_signal_sort'+str(sort),trnData[0])
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
-
+          if(sort == 0):
+            time.sleep(360)
           if('AE' in str(ppChain.shortName())):
             if('LSTM' in str(ppChain.shortName())):
               reconstruct = getLSTMReconstruct(norm1Par,sort,model_name='ringer_n1_leblon')
@@ -1735,7 +1736,7 @@ class TuningJob(Logger):
         #print(work_path+ppChain.shortName())
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
         if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
-          print "oi"
+          print "SORTEEEE: "+str(sort)
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
           #subprocess.call("mv "+work_path+ppChain.shortName()+".txt "+work_path+"old/")
