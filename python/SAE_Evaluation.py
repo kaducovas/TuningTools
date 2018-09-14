@@ -646,7 +646,7 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
     predict = []
     for i, cdata in enumerate(afternorm):
       print i,cdata.shape
-      reconstruction = wrapper.generate_np_reconstruction(model_filename=Path('/home/users/caducovas/deep_output/ringer_1_1_24_epochs_1_layer_90_units_LSTM/logs/model'),
+      reconstruction = wrapper.generate_np_reconstruction(model_filename=Path('/home/users/caducovas/deep_output/ringer_1_1_24_epochs_2_layer_90_units/logs/model'),
                                                           global_step=None,
                                                           data_set=cdata,
                                                           batch_size=10000)
