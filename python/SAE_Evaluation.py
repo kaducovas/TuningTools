@@ -784,15 +784,15 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and layer = '"+layer+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
 
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+layer+"'  and Model= '"+model_name+"' and time = '20180914165217'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '20180914165217'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfSignal.fillna(value=nan, inplace=True)
 
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+layer+"' and Model= '"+model_name+"' and time = '20180914165217'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '20180914165217'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfBkg.fillna(value=nan, inplace=True)
 
