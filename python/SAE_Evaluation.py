@@ -796,9 +796,9 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfBkg.fillna(value=nan, inplace=True)
 
-  all=dfAll.values
-  sgn=dfSignal.values
-  bkg=dfBkg.values
+  all=dfAll.values.astype(np.float32)
+  sgn=dfSignal.values.astype(np.float32)
+  bkg=dfBkg.values.astype(np.float32)
 
   plt.figure(figsize=(16,10))
   plt.errorbar(np.arange(100), np.mean(all, axis=0),yerr=np.std(all, axis=0), fmt='go-',color='green')
