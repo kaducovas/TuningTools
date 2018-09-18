@@ -210,7 +210,7 @@ def plot_AE_training(fname,dirout):
   plt.clf()
   plt.close()
   return png_files
-
+  
 def plot_classifier_training(fname,dirout):
   import os
   history_files=[x for x in os.listdir(fname) if x.endswith(".pkl")]
@@ -752,6 +752,84 @@ def getReconstruct(fname,norm1Par,sort):
   #if K.backend() == 'tensorflow':
   #    K.clear_session()
 
+def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+  import sqlite3
+  import pandas as pd
+  from numpy import nan
+  %matplotlib inline
+  import matplotlib.pyplot as plt
+  png_files=[] 
+
+  plt.style.use('ggplot')
+  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+  # Et and Eta indices
+  et_index  = [0, 1, 2,3]
+  etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+  
+  eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+  etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+  
+  #et_index  = [1,2]
+  #etRange = ['[20, 30]']
+  
+  #eta_index = [1,2]
+  #etaRange = ['[0.6, 0.8]']
+  
+  #for iet, etrange in zip(et_index, etRange):
+  #  for ieta, etarange in zip(eta_index, etaRange):
+  iet =  etBinIdx
+  etrange = etRange[etBinIdx]
+  ieta = etaBinIdx
+  etarange = etaRange[etaBinIdx]
+      #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+      #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+  
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and layer = '"+layer+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfAll.fillna(value=nan, inplace=True)
+
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+layer+"'  and Model= '"+model_name+"' and time = '20180914165217'", cnx)
+  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfSignal.fillna(value=nan, inplace=True)
+
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+layer+"' and Model= '"+model_name+"' and time = '20180914165217'", cnx)
+  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfBkg.fillna(value=nan, inplace=True)  
+  
+  all=dfAll.values
+  sgn=dfSignal.values
+  bkg=dfBkg.values
+  
+  plt.figure(figsize=(16,10))
+  plt.errorbar(np.arange(100), np.mean(all, axis=0),yerr=np.std(all, axis=0), fmt='go-',color='green')
+  plt.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='D-', color='cornflowerblue')
+  plt.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='ro-')
+
+  plt.legend(['All','Electron', 'Background'], loc='best', fontsize='xx-large')
+  for i in [7, 71, 79, 87, 91, 95]:
+    plt.axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  plt.title(r''+model_name+' - MI Input X Reconstruction $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
+  plt.xlabel('#Rings', fontsize=15)
+  plt.ylabel('Normalized Mutual Information', fontsize=15)
+  plt.ylim(ymax=1)
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = .98#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    plt.text(x,y,text, fontsize=15, rotation=90)
+      
+  #plt.show()
+  plt.savefig(dirout+'input_reconstruction_mi.png')
+  png_files.append(dirout+'input_reconstruction_mi.png')
+  plt.clf()
+  plt.close()
+  return png_files
+
 def plot_confusion_matrix(cm, classes,
               normalize=False,
               title='Confusion matrix',
@@ -821,7 +899,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   import dataset
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
   #print point.sp_value
-  table = db['reconstruction_new']
+  table = db['reconstruction_metrics']
   metrics = OrderedDict()
   beforenorm = norm1Par[0]
   normlist = norm1Par[1]
@@ -842,6 +920,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       ##ALL LABELS
       metrics['Class'] = 'All'
       metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
       metrics['time'] = time
       metrics['Measure'] = 'Normalized_MI'
       #metrics['HL_Neuron'] = hl_neuron
@@ -872,6 +951,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       #SIGNAL
       metrics['Class'] = 'Signal'
       metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
       metrics['time'] = time
       metrics['Measure'] = 'Normalized_MI'
       #metrics['HL_Neuron'] = hl_neuron
@@ -901,6 +981,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       #BACKGROUND
       metrics['Class'] = 'Background'
       metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
       metrics['time'] = time
       metrics['Measure'] = 'Normalized_MI'
       #metrics['HL_Neuron'] = hl_neuron

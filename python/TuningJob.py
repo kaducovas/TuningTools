@@ -1443,64 +1443,64 @@ class TuningJob(Logger):
             os.makedirs(outputDir+'/files/'+tuning_folder_name+'/results')
           if not os.path.exists(outputDir+'/files/'+tuning_folder_name+'/models'):
             os.makedirs(outputDir+'/files/'+tuning_folder_name+'/models')
-          ##########################################################################
-          ##APAGAR DEPOIS
-          import sys
-          sys.path.insert(0,'/home/users/caducovas')
-          from load_dataset import load_dataset
-          from sklearn.model_selection import train_test_split
-          import dirs
-          import defines as defs
-          from preproc import preproc,dimension_reduction
-          from sklearn.model_selection import KFold
+          # ##########################################################################
+          # ##APAGAR DEPOIS
+          # import sys
+          # sys.path.insert(0,'/home/users/caducovas')
+          # from load_dataset import load_dataset
+          # from sklearn.model_selection import train_test_split
+          # import dirs
+          # import defines as defs
+          # from preproc import preproc,dimension_reduction
+          # from sklearn.model_selection import KFold
 
-          dataDf,labels = load_dataset(dirs.dataset,randomState=defs.standardSample,fracPos=defs.fracPos,fracNeg=defs.fracNeg)
-          print dataDf[0].shape, dataDf[1].shape
-          testsizePos=int(round((dataDf[0].shape[0]*defs.fracTest)))
-          testsizeNeg=int(round((dataDf[1].shape[0]*defs.fracTest)))
-          #print testsize
-          trainDfPos,testDfPos,y_trainPos,y_testPos = train_test_split(dataDf[0],labels[0],test_size=testsizePos) #,ramdom_state=defs.standardSample)
-          trainDfNeg,testDfNeg,y_trainNeg,y_testNeg = train_test_split(dataDf[1],labels[1],test_size=testsizeNeg)
+          # dataDf,labels = load_dataset(dirs.dataset,randomState=defs.standardSample,fracPos=defs.fracPos,fracNeg=defs.fracNeg)
+          # print dataDf[0].shape, dataDf[1].shape
+          # testsizePos=int(round((dataDf[0].shape[0]*defs.fracTest)))
+          # testsizeNeg=int(round((dataDf[1].shape[0]*defs.fracTest)))
+          # #print testsize
+          # trainDfPos,testDfPos,y_trainPos,y_testPos = train_test_split(dataDf[0],labels[0],test_size=testsizePos) #,ramdom_state=defs.standardSample)
+          # trainDfNeg,testDfNeg,y_trainNeg,y_testNeg = train_test_split(dataDf[1],labels[1],test_size=testsizeNeg)
 
-          kf=KFold(n_splits=10,random_state=17)
-          #print len(kf.split(trainDfNeg))
-          kfGenPos=[]
-          kfGenNeg=[]
-          for trainNegIdx,valNegIdx in kf.split(trainDfNeg):
-            kfGenNeg.append((trainNegIdx,valNegIdx))
-          for trainPosIdx,valPosIdx in kf.split(trainDfPos):
-            kfGenPos.append((trainPosIdx,valPosIdx))
-            #  print trainIdx,testIdx
-          #print len(kfGen),sort
-          #print kfGenNeg[sort]
-          trainPosIdx,valPosIdx=kfGenPos[sort]
-          trainNegIdx,valNegIdx=kfGenNeg[sort]
+          # kf=KFold(n_splits=10,random_state=17)
+          # #print len(kf.split(trainDfNeg))
+          # kfGenPos=[]
+          # kfGenNeg=[]
+          # for trainNegIdx,valNegIdx in kf.split(trainDfNeg):
+            # kfGenNeg.append((trainNegIdx,valNegIdx))
+          # for trainPosIdx,valPosIdx in kf.split(trainDfPos):
+            # kfGenPos.append((trainPosIdx,valPosIdx))
+            # #  print trainIdx,testIdx
+          # #print len(kfGen),sort
+          # #print kfGenNeg[sort]
+          # trainPosIdx,valPosIdx=kfGenPos[sort]
+          # trainNegIdx,valNegIdx=kfGenNeg[sort]
 
-          trainDf=[]
-          trainDf.append(trainDfNeg[trainNegIdx])
-          trainDf.append(trainDfPos[trainPosIdx])
-          valDf=[]
-          valDf.append(trainDfNeg[valNegIdx])
-          valDf.append(trainDfPos[valPosIdx])
-          testDf=[]
-          testDf.append(testDfNeg)
-          testDf.append(testDfPos)
+          # trainDf=[]
+          # trainDf.append(trainDfNeg[trainNegIdx])
+          # trainDf.append(trainDfPos[trainPosIdx])
+          # valDf=[]
+          # valDf.append(trainDfNeg[valNegIdx])
+          # valDf.append(trainDfPos[valPosIdx])
+          # testDf=[]
+          # testDf.append(testDfNeg)
+          # testDf.append(testDfPos)
 
-          #print dataDf.values.shape,trainDf.values.shape,testDf.values.shape
-          #print y_train.shape, y_test.shape
-          #print np.unique(y_train), np.unique(y_test)
-          ############################################################################
-          print 'REDUCAO DE DATASET - ANTES'
-          print 'trnData',len(trnData),trnData[0].shape,trnData[1].shape
-          print 'valData',len(valData),valData[0].shape,valData[1].shape
+          # #print dataDf.values.shape,trainDf.values.shape,testDf.values.shape
+          # #print y_train.shape, y_test.shape
+          # #print np.unique(y_train), np.unique(y_test)
+          # ############################################################################
+          # print 'REDUCAO DE DATASET - ANTES'
+          # print 'trnData',len(trnData),trnData[0].shape,trnData[1].shape
+          # print 'valData',len(valData),valData[0].shape,valData[1].shape
 
-          #trnData,valData,tstData = trainDf,valDf,testDf
-          #trnData,valData= trainDf,valDf
+          # #trnData,valData,tstData = trainDf,valDf,testDf
+          # #trnData,valData= trainDf,valDf
 
-          print 'DEPOIS'
-          print 'trnData',len(trnData),trnData[0].shape,trnData[1].shape
-          print 'valData',len(valData),valData[0].shape,valData[1].shape
-          #print 'tstData',len(tstData),tstData[0].shape,tstData[1].shape
+          # print 'DEPOIS'
+          # print 'trnData',len(trnData),trnData[0].shape,trnData[1].shape
+          # print 'valData',len(valData),valData[0].shape,valData[1].shape
+          # #print 'tstData',len(tstData),tstData[0].shape,tstData[1].shape
 
           #self._info(trnData[0].shape)
           #self._info(trnData[1].shape)
@@ -1785,6 +1785,13 @@ class TuningJob(Logger):
             for png_file in png_files:
               png_f = open(png_file,'rb')
               bot.sendPhoto('@ringer_tuning',png_f)
+
+          if('AE' in str(ppChain.shortName())):
+            for layer in reconstruct.keys():
+              png_files=plot_input_reconstruction(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              for png_file in png_files:
+                png_f = open(png_file,'rb')
+                bot.sendPhoto('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
