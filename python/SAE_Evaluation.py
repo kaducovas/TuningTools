@@ -801,17 +801,17 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   bkg=dfBkg.values.astype(np.float32)
 
   plt.figure(figsize=(16,10))
-  plt.errorbar(np.arange(100), np.mean(all, axis=0),yerr=np.std(all, axis=0), fmt='go-',color='green')
+  #plt.errorbar(np.arange(100), np.mean(all, axis=0),yerr=np.std(all, axis=0), fmt='go-',color='green')
   plt.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='D-', color='cornflowerblue')
   plt.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='ro-')
 
-  plt.legend(['All','Electron', 'Background'], loc='best', fontsize='xx-large')
+  plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
   for i in [7, 71, 79, 87, 91, 95]:
     plt.axvline(i, color='gray', linestyle='--', linewidth=.8)
 
   plt.title(r''+model_name+' - MI Input X Reconstruction $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
-  plt.xlabel('#Rings', fontsize=15)
-  plt.ylabel('Normalized Mutual Information', fontsize=15)
+  plt.xlabel('#Rings', fontsize='xx-large')
+  plt.ylabel('Normalized Mutual Information', fontsize='xx-large')
   plt.ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3

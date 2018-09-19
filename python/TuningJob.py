@@ -1780,6 +1780,12 @@ class TuningJob(Logger):
           #x3.add_row(list(trnMetrics.values()))
           #x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
+
+          confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[1])
+          for confMatrix_png_file in confMatrix_png_files:
+            confMatrix_png_f = open(confMatrix_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
+
           if('AE' in str(ppChain.shortName()) and 'LSTM' not in str(ppChain.shortName())):
             png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
@@ -1799,11 +1805,6 @@ class TuningJob(Logger):
           for roc_png_file in roc_png_files:
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
-
-          confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[1])
-          for confMatrix_png_file in confMatrix_png_files:
-            confMatrix_png_f = open(confMatrix_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
 
           for refN in refName:
             bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
