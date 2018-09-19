@@ -796,16 +796,20 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfBkg.fillna(value=nan, inplace=True)
 
-  all=dfAll.values.astype(np.float32)
+  allClasses=dfAll.values.astype(np.float32)
   sgn=dfSignal.values.astype(np.float32)
   bkg=dfBkg.values.astype(np.float32)
 
   plt.figure(figsize=(16,10))
-  #plt.errorbar(np.arange(100), np.mean(all, axis=0),yerr=np.std(all, axis=0), fmt='go-',color='green')
-  #plt.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='D-', color='cornflowerblue')
+  plt.errorbar(np.arange(100), np.mean(allClasses, axis=0),yerr=np.std(allClasses, axis=0), fmt='go-',color='green')
+  plt.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='D-', color='cornflowerblue')
   plt.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='ro-')
+  print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
+  print np.mean(sgn,axis=0),np.std(sgn,axis=0)
+  print np.mean(bkg,axis=0),np.std(bkg,axis=0)
 
-  plt.legend(['Background'], loc='best', fontsize='xx-large')
+
+  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
   for i in [7, 71, 79, 87, 91, 95]:
     plt.axvline(i, color='gray', linestyle='--', linewidth=.8)
 
@@ -863,6 +867,8 @@ def plot_confusion_matrix(cm, classes,
   plt.tight_layout()
   plt.ylabel('True label')
   plt.xlabel('Predicted label')
+  #plt.clf()
+  #plt.close()
 
 def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   refName,point = points
@@ -890,6 +896,8 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   plt.tight_layout()
   plt.suptitle(refName.split('_')[-1]+" - "+model, fontsize=24)
   plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
+  plt.clf()
+  plt.close()
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
 
