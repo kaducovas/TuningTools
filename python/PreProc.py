@@ -1116,11 +1116,13 @@ class LSTMAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_neurons=180,model_name="ringer_N1_et1_eta1",global_step=None,batch_size=10000,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_neurons=180,model_name="ringer_N1_et1_eta1",global_step=None,batch_size=1000,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     from audeep.backend.training.base import BaseFeatureLearningWrapper
     from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
+    from audeep.backend.models.rnn_base import CellType, RNNArchitecture
+    from audeep.backend.models.rnn_base import CellType, RNNArchitecture
     #import numpy as np
     from pathlib import Path
 
@@ -1128,14 +1130,53 @@ class LSTMAutoEncoder( PrepObj ):
     # self._caltype = retrieve_kw(d,'caltype','allcalo')
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
-    self._model_name=model_name,
-    self._model_filename='/home/users/caducovas/deep_output/ringer_1_1_24_epochs_2_layer_90_units/logs/model'
+    #self._model_name=model_name,
+    #self._model_filename='/home/users/caducovas/deep_output/ringer_1_1_24_epochs_2_layer_90_units/logs/model'
     #print self._model_filename
     #self._model_filename=Path('/home/users/caducovas/output/'+str(self._model_name)+'/t-1x256-x-b/logs/model'),
     self._global_step=global_step,
     #self._data_set=input_data,
     self._batch_size=batch_size
-    self._hidden_neurons = hidden_neurons
+
+    self._num_layers = 1
+    self._num_units = 16
+    self._bidirectional = False 
+    self._cell_type = CellType.GRU
+    self._num_epochs = 24
+    self._record_files = 
+    self._mask_silence = False
+    self._trn_batch_size = 1000
+    self._checkpoints_to_keep = None
+    self._learning_rate = 0.001
+    self._keep_prob = 0.5
+    self._encoder_noise = 0.0
+    self._feed_previous_prob = None
+
+
+    if self._bidirectional:
+      brnn='_bidirectional_'
+    else:
+      brnn=''
+  
+    if self._cell_type == CellType.GRU:
+      c_type='_GRU'
+    else:
+      c_type='_LSTM'
+  
+    save_path='/home/users/caducovas/lstm_output/'
+  
+    model_name= str(self._num_epochs)+'_epochs_'+str(self._num_layers)+'_layers_'+str(self._num_units)+'_units_'+brnn+c_type
+    #self._model_filename = save_path+model_name / "logs" / "model"
+
+    record_path = '/scratch/22061a/caducovas/run/tfr/'
+    self._record_files = []
+
+    architecture = RNNArchitecture(num_layers=self._num_layers,
+                                   num_units=self._num_units,
+                                   bidirectional=self._bidirectional,
+                                   cell_type=self._cell_type)
+    self._hidden_neurons  = architecture.state_size
+
     # self._n_inits = n_inits
     # self._hidden_activation = hidden_activation
     # self._output_activation = output_activation
@@ -1144,9 +1185,9 @@ class LSTMAutoEncoder( PrepObj ):
     # self._batch_size = batch_size
     # self._layer= layer
     del d
-    # self._sort = ''
-    # self._etBinIdx = ''
-    # self._etaBinIdx = ''
+    self._sort = ''
+    self._etBinIdx = ''
+    self._etaBinIdx = ''
     # self._SAE = ''
     # self._trn_params = ''
     # self._trn_desc = ''
@@ -1154,27 +1195,45 @@ class LSTMAutoEncoder( PrepObj ):
 
 
   def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
-    from RingerCore import retrieve_kw
-    from audeep.backend.training.base import BaseFeatureLearningWrapper
-    from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
-    #import numpy as np
-    from pathlib import Path
 
   ###trainlayer
 
     """
       Perform the layerwise algorithm to train the SAE
     """
+    import abc
+    import shutil
+    import tempfile
+    from pathlib import Path
+    from cliff.command import Command
+    from audeep.backend.data.export import export_ringer_tfrecords
+    from audeep.backend.models.rnn_base import CellType, RNNArchitecture
+    from RingerCore import retrieve_kw
+    from audeep.backend.training.base import BaseFeatureLearningWrapper
+    from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
+    import tensorflow as tf
+    from audeep.backend.data.records import to_tensor
+    import os
+    #from audeep.backend.decorators import to_tensor
+
+    self._feature_shape = [trnData.shape[1],1]
+    self._num_instances = trnData.shape[0]
+    self._record_files = [record_path+'ringer_tfrecords_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)]
+    model_filename = model_name+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)
+    self._model_filename = save_path+model_filename / "logs" / "model"
 
     # # TODO...
-    # self._sort = sort
-    # self._etBinIdx = etBinIdx
-    # self._etaBinIdx = etaBinIdx
+    self._sort = sort
+    self._etBinIdx = etBinIdx
+    self._etaBinIdx = etaBinIdx
     # print(self._caltype)
 
-    # import copy
-    # data = copy.deepcopy(trnData)
-    # val_Data = copy.deepcopy(valData)
+    import copy
+    data = copy.deepcopy(trnData)
+    val_Data = copy.deepcopy(valData)
+
+    if not os.path.exists(self._model_filename ):
+      os.makedirs(self._model_filename )
 
     # if self._caltype == 'emcalo' and data[0].shape[1] == 100:
       # print 'EMMMMMMMMMMM'
@@ -1185,43 +1244,65 @@ class LSTMAutoEncoder( PrepObj ):
       # data = [d[:,88:] for d in data]
       # val_Data = [d[:,88:] for d in val_Data]
 
-    # self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
-    # self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
+    self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
+    self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
 
-    # #data = [d[:100] for d in data]
-    # #val_Data = [d[:100] for d in val_Data]
+    if isinstance(data, (tuple, list,)):
+      data = np.concatenate( data, axis=npCurrent.odim )
+    if isinstance(val_Data, (tuple, list,)):
+      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
+    
+    export_ringer_tfrecords(self._record_files[0],data)
+    
+    # filename_tensor = tf.constant(value=[str(file) for file in self._record_files], dtype=tf.string,
+                                  # name="filenames")
+    # filename_queue = tf.train.string_input_producer(filename_tensor, num_epochs=None)
+    # reader = tf.TFRecordReader()
+    # _, serialized_example = reader.read(filename_queue)
+    # tensor_data = to_tensor(serialized_example, self._feature_shape)
+    # data_batches = tf.train.batch([tensor_data],
+                                  # enqueue_many=False,
+                                  # batch_size=self._trn_batch_size,
+                                  # num_threads=2,
+                                  # capacity=100 * self._trn_batch_size,
+                                  # #min_after_dequeue=50 * self._batch_size,
+                                  # allow_smaller_final_batch=True)
 
-    # #print "TESTEEEE"+tuning_folder
+    # # batches are batch major; also we assume that features are stored as [time, frequency]
+    # data_batches = tf.transpose(data_batches, perm=[1, 0, 2])
 
-    # self._batch_size = min(data[0].shape[0],data[1].shape[0])
+    # # [time, batch, frequency]
+    # #return data_batches
 
-    # if isinstance(data, (tuple, list,)):
-      # data = np.concatenate( data, axis=npCurrent.odim )
-    # if isinstance(val_Data, (tuple, list,)):
-      # val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
-
-    # import numpy
-    # work_path='/scratch/22061a/caducovas/run/'
-    # results_path = work_path+"StackedAutoEncoder_preproc/"
-    # numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0]),val_Data)
-    # trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'
-
-    # if os.path.exists(trn_params_folder):
-        # os.remove(trn_params_folder)
-    # if not os.path.exists(trn_params_folder):
-        # trn_params = trnparams.NeuralClassificationTrnParams(n_inits=self._n_inits,
-                                                             # hidden_activation=self._hidden_activation,
-                                                             # output_activation=self._output_activation,
-                                                             # n_epochs=self._n_epochs,
-                                                             # patience=self._patience,
-                                                             # batch_size=self._batch_size)
-    # trn_params.save(trn_params_folder)
-
-    # self._trn_params = trn_params
-
-    # self._info(trn_params.get_params_str())
+    encoder_architecture = RNNArchitecture(num_layers=self._num_layers,
+                                           num_units=self._num_units,
+                                           bidirectional=self._bidirectional,
+                                           cell_type=self._cell_type)
+    decoder_architecture = RNNArchitecture(num_layers=self._num_layers,
+                                           num_units=self._num_units,
+                                           bidirectional=self._bidirectional,
+                                           cell_type=self._cell_type)
 
 
+    wrapper = TimeAutoencoderWrapper()
+
+    wrapper.initialize_model(feature_shape=self._feature_shape,
+                             model_filename=Path(self._model_filename),
+                             encoder_architecture=encoder_architecture,
+                             decoder_architecture=decoder_architecture,
+                             mask_silence=False)
+
+    wrapper.train_model(model_filename=Path(self._model_filename),
+                        record_files=self._record_files,
+                        feature_shape=self._feature_shape,
+                        num_instances=self._num_instances,
+                        num_epochs=self._num_epochs,
+                        batch_size=self._trn_batch_size,
+                        checkpoints_to_keep=self._checkpoints_to_keep,
+                        learning_rate=self._learning_rate,
+                        keep_prob=self._keep_prob,
+                        encoder_noise=self._encoder_noise,
+                        decoder_feed_previous_prob=self._feed_previous_prob)
 
     # # Train Process
     # SAE = StackedAutoEncoders(params = trn_params,
@@ -1275,7 +1356,7 @@ class LSTMAutoEncoder( PrepObj ):
     #self._info(self._etBinIdx)
     #self._info(self._etaBinIdx)
     ###get data projection
-    print 'model_filename',self._model_name,self._model_filename
+    print 'model_filename',self._model_filename
     #if not self._mean.size or not self._invRMS.size:
     #  self._fatal("Attempted to apply MapStd before taking its parameters.")
     wrapper = TimeAutoencoderWrapper()
