@@ -1116,7 +1116,7 @@ class LSTMAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_neurons=180,model_name="ringer_N1_et1_eta1",global_step=None,batch_size=1000,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,units=16,bidirection=False,layers=1, hidden_neurons=180,model_name="ringer_N1_et1_eta1",global_step=None,batch_size=1000,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     from audeep.backend.training.base import BaseFeatureLearningWrapper
@@ -1138,11 +1138,11 @@ class LSTMAutoEncoder( PrepObj ):
     #self._data_set=input_data,
     self._batch_size=batch_size
 
-    self._num_layers = 1
-    self._num_units = 16
-    self._bidirectional = False
+    self._num_layers = layers
+    self._num_units = units
+    self._bidirectional = bidirection
     self._cell_type = CellType.GRU
-    self._num_epochs = 24
+    self._num_epochs = 2
     self._mask_silence = False
     self._trn_batch_size = 1000
     self._checkpoints_to_keep = None
@@ -1154,13 +1154,17 @@ class LSTMAutoEncoder( PrepObj ):
 
     if self._bidirectional:
       brnn='_bidirectional_'
+      bname='B'
     else:
       brnn=''
+      bname=''
 
     if self._cell_type == CellType.GRU:
       c_type='_GRU'
     else:
       c_type='_LSTM'
+
+    self._model_shortname=bname+c_type.replace('_','')+'_'+str(self._num_layers)+'L'
 
     self._save_path='/home/users/caducovas/lstm_output/'
 
@@ -1215,6 +1219,7 @@ class LSTMAutoEncoder( PrepObj ):
     import os
     #from audeep.backend.decorators import to_tensor
     import copy
+    import subprocess
     data = copy.deepcopy(trnData)
     val_Data = copy.deepcopy(valData)
 
@@ -1227,7 +1232,7 @@ class LSTMAutoEncoder( PrepObj ):
     self._num_instances = data.shape[0]
     self._record_files = [self._record_path+'ringer_tfrecords_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)]
     model_filename = self._model_name+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)
-    self._model_filename = self._save_path+model_filename+'/logs/model'
+    self._model_filename = self._save_path+'/et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)+'/'+model_filename+'/logs/model'
 
     # # TODO...
     self._sort = sort
@@ -1303,6 +1308,11 @@ class LSTMAutoEncoder( PrepObj ):
                         encoder_noise=self._encoder_noise,
                         decoder_feed_previous_prob=self._feed_previous_prob)
 
+    try:
+      subprocess.call('scp -r '+self._save_path+'/et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)+'/'+model_filename+' caducovas@bastion.lps.ufrj.br:/home/caducovas/lstm_output/',shell=True)
+    except:
+      print "NAO deu pra copiar pra bastion.."
+
     # # Train Process
     # SAE = StackedAutoEncoders(params = trn_params,
                               # development_flag = False,
@@ -1337,13 +1347,13 @@ class LSTMAutoEncoder( PrepObj ):
       String representation of the object.
     """
 
-    return ("LSTMAutoEncoder_%d" % self._hidden_neurons)
+    return (self._model_shortname+"_AutoEncoder_%d" % self._hidden_neurons)
 
   def shortName(self):
     """
       Short string representation of the object.
     """
-    return ("LSTM_AE_%d" % self._hidden_neurons)
+    return (self._model_shortname+"_AE_%d" % self._hidden_neurons)
 
   def _apply(self, data):
     from RingerCore import retrieve_kw

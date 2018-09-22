@@ -1202,7 +1202,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),LSTMAutoEncoder(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),LSTMAutoEncoder(level=self.level,units=10,bidirection=False,layers=1)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1532,7 +1532,7 @@ class TuningJob(Logger):
           if(sort == 0):
             time.sleep(360)
           if('AE' in str(ppChain.shortName())):
-            if('LSTM' in str(ppChain.shortName())):
+            if('LSTM' in str(ppChain.shortName()) or 'GRU' in str(ppChain.shortName())):
               reconstruct = getLSTMReconstruct(norm1Par,sort,model_name='ringer_n1_leblon')
             else:
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
@@ -1781,7 +1781,7 @@ class TuningJob(Logger):
           #x3.add_row(list(valMetrics.values()))
           #bot.sendMessage('@ringer_tuning',x3.get_string())
 
-          if('AE' in str(ppChain.shortName()) and 'LSTM' not in str(ppChain.shortName())):
+          if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) or 'GRU' not in str(ppChain.shortname()))):
             png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
               png_f = open(png_file,'rb')
