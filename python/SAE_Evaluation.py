@@ -788,18 +788,18 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
 
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '20180914165217'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
 
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '20180914165217'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
 
   allClasses=dfAll.values.astype(np.float32)
-  sgn=dfSignal.values#.astype(np.float32)
-  bkg=dfBkg.values#.astype(np.float32)
+  sgn=dfSignal.values.astype(np.float32)
+  bkg=dfBkg.values.astype(np.float32)
 
   print 'all',allClasses
   print 'sgn', sgn
