@@ -1149,7 +1149,7 @@ class LSTMAutoEncoder( PrepObj ):
     self._learning_rate = 0.001
     self._keep_prob = 0.5
     self._encoder_noise = 0.0
-    self._feed_previous_prob = None
+    self._feed_previous_prob = 0.0
 
 
     if self._bidirectional:
@@ -1162,12 +1162,12 @@ class LSTMAutoEncoder( PrepObj ):
     else:
       c_type='_LSTM'
 
-    save_path='/home/users/caducovas/lstm_output/'
+    self._save_path='/home/users/caducovas/lstm_output/'
 
-    model_name= str(self._num_epochs)+'_epochs_'+str(self._num_layers)+'_layers_'+str(self._num_units)+'_units_'+brnn+c_type
+    self._model_name= str(self._num_epochs)+'_epochs_'+str(self._num_layers)+'_layers_'+str(self._num_units)+'_units_'+brnn+c_type
     #self._model_filename = save_path+model_name / "logs" / "model"
 
-    record_path = '/scratch/22061a/caducovas/run/tfr/'
+    self._record_path = '/scratch/22061a/caducovas/run/tfr/'
     self._record_files = []
 
     architecture = RNNArchitecture(num_layers=self._num_layers,
@@ -1214,22 +1214,26 @@ class LSTMAutoEncoder( PrepObj ):
     from audeep.backend.data.records import to_tensor
     import os
     #from audeep.backend.decorators import to_tensor
+    import copy
+    data = copy.deepcopy(trnData)
+    val_Data = copy.deepcopy(valData)
 
-    self._feature_shape = [trnData.shape[1],1]
-    self._num_instances = trnData.shape[0]
-    self._record_files = [record_path+'ringer_tfrecords_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)]
-    model_filename = model_name+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)
-    self._model_filename = save_path+model_filename / "logs" / "model"
+    if isinstance(data, (tuple, list,)):
+      data = np.concatenate( data, axis=npCurrent.odim )
+    if isinstance(val_Data, (tuple, list,)):
+      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
+
+    self._feature_shape = [data.shape[1],1]
+    self._num_instances = data.shape[0]
+    self._record_files = [self._record_path+'ringer_tfrecords_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)]
+    model_filename = self._model_name+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'_sort_'+str(sort)
+    self._model_filename = self._save_path+model_filename+'/logs/model'
 
     # # TODO...
     self._sort = sort
     self._etBinIdx = etBinIdx
     self._etaBinIdx = etaBinIdx
     # print(self._caltype)
-
-    import copy
-    data = copy.deepcopy(trnData)
-    val_Data = copy.deepcopy(valData)
 
     if not os.path.exists(self._model_filename ):
       os.makedirs(self._model_filename )
@@ -1246,10 +1250,6 @@ class LSTMAutoEncoder( PrepObj ):
     self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
     self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
 
-    if isinstance(data, (tuple, list,)):
-      data = np.concatenate( data, axis=npCurrent.odim )
-    if isinstance(val_Data, (tuple, list,)):
-      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
 
     export_ringer_tfrecords(self._record_files[0],data)
 
