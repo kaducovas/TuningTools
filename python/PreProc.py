@@ -1140,10 +1140,9 @@ class LSTMAutoEncoder( PrepObj ):
 
     self._num_layers = 1
     self._num_units = 16
-    self._bidirectional = False 
+    self._bidirectional = False
     self._cell_type = CellType.GRU
     self._num_epochs = 24
-    self._record_files = 
     self._mask_silence = False
     self._trn_batch_size = 1000
     self._checkpoints_to_keep = None
@@ -1157,14 +1156,14 @@ class LSTMAutoEncoder( PrepObj ):
       brnn='_bidirectional_'
     else:
       brnn=''
-  
+
     if self._cell_type == CellType.GRU:
       c_type='_GRU'
     else:
       c_type='_LSTM'
-  
+
     save_path='/home/users/caducovas/lstm_output/'
-  
+
     model_name= str(self._num_epochs)+'_epochs_'+str(self._num_layers)+'_layers_'+str(self._num_units)+'_units_'+brnn+c_type
     #self._model_filename = save_path+model_name / "logs" / "model"
 
@@ -1251,9 +1250,9 @@ class LSTMAutoEncoder( PrepObj ):
       data = np.concatenate( data, axis=npCurrent.odim )
     if isinstance(val_Data, (tuple, list,)):
       val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
-    
+
     export_ringer_tfrecords(self._record_files[0],data)
-    
+
     # filename_tensor = tf.constant(value=[str(file) for file in self._record_files], dtype=tf.string,
                                   # name="filenames")
     # filename_queue = tf.train.string_input_producer(filename_tensor, num_epochs=None)
