@@ -1142,7 +1142,7 @@ class LSTMAutoEncoder( PrepObj ):
     self._num_units = units
     self._bidirectional = bidirection
     self._cell_type = CellType.GRU
-    self._num_epochs = 2
+    self._num_epochs = 24
     self._mask_silence = False
     self._trn_batch_size = 1000
     self._checkpoints_to_keep = None
