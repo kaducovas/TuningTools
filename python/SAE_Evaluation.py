@@ -575,7 +575,7 @@ def createClassifierTable(model_name,script_time,Point):
     x.add_row([k,trn[k],val[k]])
 
   return x
-  
+
 def create_simple_table(model_name,script_time):
   #from SAE_Evaluation import *
   from prettytable import PrettyTable
@@ -586,19 +586,19 @@ def create_simple_table(model_name,script_time):
   a = df.groupby(['Point']).agg({'sp':['mean','std'],'pd':['mean','std'],'pf':['mean','std'],'f1':['mean','std'],'auc':['mean','std'],'precision':['mean','std'],'recall':['mean','std']}).values
   #df_values = np.round(a,2)
   x = PrettyTable()
-  
+
   x.field_names = ["Criteria", "Pd", "SP", "Fa","F1","AUC","Precision","Recall"]
   x.add_row(["Pd", str(round([a[0][12],2))+' '+str(round([a[0][13],2)),str(round([a[0][6],2))+' '+str(round([a[0][7],2)),str(round([a[0][10],2))+' '+str(round([a[0][11],2)),str(round([a[0][0],2))+' '+str(round([a[0][1],2)),str(round([a[0][2],2))+' '+str(round([a[0][3],2)),str(round([a[0][8],2))+' '+str(round([a[0][9],2)),str(round([a[0][4],2))+' '+str(round([a[0][5],2))])
   x.add_row(["Pf", str(round([a[1][12],2))+' '+str(round([a[1][13],2)),str(round([a[1][6],2))+' '+str(round([a[1][7],2)),str(round([a[1][10],2))+' '+str(round([a[1][11],2)),str(round([a[1][0],2))+' '+str(round([a[1][1],2)),str(round([a[1][2],2))+' '+str(round([a[1][3],2)),str(round([a[1][8],2))+' '+str(round([a[1][9],2)),str(round([a[1][4],2))+' '+str(round([a[1][5],2))])
   x.add_row(["SP", str(round([a[2][12],2))+' '+str(round([a[2][13],2)),str(round([a[2][6],2))+' '+str(round([a[2][7],2)),str(round([a[2][10],2))+' '+str(round([a[2][11],2)),str(round([a[2][0],2))+' '+str(round([a[2][1],2)),str(round([a[2][2],2))+' '+str(round([a[2][3],2)),str(round([a[2][8],2))+' '+str(round([a[2][9],2)),str(round([a[2][4],2))+' '+str(round([a[2][5],2))])
-  
+
   ###fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
   ###with open(fname) as f:
   ###  content = f.readlines()
   ###f.close()
-  
+
   ###x = PrettyTable()
-  
+
   ###x.field_names = ["Criteria", "Pd", "SP", "Fa"]
   ###x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
   ###x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
@@ -699,7 +699,7 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
                                                           global_step=None,
                                                           data_set=cdata,
                                                           batch_size=10000)
-      lstm_target = wrapper.generate_np_reconstruction(model_filename=Path(model_name),
+      lstm_target = wrapper.generate_np_targets(model_filename=Path(model_name),
                                                           global_step=None,
                                                           data_set=cdata,
                                                           batch_size=10000)
