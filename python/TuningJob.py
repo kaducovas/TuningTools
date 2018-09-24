@@ -1538,12 +1538,12 @@ class TuningJob(Logger):
               reconstruct,target = getLSTMReconstruct(norm1Par,sort,model_name=LSTM_Model_filename)
 
 
-              reconstruct_all=np.concatenate( reconstruct[reconstruct.keys()[0]], axis=npCurrent.odim)
-              target_all=np.concatenate( target, axis=npCurrent.odim)
-              afternorm_all=np.concatenate( norm1Par[2], axis=npCurrent.odim)
-              np.savez_compressed(work_path+'lstm_reconstruct_'+str(sort)+'et_1_eta_1',reconstruct)
-              np.savez_compressed(work_path+'lstm_Target_'+str(sort)+'et_1_eta_1',target)
-              np.savez_compressed(work_path+'afternorm_'+str(sort)+'et_1_eta_1',norm1Par[2])
+              ###reconstruct_all=np.concatenate( reconstruct[reconstruct.keys()[0]], axis=npCurrent.odim)
+              ###target_all=np.concatenate( target, axis=npCurrent.odim)
+              ###afternorm_all=np.concatenate( norm1Par[2], axis=npCurrent.odim)
+              ###np.savez_compressed(work_path+'lstm_reconstruct_'+str(sort)+'et_1_eta_1',reconstruct)
+              ###np.savez_compressed(work_path+'lstm_Target_'+str(sort)+'et_1_eta_1',target)
+              ###np.savez_compressed(work_path+'afternorm_'+str(sort)+'et_1_eta_1',norm1Par[2])
             else:
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
               target=None
