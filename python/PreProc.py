@@ -2038,6 +2038,20 @@ class PreProcChain ( Logger ):
             config.append(pp._trn_params)
     return hidden_neurons,weights,config
 
+  def getLSTM_Model_filename(self):
+    """
+      Return a list with the number of neurons on the hidden layer,weights and configuration for Stacked AutoEncoders.
+    """
+    if not self:
+      self._warning("No pre-processing available in this chain.")
+      return
+    
+    for pp in self:
+      if 'LSTM' in str(pp.shortName()) or 'GRU' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
+        #self._info(pp._weights)
+        model_filename = pp._model_filename )
+    return model_filename
+
   def concatenate(self, trnData, extraData):
     """
       Concatenate extra patterns into the data input

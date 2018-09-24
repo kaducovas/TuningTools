@@ -575,6 +575,51 @@ def createClassifierTable(model_name,script_time,Point):
     x.add_row([k,trn[k],val[k]])
 
   return x
+  
+def create_simple_table(model_name,script_time):
+  #from SAE_Evaluation import *
+  from prettytable import PrettyTable
+  import sqlite3
+
+  df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers2 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
+  df['Point'] = df['Point'].apply(lambda x: x.split('_')[-1])
+  a = df.groupby(['Point']).agg({'sp':['mean','std'],'pd':['mean','std'],'pf':['mean','std'],'f1':['mean','std'],'auc':['mean','std'],'precision':['mean','std'],'recall':['mean','std']}).values
+  #df_values = np.round(a,2)
+  x = PrettyTable()
+  
+  x.field_names = ["Criteria", "Pd", "SP", "Fa","F1","AUC","Precision","Recall"]
+  x.add_row(["Pd", str(round([a[0][12],2))+' '+str(round([a[0][13],2)),str(round([a[0][6],2))+' '+str(round([a[0][7],2)),str(round([a[0][10],2))+' '+str(round([a[0][11],2)),str(round([a[0][0],2))+' '+str(round([a[0][1],2)),str(round([a[0][2],2))+' '+str(round([a[0][3],2)),str(round([a[0][8],2))+' '+str(round([a[0][9],2)),str(round([a[0][4],2))+' '+str(round([a[0][5],2))])
+  x.add_row(["Pf", str(round([a[1][12],2))+' '+str(round([a[1][13],2)),str(round([a[1][6],2))+' '+str(round([a[1][7],2)),str(round([a[1][10],2))+' '+str(round([a[1][11],2)),str(round([a[1][0],2))+' '+str(round([a[1][1],2)),str(round([a[1][2],2))+' '+str(round([a[1][3],2)),str(round([a[1][8],2))+' '+str(round([a[1][9],2)),str(round([a[1][4],2))+' '+str(round([a[1][5],2))])
+  x.add_row(["SP", str(round([a[2][12],2))+' '+str(round([a[2][13],2)),str(round([a[2][6],2))+' '+str(round([a[2][7],2)),str(round([a[2][10],2))+' '+str(round([a[2][11],2)),str(round([a[2][0],2))+' '+str(round([a[2][1],2)),str(round([a[2][2],2))+' '+str(round([a[2][3],2)),str(round([a[2][8],2))+' '+str(round([a[2][9],2)),str(round([a[2][4],2))+' '+str(round([a[2][5],2))])
+  
+  ###fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
+  ###with open(fname) as f:
+  ###  content = f.readlines()
+  ###f.close()
+  
+  ###x = PrettyTable()
+  
+  ###x.field_names = ["Criteria", "Pd", "SP", "Fa"]
+  ###x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+  ###x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
+  ###x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
+  ###x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
+  #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
+  #bot.sendMessage('@ringer_tuning',x.get_string())
+  ###x2 = PrettyTable()
+  ###x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
+  ###x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
+  ###x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
+  ###x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
+
+  ###bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
+  #bot.sendMessage('@ringer_tuning',x2.get_string())
+  #x3 = PrettyTable()
+  #x3.field_names = list(trnMetrics.keys())
+  #x3.add_row(list(trnMetrics.values()))
+  #x3.add_row(list(valMetrics.values()))
+  #bot.sendMessage('@ringer_tuning',x3.get_string())
+  return x
 
 def plot_Roc(fname,dirout, model_name=""):
   import os
@@ -619,9 +664,11 @@ def plot_Roc(fname,dirout, model_name=""):
     ths=disc['tunedDiscr'][0][0]['summaryInfo']['roc_test']['thresholds']
     idxSP = np.argmax(sps)
     sp=sps[idxSP]
+    pd=pds[idxSP]
+    pf=pfs[idxSP]
     print ths[idxSP]
     roc_auc = auc(pfs,pds)
-    plt.plot(pfs, pds,label='ROC - AUC = '+str(round(roc_auc,4))+', SP = '+str(100*round(sp,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
+    plt.plot(pfs, pds,label='ROC - AUC='+str(round(roc_auc,4))+', SP='+str(100*round(sp,4))+', Pd='+str(100*round(pd,4))+', Pf='+str(100*round(pf,4))+' - Sorteio '+str(idx+1)+' ' % roc_auc)
   plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
   plt.xlim([0.0, 0.4])
   plt.ylim([0.6, 1.05])
@@ -641,22 +688,29 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
   from pathlib import Path
   afternorm = norm1Par[2]
   reconstruct={}
+  target=[]
   wrapper = TimeAutoencoderWrapper()
   if isinstance(afternorm, (tuple, list,)):
     predict = []
+    target = []
     for i, cdata in enumerate(afternorm):
       print i,cdata.shape
-      reconstruction = wrapper.generate_np_reconstruction(model_filename=Path('/home/users/caducovas/deep_output/ringer_1_1_24_epochs_2_layer_90_units/logs/model'),
+      reconstruction = wrapper.generate_np_reconstruction(model_filename=Path(model_name),
+                                                          global_step=None,
+                                                          data_set=cdata,
+                                                          batch_size=10000)
+      lstm_target = wrapper.generate_np_reconstruction(model_filename=Path(model_name),
                                                           global_step=None,
                                                           data_set=cdata,
                                                           batch_size=10000)
       #model_predict = model.predict(cdata, batch_size=cdata.shape[0], verbose=2)
       #print 'what now?'
       predict.append(reconstruction)
+      target.append(lstm_target)
       print 'Reconstruction Done'
       bottleneck=reconstruction.shape[1]
   reconstruct[bottleneck]=predict
-  return reconstruct
+  return reconstruct,target
 
 def getReconstruct(fname,norm1Par,sort):
   #from SAE_Evaluation import *
@@ -906,7 +960,7 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
 
-def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None):
+def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,lstm_target=None):
   #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset

@@ -1425,6 +1425,7 @@ class TuningJob(Logger):
           #bot.sendMessage('@ringer_tuning',ppChain.shortName()+'Started Sort: '+str(sort))
 
           if os.path.exists(work_path+ppChain.shortName()+'.txt'):
+            time.sleep(5)
             with open(work_path+ppChain.shortName()+'.txt','a+') as t_file:
               content = t_file.readlines()
             t_file.close()
@@ -1533,13 +1534,24 @@ class TuningJob(Logger):
             time.sleep(360)
           if('AE' in str(ppChain.shortName())):
             if('LSTM' in str(ppChain.shortName()) or 'GRU' in str(ppChain.shortName())):
-              reconstruct = getLSTMReconstruct(norm1Par,sort,model_name='ringer_n1_leblon')
+              LSTM_Model_filename = ppChain.getLSTM_Model_filename()
+              reconstruct,target = getLSTMReconstruct(norm1Par,sort,model_name=LSTM_Model_filename)
             else:
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
+              target=None
 
             print 'RECONS',reconstruct.keys()
             time.sleep(int(20*int(sort)))
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation')
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target)
+            
+            reconstruct_all=np.concatenate( reconstruct, axis=npCurrent.odim)
+            target_all=np.concatenate( target, axis=npCurrent.odim)
+            afternorm_all=np.concatenate( norm1Par[2], axis=npCurrent.odim)
+            np.savez_compressed(work_path+'lstm_reconstruct_'+str(sort)+'et_1_eta_1',reconstruct)
+            np.savez_compressed(work_path+'lstm_Target_'+str(sort)+'et_1_eta_1',target)
+            np.savez_compressed(work_path+'afternorm_'+str(sort)+'et_1_eta_1',norm1Par[2])
+  
+ 
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
@@ -1755,31 +1767,6 @@ class TuningJob(Logger):
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
 
-          ###fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
-          ###with open(fname) as f:
-          ###  content = f.readlines()
-          ###f.close()
-          ###x = PrettyTable()
-          ###x.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          ###x.add_row(["Pd", content[244].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}','').replace('$\pm$',''), content[244].split(' & ')[2].replace('$\pm$',''), content[244].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          ###x.add_row(["SP", content[246].split(' & ')[1].replace('$\pm$',''), content[246].split(' & ')[2].replace('$\pm$',''), content[246].split(' & ')[3].replace('$\pm$','').replace(' \\','')])
-          ###x.add_row(["Pf", content[248].split(' & ')[1].replace('$\pm$',''), content[248].split(' & ')[2].replace('$\pm$',''), content[248].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace('$\pm$','').replace(' \\','')])
-          ###x.add_row(["Reference", content[250].split(' & ')[1].replace('\cellcolor[HTML]{9AFF99}',''), content[250].split(' & ')[2], content[250].split(' & ')[3].replace('\cellcolor[HTML]{BBDAFF}','').replace(' \\','')])
-          #bot.sendMessage('@ringer_tuning','Cross validation efficiencies for validation set. \n'+x.get_string())
-          #bot.sendMessage('@ringer_tuning',x.get_string())
-          ###x2 = PrettyTable()
-          ###x2.field_names = ["Criteria", "Pd", "SP", "Fa"]
-          ###x2.add_row(["Pd", content[265].split(' & ')[1], content[265].split(' & ')[2], content[265].split(' & ')[3].replace(' \\','')])
-          ###x2.add_row(["SP", content[267].split(' & ')[1], content[267].split(' & ')[2], content[267].split(' & ')[3].replace(' \\','')])
-          ###x2.add_row(["Pf", content[269].split(' & ')[1], content[269].split(' & ')[2], content[269].split(' & ')[3].replace(' \\','')])
-
-          ###bot.sendMessage('@ringer_tuning','*Cross validation efficiencies for validation set.* \n'+x.get_string()+'\n*Operation efficiencies for the best model.* \n'+x2.get_string(),parse_mode='Markdown')
-          #bot.sendMessage('@ringer_tuning',x2.get_string())
-          #x3 = PrettyTable()
-          #x3.field_names = list(trnMetrics.keys())
-          #x3.add_row(list(trnMetrics.values()))
-          #x3.add_row(list(valMetrics.values()))
-          #bot.sendMessage('@ringer_tuning',x3.get_string())
 
           if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
             png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
@@ -1787,7 +1774,7 @@ class TuningJob(Logger):
               png_f = open(png_file,'rb')
               bot.sendPhoto('@ringer_tuning',png_f)
 
-          confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[1])
+          confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[0])
           for confMatrix_png_file in confMatrix_png_files:
             confMatrix_png_f = open(confMatrix_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
@@ -1806,6 +1793,8 @@ class TuningJob(Logger):
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
+          bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
+  
           for refN in refName:
             bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'
