@@ -1255,9 +1255,9 @@ class LSTMAutoEncoder( PrepObj ):
     self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
     self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
 
-    applyOnly = True
-    if applyOnly:
-      return self._apply(trnData)
+    ###applyOnly = False
+    ###if applyOnly:
+    ###  return self._apply(trnData)
     export_ringer_tfrecords(self._record_files[0],data)
 
     # filename_tensor = tf.constant(value=[str(file) for file in self._record_files], dtype=tf.string,
