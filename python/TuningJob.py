@@ -1536,6 +1536,14 @@ class TuningJob(Logger):
             if('LSTM' in str(ppChain.shortName()) or 'GRU' in str(ppChain.shortName())):
               LSTM_Model_filename = ppChain.getLSTM_Model_filename()
               reconstruct,target = getLSTMReconstruct(norm1Par,sort,model_name=LSTM_Model_filename)
+
+
+              reconstruct_all=np.concatenate( reconstruct, axis=npCurrent.odim)
+              target_all=np.concatenate( target, axis=npCurrent.odim)
+              afternorm_all=np.concatenate( norm1Par[2], axis=npCurrent.odim)
+              np.savez_compressed(work_path+'lstm_reconstruct_'+str(sort)+'et_1_eta_1',reconstruct)
+              np.savez_compressed(work_path+'lstm_Target_'+str(sort)+'et_1_eta_1',target)
+              np.savez_compressed(work_path+'afternorm_'+str(sort)+'et_1_eta_1',norm1Par[2])
             else:
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
               target=None
@@ -1543,15 +1551,7 @@ class TuningJob(Logger):
             print 'RECONS',reconstruct.keys()
             time.sleep(int(20*int(sort)))
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target)
-            
-            reconstruct_all=np.concatenate( reconstruct, axis=npCurrent.odim)
-            target_all=np.concatenate( target, axis=npCurrent.odim)
-            afternorm_all=np.concatenate( norm1Par[2], axis=npCurrent.odim)
-            np.savez_compressed(work_path+'lstm_reconstruct_'+str(sort)+'et_1_eta_1',reconstruct)
-            np.savez_compressed(work_path+'lstm_Target_'+str(sort)+'et_1_eta_1',target)
-            np.savez_compressed(work_path+'afternorm_'+str(sort)+'et_1_eta_1',norm1Par[2])
-  
- 
+
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
@@ -1794,7 +1794,7 @@ class TuningJob(Logger):
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
           bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
-  
+
           for refN in refName:
             bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
           #@@print 'TENTATIVA DE ENVIAR OS PLOTS'

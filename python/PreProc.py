@@ -2045,11 +2045,11 @@ class PreProcChain ( Logger ):
     if not self:
       self._warning("No pre-processing available in this chain.")
       return
-    
+
     for pp in self:
       if 'LSTM' in str(pp.shortName()) or 'GRU' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
         #self._info(pp._weights)
-        model_filename = pp._model_filename )
+        model_filename = pp._model_filename
     return model_filename
 
   def concatenate(self, trnData, extraData):
