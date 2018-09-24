@@ -580,7 +580,7 @@ def create_simple_table(model_name,script_time):
   #from SAE_Evaluation import *
   from prettytable import PrettyTable
   import sqlite3
-
+  cnx=sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
   df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers2 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
   df['Point'] = df['Point'].apply(lambda x: x.split('_')[-1])
   a = df.groupby(['Point']).agg({'sp':['mean','std'],'pd':['mean','std'],'pf':['mean','std'],'f1':['mean','std'],'auc':['mean','std'],'precision':['mean','std'],'recall':['mean','std']}).values
