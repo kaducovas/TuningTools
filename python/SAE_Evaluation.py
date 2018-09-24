@@ -588,9 +588,9 @@ def create_simple_table(model_name,script_time):
   x = PrettyTable()
 
   x.field_names = ["Criteria", "Pd", "SP", "Fa","F1","AUC","Precision","Recall"]
-  x.add_row(["Pd", str(round([a[0][12],2))+' '+str(round([a[0][13],2)),str(round([a[0][6],2))+' '+str(round([a[0][7],2)),str(round([a[0][10],2))+' '+str(round([a[0][11],2)),str(round([a[0][0],2))+' '+str(round([a[0][1],2)),str(round([a[0][2],2))+' '+str(round([a[0][3],2)),str(round([a[0][8],2))+' '+str(round([a[0][9],2)),str(round([a[0][4],2))+' '+str(round([a[0][5],2))])
-  x.add_row(["Pf", str(round([a[1][12],2))+' '+str(round([a[1][13],2)),str(round([a[1][6],2))+' '+str(round([a[1][7],2)),str(round([a[1][10],2))+' '+str(round([a[1][11],2)),str(round([a[1][0],2))+' '+str(round([a[1][1],2)),str(round([a[1][2],2))+' '+str(round([a[1][3],2)),str(round([a[1][8],2))+' '+str(round([a[1][9],2)),str(round([a[1][4],2))+' '+str(round([a[1][5],2))])
-  x.add_row(["SP", str(round([a[2][12],2))+' '+str(round([a[2][13],2)),str(round([a[2][6],2))+' '+str(round([a[2][7],2)),str(round([a[2][10],2))+' '+str(round([a[2][11],2)),str(round([a[2][0],2))+' '+str(round([a[2][1],2)),str(round([a[2][2],2))+' '+str(round([a[2][3],2)),str(round([a[2][8],2))+' '+str(round([a[2][9],2)),str(round([a[2][4],2))+' '+str(round([a[2][5],2))])
+  x.add_row(["Pd", str(round(a[0][12],2))+' '+str(round(a[0][13],2)),str(round(a[0][6],2))+' '+str(round(a[0][7],2)),str(round(a[0][10],2))+' '+str(round(a[0][11],2)),str(round(a[0][0],2))+' '+str(round(a[0][1],2)),str(round(a[0][2],2))+' '+str(round(a[0][3],2)),str(round(a[0][8],2))+' '+str(round(a[0][9],2)),str(round(a[0][4],2))+' '+str(round(a[0][5],2))])
+  x.add_row(["Pf", str(round(a[1][12],2))+' '+str(round(a[1][13],2)),str(round(a[1][6],2))+' '+str(round(a[1][7],2)),str(round(a[1][10],2))+' '+str(round(a[1][11],2)),str(round(a[1][0],2))+' '+str(round(a[1][1],2)),str(round(a[1][2],2))+' '+str(round(a[1][3],2)),str(round(a[1][8],2))+' '+str(round(a[1][9],2)),str(round(a[1][4],2))+' '+str(round(a[1][5],2))])
+  x.add_row(["SP", str(round(a[2][12],2))+' '+str(round(a[2][13],2)),str(round(a[2][6],2))+' '+str(round(a[2][7],2)),str(round(a[2][10],2))+' '+str(round(a[2][11],2)),str(round(a[2][0],2))+' '+str(round(a[2][1],2)),str(round(a[2][2],2))+' '+str(round(a[2][3],2)),str(round(a[2][8],2))+' '+str(round(a[2][9],2)),str(round(a[2][4],2))+' '+str(round(a[2][5],2))])
 
   ###fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
   ###with open(fname) as f:
