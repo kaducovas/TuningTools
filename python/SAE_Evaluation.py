@@ -692,21 +692,21 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
   wrapper = TimeAutoencoderWrapper()
   if isinstance(afternorm, (tuple, list,)):
     predict = []
-    target = None ####[]
+    target = []
     for i, cdata in enumerate(afternorm):
       print i,cdata.shape
       reconstruction = wrapper.generate_np_reconstruction(model_filename=Path(model_name),
                                                           global_step=None,
                                                           data_set=cdata,
                                                           batch_size=10000)
-      ###lstm_target = wrapper.generate_np_targets(model_filename=Path(model_name),
-      ###                                                    global_step=None,
-      ###                                                    data_set=cdata,
-      ###                                                    batch_size=10000)
+      lstm_target = wrapper.generate_np_targets(model_filename=Path(model_name),
+                                                          global_step=None,
+                                                          data_set=cdata,
+                                                          batch_size=10000)
       #model_predict = model.predict(cdata, batch_size=cdata.shape[0], verbose=2)
       #print 'what now?'
       predict.append(reconstruction)
-      ###target.append(lstm_target)
+      target.append(lstm_target)
       print 'Reconstruction Done'
       bottleneck=reconstruction.shape[1]
   reconstruct[bottleneck]=predict
