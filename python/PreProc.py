@@ -1141,10 +1141,10 @@ class LSTMAutoEncoder( PrepObj ):
     self._num_layers = layers
     self._num_units = units
     self._bidirectional = bidirection
-    self._cell_type = CellType.LSTM
-    self._num_epochs = 24
+    self._cell_type = CellType.GRU
+    self._num_epochs = 64
     self._mask_silence = False
-    self._trn_batch_size = 1000
+    self._trn_batch_size = 256
     self._checkpoints_to_keep = None
     self._learning_rate = 0.001
     self._keep_prob = 0.5
