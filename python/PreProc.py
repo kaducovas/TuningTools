@@ -1076,7 +1076,7 @@ class StackedAutoEncoder( PrepObj ):
       aetypename = 'Sparse'
     elif self._aetype == 'denoising':
       aetypename = 'Denoising'
-    else self._aetype == 'contractive':
+    elif self._aetype == 'contractive':
       aetypename = 'Contractive'
 
     return (aetypename+sname+"_%d" % self._hidden_neurons[0])
@@ -1100,7 +1100,7 @@ class StackedAutoEncoder( PrepObj ):
       aetypename = 'S'
     elif self._aetype == 'denoising':
       aetypename = 'D'
-    else self._aetype == 'contractive':
+    elif self._aetype == 'contractive':
       aetypename = 'C'
 
     return (aetypename+sname+"_%d" % self._hidden_neurons[0])
