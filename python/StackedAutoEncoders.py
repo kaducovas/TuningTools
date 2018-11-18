@@ -242,7 +242,7 @@ class StackedAutoEncoders:
             if layer == 1:
                 print 'LAYER 1'
                 print hidden_neurons[layer-1], data.shape[1]
-                model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1]))
+                model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1], name='encoded'))
                 model.add(Activation(self.trn_params.params['hidden_activation']))
                 model.add(Dense(data.shape[1]))
                 model.add(Activation(self.trn_params.params['output_activation']))
@@ -274,7 +274,7 @@ class StackedAutoEncoders:
                     # Projection of layer
                     proj_all_data = get_layer_output([proj_all_data])[0]
 
-                model.add(Dense(hidden_neurons[layer-1], input_dim=proj_all_data.shape[1]))
+                model.add(Dense(hidden_neurons[layer-1], input_dim=proj_all_data.shape[1], name='encoded'))
                 model.add(Activation(self.trn_params.params['hidden_activation']))
                 if regularizer == "dropout":
                     model.add(Dropout(regularizer_param))
