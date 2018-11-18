@@ -894,6 +894,7 @@ class StackedAutoEncoder( PrepObj ):
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
     self._caltype = retrieve_kw(d,'caltype','allcalo')
+    self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits
@@ -996,6 +997,19 @@ class StackedAutoEncoder( PrepObj ):
     numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0]),val_Data)
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'
 
+    #Autoencoder Types paraemters and definitions
+    if self.aetype == 'sparse':
+      regularizer='l1'
+      regularizer_param=10e-5
+    else:
+      regularizer=None
+      regularizer_param=None
+
+    if self.aetype == 'contractive':
+      loss='contractive_loss'
+    else:
+      loss='mean_squared_error'
+
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
     if not os.path.exists(trn_params_folder):
@@ -1004,7 +1018,8 @@ class StackedAutoEncoder( PrepObj ):
                                                              output_activation=self._output_activation,
                                                              n_epochs=self._n_epochs,
                                                              patience=self._patience,
-                                                             batch_size=self._batch_size)
+                                                             batch_size=self._batch_size,
+                                                             loss=loss)
     trn_params.save(trn_params_folder)
 
     self._trn_params = trn_params
@@ -1032,7 +1047,7 @@ class StackedAutoEncoder( PrepObj ):
                                         trgt=val_Data,
                                         ifold=0,
                                         hidden_neurons=self._hidden_neurons,
-                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder,regularizer='l1',regularizer_param=10e-5)
+                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder,regularizer=regularizer,regularizer_param=regularizer_param)
     self._trn_desc = trn_desc
     self._weights = model.get_weights()
     self._trn_params = model.get_config()
@@ -1054,7 +1069,17 @@ class StackedAutoEncoder( PrepObj ):
       sname='HADAutoencoder'
     else:
       sname='Autoencoder'
-    return (sname+"_%d" % self._hidden_neurons[0])
+    
+    if self.aetype == 'vanilla':
+      aetypename = ''
+    elif self.aetype == 'sparse':
+      aetypename = 'Sparse'
+    elif self.aetype == 'denoising':
+      aetypename = 'Denoising'
+    else self.aetype == 'contractive':
+      aetypename = 'Contractive'
+  
+    return (aetypename+sname+"_%d" % self._hidden_neurons[0])
 
   def shortName(self):
     """
@@ -1068,7 +1093,17 @@ class StackedAutoEncoder( PrepObj ):
       sname='HADAE'
     else:
       sname='AE'
-    return (sname+"_%d" % self._hidden_neurons[0])
+  
+    if self.aetype == 'vanilla':
+      aetypename = ''
+    elif self.aetype == 'sparse':
+      aetypename = 'S'
+    elif self.aetype == 'denoising':
+      aetypename = 'D'
+    else self.aetype == 'contractive':
+      aetypename = 'C'
+
+    return (aetypename+sname+"_%d" % self._hidden_neurons[0])
 
   def _apply(self, data):
     #self._info(pp.shortName())
