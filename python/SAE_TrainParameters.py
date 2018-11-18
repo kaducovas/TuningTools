@@ -7,8 +7,8 @@ import numpy as np
 from sklearn.externals import joblib
 from sklearn import model_selection
 from sklearn.model_selection import StratifiedKFold
-from TuningTools.MetricsLosses import kullback_leibler_divergence, contractive_loss
-
+from TuningTools.MetricsLosses import kullback_leibler_divergence
+from TuningTools.MetricsLosses import contractive_loss
 class TrnParams(object):
     """
         Basic class
