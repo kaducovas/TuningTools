@@ -27,7 +27,8 @@ from keras import backend as K
 #from keras import losses
 
 from TuningTools import SAE_TrainParameters as trnparams
-from TuningTools.MetricsLosses import kullback_leibler_divergence
+from TuningTools.MetricsLosses import kullback_leibler_divergence, contractive_loss
+
 #import multiprocessing
 
 #num_process = multiprocessing.cpu_count()
