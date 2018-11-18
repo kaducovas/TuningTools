@@ -998,14 +998,14 @@ class StackedAutoEncoder( PrepObj ):
     trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_hidden_neurons_'+str(self._hidden_neurons[0])+'.jbl'
 
     #Autoencoder Types paraemters and definitions
-    if self.aetype == 'sparse':
+    if self._aetype == 'sparse':
       regularizer='l1'
       regularizer_param=10e-5
     else:
       regularizer=None
       regularizer_param=None
 
-    if self.aetype == 'contractive':
+    if self._aetype == 'contractive':
       loss='contractive_loss'
     else:
       loss='mean_squared_error'
@@ -1069,16 +1069,16 @@ class StackedAutoEncoder( PrepObj ):
       sname='HADAutoencoder'
     else:
       sname='Autoencoder'
-    
-    if self.aetype == 'vanilla':
+
+    if self._aetype == 'vanilla':
       aetypename = ''
-    elif self.aetype == 'sparse':
+    elif self._aetype == 'sparse':
       aetypename = 'Sparse'
-    elif self.aetype == 'denoising':
+    elif self._aetype == 'denoising':
       aetypename = 'Denoising'
-    else self.aetype == 'contractive':
+    else self._aetype == 'contractive':
       aetypename = 'Contractive'
-  
+
     return (aetypename+sname+"_%d" % self._hidden_neurons[0])
 
   def shortName(self):
@@ -1093,14 +1093,14 @@ class StackedAutoEncoder( PrepObj ):
       sname='HADAE'
     else:
       sname='AE'
-  
-    if self.aetype == 'vanilla':
+
+    if self._aetype == 'vanilla':
       aetypename = ''
-    elif self.aetype == 'sparse':
+    elif self._aetype == 'sparse':
       aetypename = 'S'
-    elif self.aetype == 'denoising':
+    elif self._aetype == 'denoising':
       aetypename = 'D'
-    else self.aetype == 'contractive':
+    else self._aetype == 'contractive':
       aetypename = 'C'
 
     return (aetypename+sname+"_%d" % self._hidden_neurons[0])
