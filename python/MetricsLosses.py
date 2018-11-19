@@ -1,8 +1,9 @@
 from keras import backend as K
 from keras.layers import Input, Dense
 from keras.models import Model
-from keras.models import load_model 
+from keras.models import load_model
 from keras.models import Sequential
+from keras.layers.core import Dense,Activation, Dropout
 
 def kullback_leibler_divergence(y_true, y_pred):
     y_true = K.clip(y_true, K.epsilon(), 1)
@@ -32,9 +33,9 @@ def contractive_loss(hn,input_dim,hidden_activation,output_activation):
     #model = load_model(file_name, custom_objects=custom_obj)
     model = Sequential()
     model.add(Dense(hn, input_dim=input_dim, name='encoded'))
-                model.add(Activation(hidden_activation)
-                model.add(Dense(input_dim))
-                model.add(Activation(output_activation)
+    model.add(Activation(hidden_activation))
+    model.add(Dense(input_dim))
+    model.add(Activation(output_activation))
     def loss(y_pred, y_true):
         lam = 1e-4
         mse = K.mean(K.square(y_true - y_pred), axis=1)

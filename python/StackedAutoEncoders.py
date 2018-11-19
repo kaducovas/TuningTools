@@ -110,10 +110,10 @@ class StackedAutoEncoders:
             print "[-] Error: The parameter layer must be less or equal to the size of list hidden_neurons"
             return 1
         proj_all_data = data #self.normalizeData(data=data, ifold=ifold)
-        print sort,etBinIdx,etaBinIdx
-        print 'LOSSSS'
-        print self.trn_params.params['loss']
-        print self.lossFunction
+        #print sort,etBinIdx,etaBinIdx
+        #print 'LOSSSS'
+        #print self.trn_params.params['loss']
+        #print self.lossFunction
 
 
         if layer == 1:
@@ -166,8 +166,15 @@ class StackedAutoEncoders:
                 if not os.path.exists(file_name):
                     self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:ilayer], layer=ilayer, folds_sweep=True)
 
+                custom_obj={}
+                if self._aetype == 'contractive':
+                  from TuningTools.MetricsLosses import contractive_loss
+                  custom_obj['contractive_loss']=contractive_loss(hidden_neurons[layer-1],data.shape[1],self.trn_params.params['hidden_activation'],self.trn_params.params['output_activation'])
+                else:
+                  custom_obj[self.trn_params.params['loss']]= self.lossFunction
                 print "Loading Model: "+file_name
-                layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
+                layer_model = load_model(file_name, custom_objects=custom_obj)
+                #layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
                 print "Model Loaded"
                 get_layer_output = K.function([layer_model.layers[0].input],
                                               [layer_model.layers[1].output])
@@ -206,9 +213,9 @@ class StackedAutoEncoders:
             #file_name = '%s_fold_%i_model.h5'%(model_str,ifold)
             #print file_name
             if os.path.exists(file_name):
-                print 'LOSSSS'
-                print self.trn_params.params['loss']
-                print self.lossFunction
+                #print 'LOSSSS'
+                #print self.trn_params.params['loss']
+                #print self.lossFunction
                 custom_obj={}
                 if self._aetype == 'contractive':
                   # def contractive_loss(y_pred, y_true):
@@ -315,7 +322,15 @@ class StackedAutoEncoders:
                     if not os.path.exists(file_name):
                         self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:ilayer], layer=ilayer, folds_sweep=True)
 
-                    layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
+                    custom_obj={}
+                    if self._aetype == 'contractive':
+                      from TuningTools.MetricsLosses import contractive_loss
+                      custom_obj['contractive_loss']=contractive_loss(hidden_neurons[layer-1],data.shape[1],self.trn_params.params['hidden_activation'],self.trn_params.params['output_activation'])
+                    else:
+                      custom_obj[self.trn_params.params['loss']]= self.lossFunction
+                    #print "Loading Model: "+file_name
+                    layer_model = load_model(file_name, custom_objects=custom_obj)
+                    #layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
 
                     get_layer_output = K.function([layer_model.layers[0].input],
                                                   [layer_model.layers[1].output])
