@@ -136,7 +136,7 @@ class StackedAutoEncoders:
             custom_obj={}
             if self._aetype == 'contractive':
               from TuningTools.MetricsLosses import contractive_loss
-              custom_obj['contractive_loss']=contractive_loss(file_name)
+              custom_obj['contractive_loss']=contractive_loss(hidden_neurons[layer-1],data.shape[1],self.trn_params.params['hidden_activation'],self.trn_params.params['output_activation'])
             else:
               custom_obj[self.trn_params.params['loss']]= self.lossFunction
 
@@ -227,7 +227,7 @@ class StackedAutoEncoders:
                   # #usedloss=contractive_loss
                   # #self.lossFunction=
                   from TuningTools.MetricsLosses import contractive_loss
-                  custom_obj['contractive_loss']=contractive_loss(file_name)
+                  custom_obj['contractive_loss']=contractive_loss(hidden_neurons[layer-1],data.shape[1],self.trn_params.params['hidden_activation'],self.trn_params.params['output_activation'])
                 else:
                   custom_obj[self.trn_params.params['loss']]= self.lossFunction
                   #usedloss=self.lossFunction
