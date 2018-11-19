@@ -1532,7 +1532,7 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
           if(sort == 0):
             time.sleep(360)
-          if('AE' in str(ppChain.shortName())):
+          if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             if('LSTM' in str(ppChain.shortName()) or 'GRU' in str(ppChain.shortName())):
               LSTM_Model_filename = ppChain.getLSTM_Model_filename()
               reconstruct,target = getLSTMReconstruct(norm1Par,sort,model_name=LSTM_Model_filename)
@@ -1780,7 +1780,8 @@ class TuningJob(Logger):
             confMatrix_png_f = open(confMatrix_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
 
-          if('AE' in str(ppChain.shortName())):
+          if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #if('AE' in str(ppChain.shortName())):
             for layer in reconstruct.keys():
               png_files=plot_input_reconstruction(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
               for png_file in png_files:
