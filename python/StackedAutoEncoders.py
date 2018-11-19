@@ -116,22 +116,23 @@ class StackedAutoEncoders:
         print self.lossFunction
         custom_obj={}
         if self._aetype == 'contractive':
-          def contractive_loss(y_pred, y_true):
-              lam = 1e-4
-              mse = K.mean(K.square(y_true - y_pred), axis=1)
+          # def contractive_loss(y_pred, y_true):
+              # lam = 1e-4
+              # mse = K.mean(K.square(y_true - y_pred), axis=1)
 
-              W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
-              W = K.transpose(W)  # N_hidden x N
-              h = model.get_layer('encoded').output
-              dh = h * (1 - h)  # N_batch x N_hidden
+              # W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
+              # W = K.transpose(W)  # N_hidden x N
+              # h = model.get_layer('encoded').output
+              # dh = h * (1 - h)  # N_batch x N_hidden
 
-              # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
-              contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
+              # # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
+              # contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
 
-              return mse + contractive
+              # return mse + contractive
           #usedloss=contractive_loss
           #self.lossFunction=
-          custom_obj['contractive_loss']=contractive_loss
+          from TuningTools.MetricsLosses import contractive_loss
+          custom_obj['contractive_loss']=contractive_loss(file_name)
         else:
           custom_obj[self.trn_params.params['loss']]= self.lossFunction
 
@@ -226,22 +227,23 @@ class StackedAutoEncoders:
                 print self.lossFunction
                 custom_obj={}
                 if self._aetype == 'contractive':
-                  def contractive_loss(y_pred, y_true):
-                      lam = 1e-4
-                      mse = K.mean(K.square(y_true - y_pred), axis=1)
+                  # def contractive_loss(y_pred, y_true):
+                      # lam = 1e-4
+                      # mse = K.mean(K.square(y_true - y_pred), axis=1)
 
-                      W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
-                      W = K.transpose(W)  # N_hidden x N
-                      h = model.get_layer('encoded').output
-                      dh = h * (1 - h)  # N_batch x N_hidden
+                      # W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
+                      # W = K.transpose(W)  # N_hidden x N
+                      # h = model.get_layer('encoded').output
+                      # dh = h * (1 - h)  # N_batch x N_hidden
 
-                      # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
-                      contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
+                      # # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
+                      # contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
 
-                      return mse + contractive
-                  #usedloss=contractive_loss
-                  #self.lossFunction=
-                  custom_obj['contractive_loss']=contractive_loss
+                      # return mse + contractive
+                  # #usedloss=contractive_loss
+                  # #self.lossFunction=
+                  from TuningTools.MetricsLosses import contractive_loss
+                  custom_obj['contractive_loss']=contractive_loss(file_name)
                 else:
                   custom_obj[self.trn_params.params['loss']]= self.lossFunction
                   #usedloss=self.lossFunction
