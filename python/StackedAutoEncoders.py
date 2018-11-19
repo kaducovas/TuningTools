@@ -114,30 +114,7 @@ class StackedAutoEncoders:
         print 'LOSSSS'
         print self.trn_params.params['loss']
         print self.lossFunction
-        custom_obj={}
-        if self._aetype == 'contractive':
-          # def contractive_loss(y_pred, y_true):
-              # lam = 1e-4
-              # mse = K.mean(K.square(y_true - y_pred), axis=1)
 
-              # W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
-              # W = K.transpose(W)  # N_hidden x N
-              # h = model.get_layer('encoded').output
-              # dh = h * (1 - h)  # N_batch x N_hidden
-
-              # # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
-              # contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
-
-              # return mse + contractive
-          #usedloss=contractive_loss
-          #self.lossFunction=
-          from TuningTools.MetricsLosses import contractive_loss
-          custom_obj['contractive_loss']=contractive_loss(file_name)
-        else:
-          custom_obj[self.trn_params.params['loss']]= self.lossFunction
-
-          #usedloss=self.lossFunction
-        #print usedloss
 
         if layer == 1:
             neurons_str = self.getNeuronsString(data, hidden_neurons[:layer])
@@ -155,6 +132,13 @@ class StackedAutoEncoders:
             # Check if previous layer model was trained
             if not os.path.exists(file_name):
                 self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:layer], layer=layer, folds_sweep=True)
+
+            custom_obj={}
+            if self._aetype == 'contractive':
+              from TuningTools.MetricsLosses import contractive_loss
+              custom_obj['contractive_loss']=contractive_loss(file_name)
+            else:
+              custom_obj[self.trn_params.params['loss']]= self.lossFunction
 
             layer_model = load_model(file_name, custom_objects=custom_obj)
             #layer_model = load_model(file_name, custom_objects={'loss': usedloss}) ###self.lossFunction})
