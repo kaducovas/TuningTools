@@ -28,13 +28,15 @@ from keras import backend as K
 
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.MetricsLosses import kullback_leibler_divergence, contractive_loss
-
+import keras.losses
+#keras.losses.custom_loss = contractive_loss
+import keras.backend as K
 #import multiprocessing
 
 #num_process = multiprocessing.cpu_count()
 
 class StackedAutoEncoders:
-    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData', CVO=None,
+    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla', CVO=None,
                  noveltyDetection=False, inovelty = 0):
         self.trn_params       = params
         self.development_flag = development_flag
@@ -45,6 +47,7 @@ class StackedAutoEncoders:
         self.n_inits          = self.trn_params.params['n_inits']
         self.params_str       = self.trn_params.get_params_str()
         self.analysis_str     = 'StackedAutoEncoder'
+        self._aetype = aetype
 
         # Distinguish between a SAE for Novelty Detection and SAE for 'simple' Classification
         if noveltyDetection:
@@ -52,7 +55,7 @@ class StackedAutoEncoders:
             self.prefix_str   = prefix_str+'_%i_novelty'%(inovelty)
         else:
             self.CVO          = CVO
-            self.prefix_str   = prefix_str
+            self.prefix_str   = prefix_str+'-'+aetype
 
         # Choose optmizer algorithm
         if self.trn_params.params['optmizerAlgorithm'] == 'SGD':
@@ -108,6 +111,33 @@ class StackedAutoEncoders:
             return 1
         proj_all_data = data #self.normalizeData(data=data, ifold=ifold)
         print sort,etBinIdx,etaBinIdx
+        print 'LOSSSS'
+        print self.trn_params.params['loss']
+        print self.lossFunction
+        custom_obj={}
+        if self._aetype == 'contractive':
+          def contractive_loss(y_pred, y_true):
+              lam = 1e-4
+              mse = K.mean(K.square(y_true - y_pred), axis=1)
+
+              W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
+              W = K.transpose(W)  # N_hidden x N
+              h = model.get_layer('encoded').output
+              dh = h * (1 - h)  # N_batch x N_hidden
+
+              # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
+              contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
+
+              return mse + contractive
+          #usedloss=contractive_loss
+          #self.lossFunction=
+          custom_obj['contractive_loss']=contractive_loss
+        else:
+          custom_obj[self.trn_params.params['loss']]= self.lossFunction
+
+          #usedloss=self.lossFunction
+        #print usedloss
+
         if layer == 1:
             neurons_str = self.getNeuronsString(data, hidden_neurons[:layer])
             previous_model_str = '%s/%s/%s_%i_folds_%s_%s_neurons'%(self.save_path,
@@ -125,7 +155,9 @@ class StackedAutoEncoders:
             if not os.path.exists(file_name):
                 self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:layer], layer=layer, folds_sweep=True)
 
-            layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
+            layer_model = load_model(file_name, custom_objects=custom_obj)
+            #layer_model = load_model(file_name, custom_objects={'loss': usedloss}) ###self.lossFunction})
+            #layer_model = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
             print "Loading Model: "+file_name
             get_layer_output = K.function([layer_model.layers[0].input],
                                           [layer_model.layers[1].output])
@@ -189,12 +221,41 @@ class StackedAutoEncoders:
             #file_name = '%s_fold_%i_model.h5'%(model_str,ifold)
             #print file_name
             if os.path.exists(file_name):
+                print 'LOSSSS'
+                print self.trn_params.params['loss']
+                print self.lossFunction
+                custom_obj={}
+                if self._aetype == 'contractive':
+                  def contractive_loss(y_pred, y_true):
+                      lam = 1e-4
+                      mse = K.mean(K.square(y_true - y_pred), axis=1)
+
+                      W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
+                      W = K.transpose(W)  # N_hidden x N
+                      h = model.get_layer('encoded').output
+                      dh = h * (1 - h)  # N_batch x N_hidden
+
+                      # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
+                      contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
+
+                      return mse + contractive
+                  #usedloss=contractive_loss
+                  #self.lossFunction=
+                  custom_obj['contractive_loss']=contractive_loss
+                else:
+                  custom_obj[self.trn_params.params['loss']]= self.lossFunction
+                  #usedloss=self.lossFunction
+                #print usedloss
+
+
                 if self.trn_params.params['verbose']:
                     print 'File %s exists'%(file_name)
                 # load model
                 file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx)
                 #file_name  = '%s_fold_%i_model.h5'%(model_str,ifold)
-                classifier = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
+                #classifier = load_model(file_name, custom_objects={'loss': usedloss}) ###self.lossFunction})
+                classifier = load_model(file_name, custom_objects=custom_obj)
+                #classifier = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
                 file_name  = '%s_sort_%i_etbin_%i_etabin_%i_trn_desc.jbl'%(model_str,sort,etBinIdx, etaBinIdx)
                 trn_desc   = joblib.load(file_name)
 
@@ -289,7 +350,24 @@ class StackedAutoEncoders:
                 data = proj_all_data
             # end of elif layer > 1:
 
-            model.compile(loss=self.lossFunction,
+            if self._aetype == 'contractive':
+              def contractive_loss(y_pred, y_true):
+                  lam = 1e-4
+                  mse = K.mean(K.square(y_true - y_pred), axis=1)
+
+                  W = K.variable(value=model.get_layer('encoded').get_weights()[0])  # N x N_hidden
+                  W = K.transpose(W)  # N_hidden x N
+                  h = model.get_layer('encoded').output
+                  dh = h * (1 - h)  # N_batch x N_hidden
+
+                  # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
+                  contractive = lam * K.sum(dh**2 * K.sum(W**2, axis=1), axis=1)
+
+                  return mse + contractive
+              usedloss=contractive_loss
+            else:
+              usedloss=self.lossFunction
+            model.compile(loss=usedloss, #self.lossFunction,
                           optimizer=self.optmizer,
                           metrics=self.trn_params.params['metrics'])
 

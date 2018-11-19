@@ -1,6 +1,6 @@
 from keras import backend as K
 from keras.layers import Input, Dense
-from keras.models import Model
+from keras.models import Model as model
 
 def kullback_leibler_divergence(y_true, y_pred):
     y_true = K.clip(y_true, K.epsilon(), 1)

@@ -889,7 +889,7 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=1000,patience=10,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=11,patience=10,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
@@ -1005,10 +1005,11 @@ class StackedAutoEncoder( PrepObj ):
       regularizer=None
       regularizer_param=None
 
-    if self._aetype == 'contractive':
-      loss='contractive_loss'
-    else:
-      loss='mean_squared_error'
+    ###if self._aetype == 'contractive':
+    ###  from TuningTools.MetricsLosses import contractive_loss
+    ####  loss=contractive_loss
+    ####else:
+    ####  loss='mean_squared_error'
 
     if os.path.exists(trn_params_folder):
         os.remove(trn_params_folder)
@@ -1018,8 +1019,8 @@ class StackedAutoEncoder( PrepObj ):
                                                              output_activation=self._output_activation,
                                                              n_epochs=self._n_epochs,
                                                              patience=self._patience,
-                                                             batch_size=self._batch_size,
-                                                             loss=loss)
+                                                             batch_size=self._batch_size) #,
+                                                             #loss=loss)
     trn_params.save(trn_params_folder)
 
     self._trn_params = trn_params
@@ -1033,7 +1034,8 @@ class StackedAutoEncoder( PrepObj ):
                               development_flag = False,
                               n_folds = 1,
                               save_path = results_path,
-                              prefix_str=self._caltype
+                              prefix_str=self._caltype,
+                              aetype=self._aetype
                               )
 
     self._SAE = SAE
