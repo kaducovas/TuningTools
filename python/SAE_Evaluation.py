@@ -756,7 +756,14 @@ def getReconstruct(fname,norm1Par,sort):
         files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort))]
         ifile=files[0]
         #print ifile
-        modelo = load_model(ifile.replace('\n','')+'_model.h5')
+        custom_obj={}
+        if 'CAE' in fname:
+          from TuningTools.MetricsLosses import contractive_loss
+          par_list=ifile.split('/')[-1].split('_')
+          custom_obj['contractive_loss']=contractive_loss(int(par_list[24].split('x')[1]),int(par_list[24].split('x')[0]),par_list[10],par_list[13])
+          modelo = load_model(ifile.replace('\n','')+'_model.h5',custom_objects=custom_obj)
+        else:
+          modelo = load_model(ifile.replace('\n','')+'_model.h5')
         #modelo = load_model(dirin+ifile)
         enc_model[layer] = modelo.layers[0].get_weights()
         dec_model[layer] = modelo.layers[2].get_weights()
