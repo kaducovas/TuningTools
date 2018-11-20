@@ -766,7 +766,7 @@ def getReconstruct(fname,norm1Par,sort):
           modelo = load_model(ifile.replace('\n','')+'_model.h5')
         #modelo = load_model(dirin+ifile)
         enc_model[layer] = modelo.layers[0].get_weights()
-        dec_model[layer] = modelo.layers[3].get_weights()
+        dec_model[layer] = modelo.layers[2].get_weights()
 
       #print "Creating the model"
       model = Sequential()
