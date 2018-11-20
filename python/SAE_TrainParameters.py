@@ -79,7 +79,7 @@ class NeuralClassificationTrnParams(TrnParams):
                  nesterov=True,
                  patience=5,
                  batch_size=4,
-                 hidden_activation='tanh',
+                 hidden_activation='relu',
                  output_activation='linear',
                  metrics=['kullback_leibler_divergence'],
                  loss='mean_squared_error',
