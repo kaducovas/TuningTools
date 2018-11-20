@@ -940,7 +940,7 @@ class TuningWrapper(Logger):
       ########################################################
       history = self._model.fit( self._trnData
                                     , self._trnTarget
-                                    , epochs          = 1000 #self.trainOptions['nEpochs']
+                                    , epochs          = self.trainOptions['nEpochs']
                                     , batch_size      = self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
                                     , callbacks       = [self._earlyStopping]
