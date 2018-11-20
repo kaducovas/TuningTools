@@ -1531,7 +1531,7 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
           if(sort == 0):
-            time.sleep(360)
+            time.sleep(240)
           if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             if('LSTM' in str(ppChain.shortName()) or 'GRU' in str(ppChain.shortName())):
               LSTM_Model_filename = ppChain.getLSTM_Model_filename()
