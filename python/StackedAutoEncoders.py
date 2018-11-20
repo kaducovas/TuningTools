@@ -297,14 +297,17 @@ class StackedAutoEncoders:
             if layer == 1:
                 print 'LAYER 1'
                 print hidden_neurons[layer-1], data.shape[1]
-                model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1], name='encoded'))
+                if regularizer == 'l1':
+                  model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1], activity_regularizer=regularizers.l1(regularizer_param), name='encoded'))
+                else:
+                  model.add(Dense(hidden_neurons[layer-1], input_dim=data.shape[1], name='encoded'))
                 model.add(Activation(self.trn_params.params['hidden_activation']))
                 if regularizer == "dropout":
                     model.add(Dropout(regularizer_param))
-                elif regularizer == "l1":
-                    model.regularizers = [l1(regularizer_param)]
-                elif regularizer == "l2":
-                    model.regularizers = [l2(regularizer_param)]
+                #elif regularizer == "l1":
+                #    model.regularizers = [l1(regularizer_param)]
+                #elif regularizer == "l2":
+                #    model.regularizers = [l2(regularizer_param)]
                 model.add(Dense(data.shape[1]))
                 model.add(Activation(self.trn_params.params['output_activation']))
             elif layer > 1:
