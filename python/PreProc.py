@@ -1002,10 +1002,10 @@ class StackedAutoEncoder( PrepObj ):
       regularizer='l1'
       regularizer_param=10e-5
     else:
-      regularizer='dropout'
-      regularizer_param=0.5
-      #regularizer=None
-      #regularizer_param=None
+      #regularizer='dropout'
+      #regularizer_param=0.5
+      regularizer=None
+      regularizer_param=None
 
     ###if self._aetype == 'contractive':
     ###  from TuningTools.MetricsLosses import contractive_loss
