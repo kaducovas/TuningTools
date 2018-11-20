@@ -25,7 +25,7 @@ from keras.utils import np_utils
 from keras.models import load_model
 from keras import backend as K
 #from keras import losses
-
+from keras import regularizers
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.MetricsLosses import kullback_leibler_divergence, contractive_loss
 import keras.losses
