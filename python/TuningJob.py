@@ -1511,9 +1511,9 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
-          trnData,valData = ppChain.getNorm1()
+          #trnData,valData = ppChain.getNorm1()
           norm1Par = ppChain.getNorm1Parameters()
-          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          #hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
           #from scipy.io import wavfile
           #fs=44100
@@ -1605,9 +1605,9 @@ class TuningJob(Logger):
                 mname=""
                 if coreConf() == 2:
                   #keras
-                  #tuningWrapper.deepff2([nInputs, neuron,1])
+                  tuningWrapper.deepff2([nInputs, neuron,1])
                   #tuningWrapper.newff([nInputs, neuron,1])
-                  tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
+                  #tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                   cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep()
                   #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
                 else:
