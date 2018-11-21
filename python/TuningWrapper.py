@@ -517,12 +517,13 @@ class TuningWrapper(Logger):
         #model.layers.pop()
         #model.layers.pop()
         #model.summary()
-      # model.add( Dense( nodes[0]
-                      # # input_dim=nodes[0]
-                      # # , init='identity'
-                      # # , trainable=False
-                      # # , name='dense_1' ) )
-      #model.add( Activation('linear') )
+        last_hl = hidden_neurons[i_hn]
+      model.add( Dense( last_hl
+                       #, input_dim=nodes[0]
+                       , init='identity'
+                       , trainable=False
+                       , name='dense_last_hl' ) )
+      model.add( Activation('linear') )
       ###model.add( Dense( nodes[1]
       ###                , input_dim=nodes[0]
       ###                , init='uniform'
@@ -558,12 +559,12 @@ class TuningWrapper(Logger):
       self._fine_tuning= 'no'
       self._info("Using Keras")
       model = Sequential()
-      model.add( Dense( nodes[0]
-                        , input_dim=nodes[0]
-                        , init='identity'
-                        , trainable=False
-                        , name='dense_1' ) )
-      model.add( Activation('linear') )
+      #model.add( Dense( nodes[0]
+      #                  , input_dim=nodes[0]
+      #                  , init='identity'
+      #                  , trainable=False
+      #                  , name='dense_last_hl' ) )
+      #model.add( Activation('linear') )
       model.add( Dense( nodes[1]
                         , input_dim=nodes[0]
                         , init='uniform'
