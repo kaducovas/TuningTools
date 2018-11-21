@@ -523,11 +523,11 @@ class TuningWrapper(Logger):
                       # # , trainable=False
                       # # , name='dense_1' ) )
       #model.add( Activation('linear') )
-      model.add( Dense( nodes[1]
-                      , input_dim=nodes[0]
-                      , init='uniform'
-                      , name='dense_last_hl' ) )
-      model.add( Activation('tanh') )
+      ###model.add( Dense( nodes[1]
+      ###                , input_dim=nodes[0]
+      ###                , init='uniform'
+      ###                , name='dense_last_hl' ) )
+      ###model.add( Activation('tanh') )
       model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
       model.add( Activation('tanh') )
       model.compile( loss=self.trainOptions['costFunction']
