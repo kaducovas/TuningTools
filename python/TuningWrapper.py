@@ -518,17 +518,17 @@ class TuningWrapper(Logger):
         #model.layers.pop()
         #model.summary()
         last_hl = hidden_neurons[i_hn]
-      #model.add( Dense( last_hl
-      #                 #, input_dim=nodes[0]
-      #                 , init='identity'
-      #                 , trainable=False
-      #                 , name='dense_last_hl' ) )
-      #model.add( Activation('linear') )
-      model.add( Dense( nodes[1]
-                      , input_dim=nodes[0]
-                      , init='uniform'
-                      , name='dense_last_hl' ) )
-      model.add( Activation('tanh') )
+      model.add( Dense( last_hl
+                       #, input_dim=nodes[0]
+                       , init='identity'
+                       , trainable=False
+                       , name='dense_last_hl' ) )
+      model.add( Activation('linear') )
+      #model.add( Dense( nodes[1]
+      #                , input_dim=nodes[0]
+      #                , init='uniform'
+      #                , name='dense_last_hl' ) )
+      #model.add( Activation('tanh') )
       model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
       model.add( Activation('tanh') )
       model.compile( loss=self.trainOptions['costFunction']
