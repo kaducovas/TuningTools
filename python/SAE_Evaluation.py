@@ -994,53 +994,53 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
       ##ALL LABELS
 
-      ##### Input Energy
-      metrics['Class'] = 'All'
-      metrics['Model'] = model_name
-      metrics['Layer'] = str(layer)
-      metrics['time'] = time
-      metrics['Measure'] = 'Input_energy'
-      #metrics['HL_Neuron'] = hl_neuron
-      metrics['sort'] = sort
-      metrics['etBinIdx'] = etBinIdx
-      metrics['etaBinIdx'] = etaBinIdx
-      metrics['phase'] = phase
-      #metrics['Elapsed'] = elapsed
-      #metrics['fine_tuning'] = fine_tuning
+      # ##### Input Energy
+      # metrics['Class'] = 'All'
+      # metrics['Model'] = model_name
+      # metrics['Layer'] = str(layer)
+      # metrics['time'] = time
+      # metrics['Measure'] = 'Input_energy'
+      # #metrics['HL_Neuron'] = hl_neuron
+      # metrics['sort'] = sort
+      # metrics['etBinIdx'] = etBinIdx
+      # metrics['etaBinIdx'] = etaBinIdx
+      # metrics['phase'] = phase
+      # #metrics['Elapsed'] = elapsed
+      # #metrics['fine_tuning'] = fine_tuning
 
-      for anel in range(100):
-        try:
-          metrics[str(anel+1)] = beforenorm_val_Data[:,anel]
-        except:
-          print 'Anel '+str(anel)+' apresenta erros de calculo'
-          metrics[str(anel+1)] = None
-      table.insert(metrics)
+      # for anel in range(100):
+        # try:
+          # metrics[str(anel+1)] = beforenorm_val_Data[:,anel]
+        # except:
+          # print 'Anel '+str(anel)+' apresenta erros de calculo'
+          # metrics[str(anel+1)] = None
+      # table.insert(metrics)
       
-      metrics = OrderedDict()
+      # metrics = OrderedDict()
 
-      ##### Reconstructed Energy  
-      metrics['Class'] = 'All'
-      metrics['Model'] = model_name
-      metrics['Layer'] = str(layer)
-      metrics['time'] = time
-      metrics['Measure'] = 'Reconstructed_energy'
-      #metrics['HL_Neuron'] = hl_neuron
-      metrics['sort'] = sort
-      metrics['etBinIdx'] = etBinIdx
-      metrics['etaBinIdx'] = etaBinIdx
-      metrics['phase'] = phase
-      #metrics['Elapsed'] = elapsed
-      #metrics['fine_tuning'] = fine_tuning
+      # ##### Reconstructed Energy  
+      # metrics['Class'] = 'All'
+      # metrics['Model'] = model_name
+      # metrics['Layer'] = str(layer)
+      # metrics['time'] = time
+      # metrics['Measure'] = 'Reconstructed_energy'
+      # #metrics['HL_Neuron'] = hl_neuron
+      # metrics['sort'] = sort
+      # metrics['etBinIdx'] = etBinIdx
+      # metrics['etaBinIdx'] = etaBinIdx
+      # metrics['phase'] = phase
+      # #metrics['Elapsed'] = elapsed
+      # #metrics['fine_tuning'] = fine_tuning
 
-      for anel in range(100):
-        try:
-          metrics[str(anel+1)] = unnorm_reconstruct_val_Data[:,anel]
-        except:
-          print 'Anel '+str(anel)+' apresenta erros de calculo'
-          metrics[str(anel+1)] = None
-      table.insert(metrics)
+      # for anel in range(100):
+        # try:
+          # metrics[str(anel+1)] = unnorm_reconstruct_val_Data[:,anel]
+        # except:
+          # print 'Anel '+str(anel)+' apresenta erros de calculo'
+          # metrics[str(anel+1)] = None
+      # table.insert(metrics)
       
-      metrics = OrderedDict() 
+      # metrics = OrderedDict() 
 
       ##### MI/KL
       metrics['Class'] = 'All'
@@ -1075,53 +1075,53 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       print "SIGNAL"
       #SIGNAL
 
-      ##### Input Energy
-      metrics['Class'] = 'Signal'
-      metrics['Model'] = model_name
-      metrics['Layer'] = str(layer)
-      metrics['time'] = time
-      metrics['Measure'] = 'Input_energy'
-      #metrics['HL_Neuron'] = hl_neuron
-      metrics['sort'] = sort
-      metrics['etBinIdx'] = etBinIdx
-      metrics['etaBinIdx'] = etaBinIdx
-      metrics['phase'] = phase
-      #metrics['Elapsed'] = elapsed
-      #metrics['fine_tuning'] = fine_tuning
+      # ##### Input Energy
+      # metrics['Class'] = 'Signal'
+      # metrics['Model'] = model_name
+      # metrics['Layer'] = str(layer)
+      # metrics['time'] = time
+      # metrics['Measure'] = 'Input_energy'
+      # #metrics['HL_Neuron'] = hl_neuron
+      # metrics['sort'] = sort
+      # metrics['etBinIdx'] = etBinIdx
+      # metrics['etaBinIdx'] = etaBinIdx
+      # metrics['phase'] = phase
+      # #metrics['Elapsed'] = elapsed
+      # #metrics['fine_tuning'] = fine_tuning
 
-      for anel in range(100):
-        try:
-          metrics[str(anel+1)] = beforenorm[0][:,anel]
-        except:
-          print 'Anel '+str(anel)+' apresenta erros de calculo'
-          metrics[str(anel+1)] = None
-      table.insert(metrics)
+      # for anel in range(100):
+        # try:
+          # metrics[str(anel+1)] = beforenorm[0][:,anel]
+        # except:
+          # print 'Anel '+str(anel)+' apresenta erros de calculo'
+          # metrics[str(anel+1)] = None
+      # table.insert(metrics)
       
-      metrics = OrderedDict()
+      # metrics = OrderedDict()
 
-      ##### Reconstructed Energy  
-      metrics['Class'] = 'Signal'
-      metrics['Model'] = model_name
-      metrics['Layer'] = str(layer)
-      metrics['time'] = time
-      metrics['Measure'] = 'Reconstructed_energy'
-      #metrics['HL_Neuron'] = hl_neuron
-      metrics['sort'] = sort
-      metrics['etBinIdx'] = etBinIdx
-      metrics['etaBinIdx'] = etaBinIdx
-      metrics['phase'] = phase
-      #metrics['Elapsed'] = elapsed
-      #metrics['fine_tuning'] = fine_tuning
+      # ##### Reconstructed Energy  
+      # metrics['Class'] = 'Signal'
+      # metrics['Model'] = model_name
+      # metrics['Layer'] = str(layer)
+      # metrics['time'] = time
+      # metrics['Measure'] = 'Reconstructed_energy'
+      # #metrics['HL_Neuron'] = hl_neuron
+      # metrics['sort'] = sort
+      # metrics['etBinIdx'] = etBinIdx
+      # metrics['etaBinIdx'] = etaBinIdx
+      # metrics['phase'] = phase
+      # #metrics['Elapsed'] = elapsed
+      # #metrics['fine_tuning'] = fine_tuning
 
-      for anel in range(100):
-        try:
-          metrics[str(anel+1)] = unnorm_reconstruct[0][:,anel]
-        except:
-          print 'Anel '+str(anel)+' apresenta erros de calculo'
-          metrics[str(anel+1)] = None
-      table.insert(metrics)
+      # for anel in range(100):
+        # try:
+          # metrics[str(anel+1)] = unnorm_reconstruct[0][:,anel]
+        # except:
+          # print 'Anel '+str(anel)+' apresenta erros de calculo'
+          # metrics[str(anel+1)] = None
+      # table.insert(metrics)
       
-      metrics = OrderedDict() 
+      # metrics = OrderedDict() 
   
       ##### MI/KL
       metrics['Class'] = 'Signal'
@@ -1155,53 +1155,53 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       print "BACKGROUND"
       #BACKGROUND
 
-      ##### Input Energy
-      metrics['Class'] = 'Background'
-      metrics['Model'] = model_name
-      metrics['Layer'] = str(layer)
-      metrics['time'] = time
-      metrics['Measure'] = 'Input_energy'
-      #metrics['HL_Neuron'] = hl_neuron
-      metrics['sort'] = sort
-      metrics['etBinIdx'] = etBinIdx
-      metrics['etaBinIdx'] = etaBinIdx
-      metrics['phase'] = phase
-      #metrics['Elapsed'] = elapsed
-      #metrics['fine_tuning'] = fine_tuning
+      # ##### Input Energy
+      # metrics['Class'] = 'Background'
+      # metrics['Model'] = model_name
+      # metrics['Layer'] = str(layer)
+      # metrics['time'] = time
+      # metrics['Measure'] = 'Input_energy'
+      # #metrics['HL_Neuron'] = hl_neuron
+      # metrics['sort'] = sort
+      # metrics['etBinIdx'] = etBinIdx
+      # metrics['etaBinIdx'] = etaBinIdx
+      # metrics['phase'] = phase
+      # #metrics['Elapsed'] = elapsed
+      # #metrics['fine_tuning'] = fine_tuning
 
-      for anel in range(100):
-        try:
-          metrics[str(anel+1)] = beforenorm[1][:,anel]
-        except:
-          print 'Anel '+str(anel)+' apresenta erros de calculo'
-          metrics[str(anel+1)] = None
-      table.insert(metrics)
+      # for anel in range(100):
+        # try:
+          # metrics[str(anel+1)] = beforenorm[1][:,anel]
+        # except:
+          # print 'Anel '+str(anel)+' apresenta erros de calculo'
+          # metrics[str(anel+1)] = None
+      # table.insert(metrics)
       
-      metrics = OrderedDict()
+      # metrics = OrderedDict()
 
-      ##### Reconstructed Energy  
-      metrics['Class'] = 'Background'
-      metrics['Model'] = model_name
-      metrics['Layer'] = str(layer)
-      metrics['time'] = time
-      metrics['Measure'] = 'Reconstructed_energy'
-      #metrics['HL_Neuron'] = hl_neuron
-      metrics['sort'] = sort
-      metrics['etBinIdx'] = etBinIdx
-      metrics['etaBinIdx'] = etaBinIdx
-      metrics['phase'] = phase
-      #metrics['Elapsed'] = elapsed
-      #metrics['fine_tuning'] = fine_tuning
+      # ##### Reconstructed Energy  
+      # metrics['Class'] = 'Background'
+      # metrics['Model'] = model_name
+      # metrics['Layer'] = str(layer)
+      # metrics['time'] = time
+      # metrics['Measure'] = 'Reconstructed_energy'
+      # #metrics['HL_Neuron'] = hl_neuron
+      # metrics['sort'] = sort
+      # metrics['etBinIdx'] = etBinIdx
+      # metrics['etaBinIdx'] = etaBinIdx
+      # metrics['phase'] = phase
+      # #metrics['Elapsed'] = elapsed
+      # #metrics['fine_tuning'] = fine_tuning
 
-      for anel in range(100):
-        try:
-          metrics[str(anel+1)] = unnorm_reconstruct[1][:,anel]
-        except:
-          print 'Anel '+str(anel)+' apresenta erros de calculo'
-          metrics[str(anel+1)] = None
-      table.insert(metrics)
+      # for anel in range(100):
+        # try:
+          # metrics[str(anel+1)] = unnorm_reconstruct[1][:,anel]
+        # except:
+          # print 'Anel '+str(anel)+' apresenta erros de calculo'
+          # metrics[str(anel+1)] = None
+      # table.insert(metrics)
       
-      metrics = OrderedDict() 
+      # metrics = OrderedDict() 
 
       ##### MI/KL
       metrics['Class'] = 'Background'
