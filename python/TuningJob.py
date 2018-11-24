@@ -1511,7 +1511,7 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
-          f_tuning=True
+          f_tuning=False #True
           if f_tuning:
             trnData,valData = ppChain.getNorm1()
             hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
