@@ -581,7 +581,8 @@ def create_simple_table(model_name,script_time):
   from prettytable import PrettyTable
   import sqlite3
   cnx=sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
-  df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers2 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
+  #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers2 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
+  df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers2 where id in (select id from (select max(sp) as maxsp,id from classifiers2 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
   df['Point'] = df['Point'].apply(lambda x: x.split('_')[-1])
   a = df.groupby(['Point']).agg({'sp':['mean','std'],'pd':['mean','std'],'pf':['mean','std'],'f1':['mean','std'],'auc':['mean','std'],'precision':['mean','std'],'recall':['mean','std']}).values
   #df_values = np.round(a,2)
@@ -808,7 +809,7 @@ def getReconstruct(fname,norm1Par,sort):
       #print predict_data
       #@@reconstruct[bottleneck] = predict_data
       reconstruct[bottleneck] = predict
-      print predict[0].shape,predict[1].shape
+      #print predict[0].shape,predict[1].shape
   return reconstruct
   #if K.backend() == 'tensorflow':
   #    K.clear_session()
@@ -845,15 +846,15 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
 
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
 
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
@@ -992,6 +993,56 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
       beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
       ##ALL LABELS
+
+      ##### Input Energy
+      metrics['Class'] = 'All'
+      metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
+      metrics['time'] = time
+      metrics['Measure'] = 'Input_energy'
+      #metrics['HL_Neuron'] = hl_neuron
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
+      #metrics['Elapsed'] = elapsed
+      #metrics['fine_tuning'] = fine_tuning
+
+      for anel in range(100):
+        try:
+          metrics[str(anel+1)] = beforenorm_val_Data[:,anel]
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo'
+          metrics[str(anel+1)] = None
+      table.insert(metrics)
+      
+      metrics = OrderedDict()
+
+      ##### Reconstructed Energy  
+      metrics['Class'] = 'All'
+      metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
+      metrics['time'] = time
+      metrics['Measure'] = 'Reconstructed_energy'
+      #metrics['HL_Neuron'] = hl_neuron
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
+      #metrics['Elapsed'] = elapsed
+      #metrics['fine_tuning'] = fine_tuning
+
+      for anel in range(100):
+        try:
+          metrics[str(anel+1)] = unnorm_reconstruct_val_Data[:,anel]
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo'
+          metrics[str(anel+1)] = None
+      table.insert(metrics)
+      
+      metrics = OrderedDict() 
+
+      ##### MI/KL
       metrics['Class'] = 'All'
       metrics['Model'] = model_name
       metrics['Layer'] = str(layer)
@@ -1023,6 +1074,56 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       metrics = OrderedDict()
       print "SIGNAL"
       #SIGNAL
+
+      ##### Input Energy
+      metrics['Class'] = 'Signal'
+      metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
+      metrics['time'] = time
+      metrics['Measure'] = 'Input_energy'
+      #metrics['HL_Neuron'] = hl_neuron
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
+      #metrics['Elapsed'] = elapsed
+      #metrics['fine_tuning'] = fine_tuning
+
+      for anel in range(100):
+        try:
+          metrics[str(anel+1)] = beforenorm[0][:,anel]
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo'
+          metrics[str(anel+1)] = None
+      table.insert(metrics)
+      
+      metrics = OrderedDict()
+
+      ##### Reconstructed Energy  
+      metrics['Class'] = 'Signal'
+      metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
+      metrics['time'] = time
+      metrics['Measure'] = 'Reconstructed_energy'
+      #metrics['HL_Neuron'] = hl_neuron
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
+      #metrics['Elapsed'] = elapsed
+      #metrics['fine_tuning'] = fine_tuning
+
+      for anel in range(100):
+        try:
+          metrics[str(anel+1)] = unnorm_reconstruct[0][:,anel]
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo'
+          metrics[str(anel+1)] = None
+      table.insert(metrics)
+      
+      metrics = OrderedDict() 
+  
+      ##### MI/KL
       metrics['Class'] = 'Signal'
       metrics['Model'] = model_name
       metrics['Layer'] = str(layer)
@@ -1053,6 +1154,56 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       metrics = OrderedDict()
       print "BACKGROUND"
       #BACKGROUND
+
+      ##### Input Energy
+      metrics['Class'] = 'Background'
+      metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
+      metrics['time'] = time
+      metrics['Measure'] = 'Input_energy'
+      #metrics['HL_Neuron'] = hl_neuron
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
+      #metrics['Elapsed'] = elapsed
+      #metrics['fine_tuning'] = fine_tuning
+
+      for anel in range(100):
+        try:
+          metrics[str(anel+1)] = beforenorm[1][:,anel]
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo'
+          metrics[str(anel+1)] = None
+      table.insert(metrics)
+      
+      metrics = OrderedDict()
+
+      ##### Reconstructed Energy  
+      metrics['Class'] = 'Background'
+      metrics['Model'] = model_name
+      metrics['Layer'] = str(layer)
+      metrics['time'] = time
+      metrics['Measure'] = 'Reconstructed_energy'
+      #metrics['HL_Neuron'] = hl_neuron
+      metrics['sort'] = sort
+      metrics['etBinIdx'] = etBinIdx
+      metrics['etaBinIdx'] = etaBinIdx
+      metrics['phase'] = phase
+      #metrics['Elapsed'] = elapsed
+      #metrics['fine_tuning'] = fine_tuning
+
+      for anel in range(100):
+        try:
+          metrics[str(anel+1)] = unnorm_reconstruct[1][:,anel]
+        except:
+          print 'Anel '+str(anel)+' apresenta erros de calculo'
+          metrics[str(anel+1)] = None
+      table.insert(metrics)
+      
+      metrics = OrderedDict() 
+
+      ##### MI/KL
       metrics['Class'] = 'Background'
       metrics['Model'] = model_name
       metrics['Layer'] = str(layer)
