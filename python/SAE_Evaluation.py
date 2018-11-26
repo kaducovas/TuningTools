@@ -1270,7 +1270,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                     #                  )
                     #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
                     #axs[i,j].add_artist(at)
-                    axs[i,j].set_title('Ring '+rings+' - '+model_name+')
+                    axs[i,j].set_title('Ring: '+rings+' - '+model_name)
         plt.suptitle('Input X Reconstruction - '+model_name+' - '+layer, fontsize=24)
         plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+layer+'.png')
         plt.clf()
