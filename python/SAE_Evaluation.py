@@ -1233,6 +1233,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
+    import seaborn as sb
     fig, axs = plt.subplots(10, 10, figsize=(40, 18))
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
