@@ -1015,10 +1015,10 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           # print 'Anel '+str(anel)+' apresenta erros de calculo'
           # metrics[str(anel+1)] = None
       # table.insert(metrics)
-      
+
       # metrics = OrderedDict()
 
-      # ##### Reconstructed Energy  
+      # ##### Reconstructed Energy
       # metrics['Class'] = 'All'
       # metrics['Model'] = model_name
       # metrics['Layer'] = str(layer)
@@ -1039,8 +1039,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           # print 'Anel '+str(anel)+' apresenta erros de calculo'
           # metrics[str(anel+1)] = None
       # table.insert(metrics)
-      
-      # metrics = OrderedDict() 
+
+      # metrics = OrderedDict()
 
       ##### MI/KL
       metrics['Class'] = 'All'
@@ -1096,10 +1096,10 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           # print 'Anel '+str(anel)+' apresenta erros de calculo'
           # metrics[str(anel+1)] = None
       # table.insert(metrics)
-      
+
       # metrics = OrderedDict()
 
-      # ##### Reconstructed Energy  
+      # ##### Reconstructed Energy
       # metrics['Class'] = 'Signal'
       # metrics['Model'] = model_name
       # metrics['Layer'] = str(layer)
@@ -1120,9 +1120,9 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           # print 'Anel '+str(anel)+' apresenta erros de calculo'
           # metrics[str(anel+1)] = None
       # table.insert(metrics)
-      
-      # metrics = OrderedDict() 
-  
+
+      # metrics = OrderedDict()
+
       ##### MI/KL
       metrics['Class'] = 'Signal'
       metrics['Model'] = model_name
@@ -1176,10 +1176,10 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           # print 'Anel '+str(anel)+' apresenta erros de calculo'
           # metrics[str(anel+1)] = None
       # table.insert(metrics)
-      
+
       # metrics = OrderedDict()
 
-      # ##### Reconstructed Energy  
+      # ##### Reconstructed Energy
       # metrics['Class'] = 'Background'
       # metrics['Model'] = model_name
       # metrics['Layer'] = str(layer)
@@ -1200,8 +1200,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           # print 'Anel '+str(anel)+' apresenta erros de calculo'
           # metrics[str(anel+1)] = None
       # table.insert(metrics)
-      
-      # metrics = OrderedDict() 
+
+      # metrics = OrderedDict()
 
       ##### MI/KL
       metrics['Class'] = 'Background'
@@ -1231,7 +1231,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       table.insert(metrics)
   return metrics
 
-def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None)
+def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     fig, axs = plt.subplots(10, 10, figsize=(40, 18))
     beforenorm = norm1Par[0]
@@ -1266,7 +1266,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                     axs[i,j].grid()
                     #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nSignal \nMean: "+str(s.mean())+"\nStd: "+str(s.std())+"\nSkw: "+str(skew(s))+"\nKur: "+str(kurtosis(s))+"\n\nBkg \nMean: "+str(b.mean())+"\nStd: "+str(b.std())+"\nSkw: "+str(skew(b))+"\nKur: "+str(kurtosis(b)),
                     #                  prop=dict(size=8), frameon=True,
-                    #                  loc='center left', 
+                    #                  loc='center left',
                     #                  )
                     #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
                     #axs[i,j].add_artist(at)
@@ -1277,4 +1277,4 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
         plt.close()
         png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+layer+'.png')
     return png_files
-        
+
