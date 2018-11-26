@@ -1230,3 +1230,51 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 
       table.insert(metrics)
   return metrics
+
+def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None)
+    import matplotlib.pyplot as plt
+    fig, axs = plt.subplots(10, 10, figsize=(40, 18))
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    for layer in reconstruct.keys():
+        #print 'LAYER: '+str(layer)
+        #for nsort in reconstruct[layer].keys():
+        #print "Sort: "+str(nsort)
+        if isinstance(reconstruct[layer], (tuple, list,)):
+            unnorm_reconstruct = []
+            for i, cdata in enumerate(reconstruct[layer]):
+                #print i,cdata.shape
+                unnorm_reconstruct.append( cdata * normlist[i])
+            unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+            beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+            r=unnorm_reconstruct_val_Data
+            b=beforenorm_val_Data
+
+            for i in range(10):
+                for j in range(10): ###CODE 10
+                    rings=int(str(i)+str(j))
+
+                    sb.kdeplot(b,label="Input Energy",ax=axs[i,j],color='royalblue')
+                    sb.kdeplot(r,label="Reconstructed Energy",ax=axs[i,j],color='darksalmon')
+                    nbins = len(np.histogram(b,'fd')[0])
+                    axs[i,j].hist(b, bins=nbins, normed=True,color='royalblue',histtype='stepfilled')
+                    nbins = len(np.histogram(r,'fd')[0])
+                    axs[i,j].hist(r, bins=nbins, normed=True,color='darksalmon')
+                    axs[i,j].grid()
+                    #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nSignal \nMean: "+str(s.mean())+"\nStd: "+str(s.std())+"\nSkw: "+str(skew(s))+"\nKur: "+str(kurtosis(s))+"\n\nBkg \nMean: "+str(b.mean())+"\nStd: "+str(b.std())+"\nSkw: "+str(skew(b))+"\nKur: "+str(kurtosis(b)),
+                    #                  prop=dict(size=8), frameon=True,
+                    #                  loc='center left', 
+                    #                  )
+                    #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+                    #axs[i,j].add_artist(at)
+                    axs[i,j].set_title('Ring '+rings+' - '+model_name+')
+        plt.suptitle('Input X Reconstruction - '+model_name+' - '+layer, fontsize=24)
+        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+layer+'.png')
+        plt.clf()
+        plt.close()
+        png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+layer+'.png')
+    return png_files
+        
