@@ -1275,10 +1275,10 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                     except:
                       print "Deu ruim no anel:"+str(rings)
                     axs[i,j].set_title('Ring: '+str(rings)+' - '+model_name)
-        plt.suptitle('Input X Reconstruction - '+model_name+' - '+layer, fontsize=24)
-        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+layer+'.png')
+        plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
         plt.clf()
         plt.close()
-        png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+layer+'.png')
+        png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
     return png_files
 
