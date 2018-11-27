@@ -1253,11 +1253,11 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
             beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
             r=unnorm_reconstruct_val_Data
             b=beforenorm_val_Data
-            np.savez_compressed('/scratch/22061a/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
+            #np.savez_compressed('/scratch/22061a/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
             for i in range(10):
                 for j in range(10): ###CODE 10
                     rings=int(str(i)+str(j))
-
+                    print rings
                     sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='royalblue')
                     sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='darksalmon')
                     nbins = len(np.histogram(b[:,rings],'fd')[0])
