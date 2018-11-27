@@ -1257,20 +1257,23 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
             for i in range(10):
                 for j in range(10): ###CODE 10
                     rings=int(str(i)+str(j))
-                    print rings
-                    sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='royalblue')
-                    sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='darksalmon')
-                    nbins = len(np.histogram(b[:,rings],'fd')[0])
-                    axs[i,j].hist(b[:,rings], bins=nbins, normed=True,color='royalblue',histtype='stepfilled')
-                    nbins = len(np.histogram(r[:,rings],'fd')[0])
-                    axs[i,j].hist(r[:,rings], bins=nbins, normed=True,color='darksalmon')
-                    axs[i,j].grid()
-                    #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nSignal \nMean: "+str(s.mean())+"\nStd: "+str(s.std())+"\nSkw: "+str(skew(s))+"\nKur: "+str(kurtosis(s))+"\n\nBkg \nMean: "+str(b.mean())+"\nStd: "+str(b.std())+"\nSkw: "+str(skew(b))+"\nKur: "+str(kurtosis(b)),
-                    #                  prop=dict(size=8), frameon=True,
-                    #                  loc='center left',
-                    #                  )
-                    #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-                    #axs[i,j].add_artist(at)
+                    #print rings
+                    try:
+                      sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='royalblue')
+                      sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='darksalmon')
+                      nbins = len(np.histogram(b[:,rings],'fd')[0])
+                      axs[i,j].hist(b[:,rings], bins=nbins, normed=True,color='royalblue',histtype='stepfilled')
+                      nbins = len(np.histogram(r[:,rings],'fd')[0])
+                      axs[i,j].hist(r[:,rings], bins=nbins, normed=True,color='darksalmon')
+                      axs[i,j].grid()
+                      #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nSignal \nMean: "+str(s.mean())+"\nStd: "+str(s.std())+"\nSkw: "+str(skew(s))+"\nKur: "+str(kurtosis(s))+"\n\nBkg \nMean: "+str(b.mean())+"\nStd: "+str(b.std())+"\nSkw: "+str(skew(b))+"\nKur: "+str(kurtosis(b)),
+                      #                  prop=dict(size=8), frameon=True,
+                      #                  loc='center left',
+                      #                  )
+                      #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+                      #axs[i,j].add_artist(at)
+                    except:
+                      print "Deu ruim no anel:"+str(rings)
                     axs[i,j].set_title('Ring: '+str(rings)+' - '+model_name)
         plt.suptitle('Input X Reconstruction - '+model_name+' - '+layer, fontsize=24)
         plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+layer+'.png')
