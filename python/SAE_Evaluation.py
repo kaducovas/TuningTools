@@ -885,7 +885,7 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   for i in [7, 71, 79, 87, 91, 95]:
     plt.axvline(i, color='gray', linestyle='--', linewidth=.8)
 
-  plt.title(r''+model_name+' - MI Input X Reconstruction $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
+  plt.title(r''+model_name+' - Layer '+str(layer)+' - MI Input X Reconstruction $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
   plt.xlabel('#Rings', fontsize='xx-large')
   plt.ylabel('Normalized Mutual Information', fontsize='xx-large')
   plt.ylim(ymax=1)
@@ -1291,7 +1291,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         print "Deu ruim no anel:"+str(rings+1)
                     rings+=1
         plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
+        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=200)
         plt.clf()
         plt.close()
         png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
@@ -1352,7 +1352,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             print "Deu ruim no anel:"+str(rings+1)
                         rings+=1
             plt.suptitle(classes[cl]+' - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png')
+            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=200)
             plt.clf()
             plt.close()
         png_files.append(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png')
