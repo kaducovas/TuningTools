@@ -1292,16 +1292,16 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         print "Deu ruim no anel:"+str(rings+1)
                     rings+=1
         plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=120)
+        plt.savefig(dirout+'/pdf_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
         plt.clf()
         plt.close()
-        png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
+        png_files.append(dirout+'/pdf_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
 def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
-    fig, axs = plt.subplots(8, 14, figsize=(60, 40))
+
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -1321,6 +1321,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                 r=unnorm_reconstruct[cl]
                 b=beforenorm[cl]
                 #np.savez_compressed('/scratch/22061a/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
+                fig, axs = plt.subplots(8, 14, figsize=(60, 40))
                 rings=0
                 for j in range(14):
                     for i in range(8): ###CODE 10
@@ -1353,8 +1354,8 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             print "Deu ruim no anel:"+str(rings+1)
                         rings+=1
             plt.suptitle(classes[cl]+' - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=120)
+            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
             plt.clf()
             plt.close()
-        png_files.append(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png')
+        png_files.append(dirout+'/pdf_'+classes[cl]+'_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
