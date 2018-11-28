@@ -1239,7 +1239,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
-    fig, axs = plt.subplots(10, 10, figsize=(40, 18))
+    fig, axs = plt.subplots(8, 14, figsize=(60, 40))
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -1283,7 +1283,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
                         at = AnchoredText(r'ATLAS \n$\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
                                           prop=dict(size=8), frameon=True,
-                                          loc='center right', 
+                                          loc='center right',
                                           )
                         at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
                         axs[i,j].add_artist(at)
@@ -1299,7 +1299,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
 def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
-    fig, axs = plt.subplots(10, 10, figsize=(40, 18))
+    fig, axs = plt.subplots(8, 14, figsize=(60, 40))
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -1343,7 +1343,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
                             at = AnchoredText(r'ATLAS \n$\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
                                               prop=dict(size=8), frameon=True,
-                                              loc='center right', 
+                                              loc='center right',
                                               )
                             at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
                             axs[i,j].add_artist(at)
