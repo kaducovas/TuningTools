@@ -1239,7 +1239,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
-    fig, axs = plt.subplots(8, 14, figsize=(60, 40))
+
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -1259,6 +1259,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
             r=unnorm_reconstruct_val_Data
             b=beforenorm_val_Data
             #np.savez_compressed('/scratch/22061a/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
+            fig, axs = plt.subplots(8, 14, figsize=(60, 40))
             rings=0
             for j in range(14):
                 for i in range(8): ###CODE 10
