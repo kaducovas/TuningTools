@@ -1773,6 +1773,7 @@ class TuningJob(Logger):
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
 
+          bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
 
           if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
             png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
@@ -1793,22 +1794,22 @@ class TuningJob(Logger):
                 png_f = open(png_file,'rb')
                 bot.sendPhoto('@ringer_tuning',png_f)
 
-          #@if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys():
-            #@png_files=plot_pdfs(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
-            #@for png_file in png_files:
-              #@png_f = open(png_file,'rb')
-              #@bot.sendDocument('@ringer_tuning',png_f)
+            png_files=plot_pdfs(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendDocument('@ringer_tuning',png_f)
 
 
-          #@if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys():
-            #@png_files=plot_pdfs_byclass(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
-            #@for png_file in png_files:
-              #@png_f = open(png_file,'rb')
-              #@bot.sendDocument('@ringer_tuning',png_f)
+            png_files=plot_pdfs_byclass(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendDocument('@ringer_tuning',png_f)
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
@@ -1817,8 +1818,8 @@ class TuningJob(Logger):
             roc_png_f = open(roc_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',roc_png_f)
 
-          time.sleep(20)
-          bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
+          #time.sleep(20)
+
 
           #@!for refN in refName:
             #@!bot.sendMessage('@ringer_tuning',createClassifierTable(ppChain.shortName()+"_"+mname,startTime,refN).get_string())
