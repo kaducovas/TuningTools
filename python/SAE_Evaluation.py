@@ -1282,7 +1282,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         rr = calc_MI2(b[:,rings],r[:,rings])
                         mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
                         axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
-                        at = AnchoredText(r'ATLAS \n$\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                        at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
                                           prop=dict(size=8), frameon=True,
                                           loc='center right',
                                           )
@@ -1344,7 +1344,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             rr = calc_MI2(b[:,rings],r[:,rings])
                             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
                             axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
-                            at = AnchoredText(r'ATLAS \n$\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                            at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
                                               prop=dict(size=8), frameon=True,
                                               loc='center right',
                                               )
