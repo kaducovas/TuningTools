@@ -1291,7 +1291,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         print "Deu ruim no anel:"+str(rings+1)
                     rings+=1
         plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=200)
+        plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=150)
         plt.clf()
         plt.close()
         png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
@@ -1352,7 +1352,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             print "Deu ruim no anel:"+str(rings+1)
                         rings+=1
             plt.suptitle(classes[cl]+' - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=200)
+            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png',dpi=150)
             plt.clf()
             plt.close()
         png_files.append(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png')
