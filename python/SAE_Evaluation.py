@@ -1359,6 +1359,6 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
             plt.savefig(dirout+'/pdf_'+className+'_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
             plt.clf()
             plt.close()
-        png_files.append(dirout+'/pdf_'+className+'_'+str(layer)+'_'+model_name+'_'+time+'.png')
+            png_files.append(dirout+'/pdf_'+className+'_'+str(layer)+'_'+model_name+'_'+time+'.png')
     print len(png_files)
     return png_files
