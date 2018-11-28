@@ -25,6 +25,11 @@ from collections import OrderedDict
 import itertools
 from sklearn.metrics import confusion_matrix
 from SAE_Evaluation import *
+from scipy.stats import kurtosis
+from scipy.stats import skew
+import matplotlib.patches as mpatches
+from mpl_toolkits.axes_grid.axes_grid import AxesGrid
+from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 
 def calc_MI2(x, y):
   max_value = max(max(x),max(y))
@@ -1254,27 +1259,36 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
             r=unnorm_reconstruct_val_Data
             b=beforenorm_val_Data
             #np.savez_compressed('/scratch/22061a/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
-            for i in range(10):
-                for j in range(10): ###CODE 10
-                    rings=int(str(i)+str(j))
-                    #print rings
+            rings=0
+            for j in range(14):
+                for i in range(8): ###CODE 10
+                    if j> 10 and i>3:
+                        fig.delaxes(axs[i,j])
+                        continue
+                    #rings=int(str(i)+str(j))
+                    #print i,j,rings
+                    #ax2 = axs[i,j].twinx()
                     try:
-                      sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='royalblue')
-                      sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='darksalmon')
-                      nbins = len(np.histogram(b[:,rings],'fd')[0])
-                      axs[i,j].hist(b[:,rings], bins=nbins, normed=True,color='royalblue',histtype='stepfilled')
-                      nbins = len(np.histogram(r[:,rings],'fd')[0])
-                      axs[i,j].hist(r[:,rings], bins=nbins, normed=True,color='darksalmon')
-                      axs[i,j].grid()
-                      #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nSignal \nMean: "+str(s.mean())+"\nStd: "+str(s.std())+"\nSkw: "+str(skew(s))+"\nKur: "+str(kurtosis(s))+"\n\nBkg \nMean: "+str(b.mean())+"\nStd: "+str(b.std())+"\nSkw: "+str(skew(b))+"\nKur: "+str(kurtosis(b)),
-                      #                  prop=dict(size=8), frameon=True,
-                      #                  loc='center left',
-                      #                  )
-                      #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-                      #axs[i,j].add_artist(at)
+                        sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='crimson')
+                        sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='deepskyblue')
+                        nbins = len(np.histogram(b[:,rings],'fd')[0])
+                        axs[i,j].hist(b[:,rings], bins=nbins, normed=True,color='crimson',histtype='stepfilled')
+                        nbins = len(np.histogram(r[:,rings],'fd')[0])
+                        axs[i,j].hist(r[:,rings], bins=nbins, normed=True,color='deepskyblue')
+                        #axs[i,j].grid()
+                        #axs[i,j].set_title('Ring '+str(rings)+' - '+model_name)
+                        axs[i,j].get_yaxis().set_ticks([])
+                        rr = calc_MI2(b[:,rings],r[:,rings])
+                        mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+                        axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
+                        at = AnchoredText(r'ATLAS \n$\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                                          prop=dict(size=8), frameon=True,
+                                          loc='center right', 
+                                          )
+                        at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+                        axs[i,j].add_artist(at)
                     except:
-                      print "Deu ruim no anel:"+str(rings)
-                    axs[i,j].set_title('Ring: '+str(rings)+' - '+model_name)
+                        print "Deu ruim no anel:"+str(rings+1)
         plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
         plt.savefig(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
         plt.clf()
@@ -1282,3 +1296,62 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
         png_files.append(dirout+'/pdf_'+model_name+'_'+time+'_'+str(layer)+'.png')
     return png_files
 
+def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
+    import matplotlib.pyplot as plt
+    import seaborn as sb
+    fig, axs = plt.subplots(10, 10, figsize=(40, 18))
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+    classes=['Signal','Background']
+
+    for layer in reconstruct.keys():
+        for cl in range(2):
+            #print 'LAYER: '+str(layer)
+            #for nsort in reconstruct[layer].keys():
+            #print "Sort: "+str(nsort)
+            if isinstance(reconstruct[layer], (tuple, list,)):
+                unnorm_reconstruct = []
+                for i, cdata in enumerate(reconstruct[layer]):
+                    #print i,cdata.shape
+                    unnorm_reconstruct.append( cdata * normlist[i])
+                r=unnorm_reconstruct[cl]
+                b=beforenorm[cl]
+                #np.savez_compressed('/scratch/22061a/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
+                rings=0
+                for j in range(14):
+                    for i in range(8): ###CODE 10
+                        if j> 10 and i>3:
+                            fig.delaxes(axs[i,j])
+                            continue
+                        #rings=int(str(i)+str(j))
+                        #print i,j,rings
+                        #ax2 = axs[i,j].twinx()
+                        try:
+                            sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='crimson')
+                            sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='deepskyblue')
+                            nbins = len(np.histogram(b[:,rings],'fd')[0])
+                            axs[i,j].hist(b[:,rings], bins=nbins, normed=True,color='crimson',histtype='stepfilled')
+                            nbins = len(np.histogram(r[:,rings],'fd')[0])
+                            axs[i,j].hist(r[:,rings], bins=nbins, normed=True,color='deepskyblue')
+                            #axs[i,j].grid()
+                            #axs[i,j].set_title('Ring '+str(rings)+' - '+model_name)
+                            axs[i,j].get_yaxis().set_ticks([])
+                            rr = calc_MI2(b[:,rings],r[:,rings])
+                            mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+                            axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
+                            at = AnchoredText(r'ATLAS \n$\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                                              prop=dict(size=8), frameon=True,
+                                              loc='center right', 
+                                              )
+                            at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+                            axs[i,j].add_artist(at)
+                        except:
+                            print "Deu ruim no anel:"+str(rings+1)
+            plt.suptitle(classes[cl]+' - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png')
+            plt.clf()
+            plt.close()
+        png_files.append(dirout+'/pdf_'+classes[cl]+'_'+model_name+'_'+time+'_'+str(layer)+'.png')
+    return png_files
