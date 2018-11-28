@@ -30,6 +30,8 @@ from scipy.stats import skew
 import matplotlib.patches as mpatches
 from mpl_toolkits.axes_grid.axes_grid import AxesGrid
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+import telepot
+bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
 
 def calc_MI2(x, y):
   max_value = max(max(x),max(y))
@@ -693,7 +695,7 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
   import numpy as np
   from pathlib import Path
   afternorm = norm1Par[2]
-  reconstruct={}
+  reconstruct= OrderedDict()
   target=[]
   wrapper = TimeAutoencoderWrapper()
   if isinstance(afternorm, (tuple, list,)):
@@ -722,7 +724,7 @@ def getReconstruct(fname,norm1Par,sort):
   #from SAE_Evaluation import *
 
   predict_data = {}
-  reconstruct = {}
+  reconstruct = OrderedDict()
   modelo={}
   enc_model={}
   dec_model={}
@@ -1309,7 +1311,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
     classes=['Signal','Background']
 
     for layer in reconstruct.keys():
-        for cl in range(2):
+        for cl,className in enumerate(classes):
             #print 'LAYER: '+str(layer)
             #for nsort in reconstruct[layer].keys():
             #print "Sort: "+str(nsort)
@@ -1353,9 +1355,10 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                         except:
                             print "Deu ruim no anel:"+str(rings+1)
                         rings+=1
-            plt.suptitle(classes[cl]+' - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-            plt.savefig(dirout+'/pdf_'+classes[cl]+'_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
+            plt.suptitle(className+' - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+            plt.savefig(dirout+'/pdf_'+className+'_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
             plt.clf()
             plt.close()
-        png_files.append(dirout+'/pdf_'+classes[cl]+'_'+str(layer)+'_'+model_name+'_'+time+'.png')
+        png_files.append(dirout+'/pdf_'+className+'_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    print len(png_files)
     return png_files
