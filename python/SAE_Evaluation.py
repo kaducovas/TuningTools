@@ -1543,11 +1543,11 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             for i in [7, 71, 79, 87, 91, 95]:
                 ax1.axvline(i, color='gray', linestyle='--', linewidth=.8)
                 ax2.axvline(i, color='gray', linestyle='--', linewidth=.8)
-            y_position=False
-            if log_scale:
-              y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
-            else:
-              y_position = 0.98#.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+            #log_scale=False
+            #if log_scale:
+            #  y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+            #else:
+            y_position = 0.98 #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
 
             for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
                              (76,y_position,r'EM2'),(80,y_position,r'EM3'),
