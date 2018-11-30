@@ -1796,6 +1796,14 @@ class TuningJob(Logger):
 
           if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           #if('AE' in str(ppChain.shortName())):
+            for layer in reconstruct.keys():
+              png_files=plot_input_reconstruction_separed(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              for png_file in png_files:
+                png_f = open(png_file,'rb')
+                bot.sendPhoto('@ringer_tuning',png_f)
+
+          if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys():
             png_files=plot_pdfs(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:

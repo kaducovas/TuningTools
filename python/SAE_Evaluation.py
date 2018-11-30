@@ -1478,7 +1478,7 @@ def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=Non
         png_files.append(dirout+'/scatter_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
-def plot_mean_profile_separed(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
     import sqlite3
     import pandas as pd
     from numpy import nan
@@ -1555,7 +1555,13 @@ def plot_mean_profile_separed(model_name=None,layer=None,time=None, etBinIdx=Non
                 ax1.text(x,y,text, fontsize=15, rotation=90)
                 ax2.text(x,y,text, fontsize=15, rotation=90)
             
-                plt.savefig('meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
-            else:
-                plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+            #    plt.savefig('meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+            #else:
+            #    plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
             #plt.show()
+            plt.suptitle('Energy Profile - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+            plt.savefig(dirout+'/energy_prof'+str(layer)+'_'+model_name+'_'+time+'.png')
+            plt.clf()
+            plt.close()
+            png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
+            return png_files
