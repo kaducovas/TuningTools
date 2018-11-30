@@ -878,9 +878,9 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   plt.errorbar(np.arange(100), np.mean(allClasses, axis=0),yerr=np.std(allClasses, axis=0), fmt='go-',color='green')
   plt.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='D-', color='cornflowerblue')
   plt.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='ro-')
-  print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
-  print np.mean(sgn,axis=0),np.std(sgn,axis=0)
-  print np.mean(bkg,axis=0),np.std(bkg,axis=0)
+  #print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
+  #print np.mean(sgn,axis=0),np.std(sgn,axis=0)
+  #print np.mean(bkg,axis=0),np.std(bkg,axis=0)
 
 
   plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
@@ -1362,3 +1362,200 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
             png_files.append(dirout+'/pdf_'+className+'_'+str(layer)+'_'+model_name+'_'+time+'.png')
     print len(png_files)
     return png_files
+
+def plot_scatter():
+    import matplotlib.pyplot as plt
+    import seaborn as sb
+    fig, axs = plt.subplots(8, 14, figsize=(60, 40))
+    #beforenorm = norm1Par[0]
+    #normlist = norm1Par[1]
+    #afternorm = norm1Par[2]
+    #png_files=[]
+    #ax2 = axs.twinx()
+
+    for layer in ['100x90']:#reconstruct.keys():
+        #print 'LAYER: '+str(layer)
+        #for nsort in reconstruct[layer].keys():
+        #print "Sort: "+str(nsort)
+        #if isinstance(reconstruct[layer], (tuple, list,)):
+        #    unnorm_reconstruct = []
+        #    for i, cdata in enumerate(reconstruct[layer]):
+        #        #print i,cdata.shape
+        #        unnorm_reconstruct.append( cdata * normlist[i])
+        #    unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+        #    beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+            r=loaded['rEnergy']#unnorm_reconstruct_val_Data
+            b=loaded['iEnergy']#beforenorm_val_Data
+            model_name='ae'
+            rings=0
+            for j in range(14):
+                for i in range(8): ###CODE 10
+                    if j> 10 and i>3:
+                        fig.delaxes(axs[i,j])
+                        continue
+                    #rings=int(str(i)+str(j))
+                    print i,j,rings
+                    #ax2 = axs[i,j].twinx()
+                    #try:
+                    axs[i,j].scatter(b[:,rings],r[:,rings],color='royalblue')
+                    #axs[i,j].get_yaxis().set_ticks([])
+                    #axs[i,j].grid()
+                    axs[i,j].set_title('#'+str(rings+1), color='b')
+                    #axs[i,j].set_ylabel('#'+str(rings+1), color='b')
+#                    at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nInput Energy \nMean: "+str(b[:,rings].mean())+"\nStd: "+str(b[:,rings].std())+"\nSkw: "+str(skew(b[:,rings]))+"\nKur: "+str(kurtosis(b[:,rings]))+"\n\nReconstructed Energy \nMean: "+str(r[:,rings].mean())+"\nStd: "+str(r[:,rings].std())+"\nSkw: "+str(skew(r[:,rings]))+"\nKur: "+str(kurtosis(r[:,rings])),
+#                                        prop=dict(size=8), frameon=True,
+#                                        loc='center left', 
+#                                        )
+#                    at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+#                    axs[i,j].add_artist(at)
+                    #except:
+                    #    print "Deu ruim no anel:"+str(rings+1)    
+                    rings+=1
+                    
+            plt.show()
+        #plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
+        #plt.clf()
+        #plt.close()
+        #png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
+    #return png_files
+
+def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
+    import matplotlib.pyplot as plt
+    import seaborn as sb
+
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    for layer in reconstruct.keys():
+        #print 'LAYER: '+str(layer)
+        #for nsort in reconstruct[layer].keys():
+        #print "Sort: "+str(nsort)
+        if isinstance(reconstruct[layer], (tuple, list,)):
+            unnorm_reconstruct = []
+            for i, cdata in enumerate(reconstruct[layer]):
+                #print i,cdata.shape
+                unnorm_reconstruct.append( cdata * normlist[i])
+            unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+            beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+            r=unnorm_reconstruct_val_Data
+            b=beforenorm_val_Data
+            #np.savez_compressed('/scratch/22061a/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
+            fig, axs = plt.subplots(8, 14, figsize=(60, 40))
+            rings=0
+            for j in range(14):
+                for i in range(8): ###CODE 10
+                    if j> 10 and i>3:
+                        fig.delaxes(axs[i,j])
+                        continue
+                    #rings=int(str(i)+str(j))
+                    #print i,j,rings
+                    #ax2 = axs[i,j].twinx()
+                    try:
+                        axs[i,j].scatter(b[:,rings],r[:,rings],color='royalblue')
+                        #axs[i,j].grid()
+                        #axs[i,j].set_title('Ring '+str(rings)+' - '+model_name)
+                        #axs[i,j].get_yaxis().set_ticks([])
+                        #rr = calc_MI2(b[:,rings],r[:,rings])
+                        #mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+                        axs[i,j].set_title('#'+str(rings+1), color='b')
+                        #axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
+                        #axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
+                        #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                        #                  prop=dict(size=8), frameon=True,
+                        #                  loc='center right',
+                        #                  )
+                        #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+                        #axs[i,j].add_artist(at)
+                    except:
+                        print "Deu ruim no anel:"+str(rings+1)
+                    rings+=1
+        plt.suptitle('Scatter - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+        plt.savefig(dirout+'/scatter_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
+        plt.clf()
+        plt.close()
+        png_files.append(dirout+'/scatter_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    return png_files
+
+def plot_mean_profile_separed(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+    import sqlite3
+    import pandas as pd
+    from numpy import nan
+    #%matplotlib inline
+    import matplotlib.pyplot as plt
+    plt.style.use('ggplot')
+    cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    classes=['Signal','Background']
+##TEM DOIS IDENTS QUE TEM QUE TIRAR. O DO FOR LAYER E O DO IF IS INSTANCES
+    for layer in reconstruct.keys():
+
+        #print 'LAYER: '+str(layer)
+        #for nsort in reconstruct[layer].keys():
+        #print "Sort: "+str(nsort)
+        if isinstance(reconstruct[layer], (tuple, list,)):
+            unnorm_reconstruct = []
+            for i, cdata in enumerate(reconstruct[layer]):
+                #print i,cdata.shape
+                unnorm_reconstruct.append( cdata * normlist[i])
+
+            dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+            dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+            #dfSignal.fillna(value=nan, inplace=True)
+            dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+            dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+            #dfBkg.fillna(value=nan, inplace=True)
+            sgn=dfSignal.values.astype(np.float32)
+            bkg=dfBkg.values.astype(np.float32)
+            
+            f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
+            ax1.errorbar(np.arange(100), np.mean(beforenorm[0], axis=0),yerr=np.std(beforenorm[0], axis=0), fmt='D-', color='cornflowerblue', label='Mean Profile')
+            ax1.errorbar(np.arange(100), np.mean(unnorm_reconstruct[0], axis=0),yerr=np.std(unnorm_reconstruct[0], axis=0), fmt='^-', color='darkblue', label='Mean Reconstructed Profile')
+
+            ax1.set_title(r'Signal Profile',fontsize= 20)
+            ax1.set_xlabel('#Rings', fontsize= 20)
+            ax1.set_ylabel('Energy [MeV]',fontsize= 20)
+            ax1.tick_params(labelsize= 15)
+            ax1.legend(loc='best', fontsize='xx-large')
+            ax12 = ax1.twinx()
+            ax12.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
+            ax12.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
+            ax12.set_ylim(top=1)
+            
+            ax2.errorbar(np.arange(100), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='ro-', label='Mean Profile')
+            ax2.errorbar(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),yerr=np.std(unnorm_reconstruct[1], axis=0), fmt='^-', color='darkred', label='Mean Reconstructed Profile') 
+            ax2.set_title(r'Background Patterns',fontsize= 20)
+            ax2.set_xlabel('#Rings', fontsize= 20)
+            ax2.set_ylabel('Energy [MeV]',fontsize= 20)
+            ax2.tick_params(labelsize= 15)
+            ax2.legend(loc='best', fontsize='xx-large')
+            ax22 = ax2.twinx()
+            ax22.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
+            ax22.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
+            ax22.set_ylim(top=1)
+            #plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
+
+            for i in [7, 71, 79, 87, 91, 95]:
+                ax1.axvline(i, color='gray', linestyle='--', linewidth=.8)
+                ax2.axvline(i, color='gray', linestyle='--', linewidth=.8)
+            
+            # if log_scale:
+                # y_position = .8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+            # else:
+                # y_position = .8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+
+            for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+                             (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+                            (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+                ax1.text(x,y,text, fontsize=15, rotation=90)
+                ax2.text(x,y,text, fontsize=15, rotation=90)
+            
+                plt.savefig('meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+            else:
+                plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+            #plt.show()

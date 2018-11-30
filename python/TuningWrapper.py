@@ -540,6 +540,66 @@ class TuningWrapper(Logger):
       self._model = model
       self._historyCallback.model = model
 
+  # def deepResnet(self, nodes,hidden_neurons,layers_weights,layers_config, funcTrans = NotSet):
+    # """
+      # Creates new feedforward neural network
+    # """
+    # self._debug('Initalizing newff...')
+    # if coreConf() is TuningToolCores.ExMachina:
+      # if funcTrans is NotSet: funcTrans = ['tanh', 'tanh']
+      # self._model = self._core.FeedForward(nodes, funcTrans, 'nw')
+    # elif coreConf() is TuningToolCores.FastNet:
+      # if funcTrans is NotSet: funcTrans = ['tansig', 'tansig']
+      # if not self._core.newff(nodes, funcTrans, self._core.trainFcn):
+        # self._fatal("Couldn't allocate new feed-forward!")
+    # elif coreConf() is TuningToolCores.keras:
+      # self._fine_tuning='yes'
+      # from keras.models import Sequential,Model
+      # from keras.layers.core import Dense, Dropout, Activation
+      # from keras.layers import Input
+      # from keras.activation import tanh
+      
+      # input1 = Input(shape=(100,))
+      # x1 = Dense(100,activation='relu')(input1)
+      # x2 = Dense(100,activation='relu')(x1)
+      # added = keras.layers.Add()([x2, input1])
+	  
+	  
+	  
+	  
+      # model = Model(inputs=[input1],outputs=added)
+
+  
+        
+ 
+ 
+  
+  
+  
+  
+        # last_hl = hidden_neurons[i_hn]
+      # model.add( Dense( last_hl
+                       # #, input_dim=nodes[0]
+                       # , init='identity'
+                       # , trainable=False
+                       # , name='dense_last_hl' ) )
+      # model.add( Activation('linear') )
+      # #model.add( Dense( nodes[1]
+      # #                , input_dim=nodes[0]
+      # #                , init='uniform'
+      # #                , name='dense_last_hl' ) )
+      # #model.add( Activation('tanh') )
+      # model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
+      # model.add( Activation('tanh') )
+      # model.compile( loss=self.trainOptions['costFunction']
+                   # , optimizer = self.trainOptions['optmin_alg']
+                   # , metrics = self.trainOptions['metrics'] )
+      # # #keras.callbacks.History()
+      # # #keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
+      # model.summary()
+      # self._model = model
+      # self._historyCallback.model = model
+
   def deepff2(self, nodes, funcTrans = NotSet):
     """
       Creates new feedforward neural network
