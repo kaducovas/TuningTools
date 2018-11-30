@@ -1404,14 +1404,14 @@ def plot_scatter():
                     #axs[i,j].set_ylabel('#'+str(rings+1), color='b')
 #                    at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nInput Energy \nMean: "+str(b[:,rings].mean())+"\nStd: "+str(b[:,rings].std())+"\nSkw: "+str(skew(b[:,rings]))+"\nKur: "+str(kurtosis(b[:,rings]))+"\n\nReconstructed Energy \nMean: "+str(r[:,rings].mean())+"\nStd: "+str(r[:,rings].std())+"\nSkw: "+str(skew(r[:,rings]))+"\nKur: "+str(kurtosis(r[:,rings])),
 #                                        prop=dict(size=8), frameon=True,
-#                                        loc='center left', 
+#                                        loc='center left',
 #                                        )
 #                    at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
 #                    axs[i,j].add_artist(at)
                     #except:
-                    #    print "Deu ruim no anel:"+str(rings+1)    
+                    #    print "Deu ruim no anel:"+str(rings+1)
                     rings+=1
-                    
+
             plt.show()
         #plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
         #plt.clf()
@@ -1512,7 +1512,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             #dfBkg.fillna(value=nan, inplace=True)
             sgn=dfSignal.values.astype(np.float32)
             bkg=dfBkg.values.astype(np.float32)
-            
+
             f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
             ax1.errorbar(np.arange(100), np.mean(beforenorm[0], axis=0),yerr=np.std(beforenorm[0], axis=0), fmt='D-', color='cornflowerblue', label='Mean Profile')
             ax1.errorbar(np.arange(100), np.mean(unnorm_reconstruct[0], axis=0),yerr=np.std(unnorm_reconstruct[0], axis=0), fmt='^-', color='darkblue', label='Mean Reconstructed Profile')
@@ -1526,9 +1526,9 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             ax12.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
             ax12.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
             ax12.set_ylim(top=1)
-            
+
             ax2.errorbar(np.arange(100), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='ro-', label='Mean Profile')
-            ax2.errorbar(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),yerr=np.std(unnorm_reconstruct[1], axis=0), fmt='^-', color='darkred', label='Mean Reconstructed Profile') 
+            ax2.errorbar(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),yerr=np.std(unnorm_reconstruct[1], axis=0), fmt='^-', color='darkred', label='Mean Reconstructed Profile')
             ax2.set_title(r'Background Patterns',fontsize= 20)
             ax2.set_xlabel('#Rings', fontsize= 20)
             ax2.set_ylabel('Energy [MeV]',fontsize= 20)
@@ -1543,18 +1543,18 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             for i in [7, 71, 79, 87, 91, 95]:
                 ax1.axvline(i, color='gray', linestyle='--', linewidth=.8)
                 ax2.axvline(i, color='gray', linestyle='--', linewidth=.8)
-            
-            # if log_scale:
-                # y_position = .8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
-            # else:
-                # y_position = .8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+            y_position=False
+            if log_scale:
+              y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+            else:
+              y_position = 0.98#.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
 
             for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
                              (76,y_position,r'EM2'),(80,y_position,r'EM3'),
                             (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
                 ax1.text(x,y,text, fontsize=15, rotation=90)
                 ax2.text(x,y,text, fontsize=15, rotation=90)
-            
+
             #    plt.savefig('meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
             #else:
             #    plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
