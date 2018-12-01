@@ -1527,7 +1527,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             ax12.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
             ax12.set_ylim(top=1)
 
-            ax2.errorbar(np.arange(100), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='o-',color='crimson' label='Mean Profile')
+            ax2.errorbar(np.arange(100), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='o-',color='crimson', label='Mean Profile')
             ax2.errorbar(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),yerr=np.std(unnorm_reconstruct[1], axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
             ax2.set_title(r'Background Patterns',fontsize= 20)
             ax2.set_xlabel('#Rings', fontsize= 20)
