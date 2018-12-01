@@ -1560,7 +1560,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             #    plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
             #plt.show()
             plt.suptitle('Energy Profile - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-            plt.savefig(dirout+'/energy_prof'+str(layer)+'_'+model_name+'_'+time+'.png')
+            plt.savefig(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
             plt.clf()
             plt.close()
             png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
