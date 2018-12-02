@@ -1083,7 +1083,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       for anel in range(100):
         #print anel
         try:
-          if measure == 'Normalized_MI'
+          if measure == 'Normalized_MI':
             rr = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
             score = np.sqrt(1. - np.exp(-2 * rr))
           elif measure == 'MI':
