@@ -1249,7 +1249,10 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             axs[i,j].get_yaxis().set_ticks([])
                             rr = calc_MI2(b[:,rings],r[:,rings])
                             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
-                            axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
+                            kl_score = calc_kl(b[:,rings],r[:,rings])
+                            chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+                            corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+                            axs[i,j].set_ylabel('#'+str(rings+1), color='b')
                             # at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
                         at = AnchoredText(r'Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(rr)+"\nCorrelation: "+str(corr_score)+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(chi_score),
                                               prop=dict(size=8), frameon=True,
