@@ -1044,7 +1044,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         ###print anel
         #print beforenorm_val_Data[:,anel].shape,unnorm_reconstruct_val_Data[:,anel].shape
         try:
-          if measure == 'Normalized_MI'
+          if measure == 'Normalized_MI':
             rr = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
             score = np.sqrt(1. - np.exp(-2 * rr))
           elif measure == 'MI':
@@ -1460,19 +1460,19 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   #dfBkg.fillna(value=nan, inplace=True)
 
   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
-  
+
   allClasses_MI=dfAll[dfAll.measure == 'MI'].values.astype(np.float32)
   sgn_MI=dfSignaldfAll[dfSignaldfAll.measure == 'MI'].values.astype(np.float32)
   bkg_MI=dfBkgdfAll[dfBkgdfAll.measure == 'MI'].values.astype(np.float32)
- 
+
   allClasses_Corr=dfAll[dfAll.measure == 'Correlation'].values.astype(np.float32)
   sgn_Corr=dfSignal[dfSignal.measure == 'Correlation'].values.astype(np.float32)
   bkg_Corr=dfBkg[dfBkg.measure == 'Correlation'].values.astype(np.float32)
-  
+
   allClasses_KL=dfAll[dfAll.measure == 'KLdiv'].values.astype(np.float32)
   sgn_KL=dfSignal[dfSignal.measure == 'KLdiv'].values.astype(np.float32)
   bkg_KL=dfBkg[dfBkg.measure == 'KLdiv'].values.astype(np.float32)
-  
+
   allClasses_Chi=dfAll[dfAll.measure == 'chiSquared'].values.astype(np.float32)
   sgn_Chi=dfSignal[dfSignal.measure == 'chiSquared'].values.astype(np.float32)
   bkg_Chi=dfBkg[dfBkg.measure == 'chiSquared'].values.astype(np.float32)
@@ -1482,9 +1482,9 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   #print 'bkg', bkg
 
   fig, ax = plt.subplots(2,2,figsize=(16,10))
-  
+
   ####MI
-  
+
   ax[0,0].errorbar(np.arange(100), np.mean(allClasses_MI, axis=0),yerr=np.std(allClasses_MI, axis=0), fmt='go-',color='green')
   ax[0,0].errorbar(np.arange(100), np.mean(sgn_MI, axis=0),yerr=np.std(sgn_MI, axis=0), fmt='D-', color='cornflowerblue')
   ax[0,0].errorbar(np.arange(100), np.mean(bkg_MI, axis=0),yerr=np.std(bkg_MI, axis=0), fmt='ro-')
@@ -1504,10 +1504,10 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[0,0].text(x,y,text, fontsize=15, rotation=90)  
+    ax[0,0].text(x,y,text, fontsize=15, rotation=90)
 
   ####Corr
-  
+
   ax[0,1].errorbar(np.arange(100), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
   ax[0,1].errorbar(np.arange(100), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
   ax[0,1].errorbar(np.arange(100), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
@@ -1527,10 +1527,10 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[0,1].text(x,y,text, fontsize=15, rotation=90)  
+    ax[0,1].text(x,y,text, fontsize=15, rotation=90)
 
   ####KLDiv
-  
+
   ax[1,0].errorbar(np.arange(100), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
   ax[1,0].errorbar(np.arange(100), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
   ax[1,0].errorbar(np.arange(100), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
@@ -1550,10 +1550,10 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[1,0].text(x,y,text, fontsize=15, rotation=90)  
+    ax[1,0].text(x,y,text, fontsize=15, rotation=90)
 
   ####ChiSquared
-  
+
   ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
   ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
   ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
@@ -1573,7 +1573,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[1,1].text(x,y,text, fontsize=15, rotation=90)  
+    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
 
   plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
   plt.savefig(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
