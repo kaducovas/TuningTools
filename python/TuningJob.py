@@ -1553,7 +1553,12 @@ class TuningJob(Logger):
 
             print 'RECONS',reconstruct.keys()
             time.sleep(int(20*int(sort)))
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target)
+            #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_MI')
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MI')
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='KLdiv')
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared')
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Correlation')
 
           ###self._info(hidden_neurons)
           #self._info(config)
@@ -1790,6 +1795,14 @@ class TuningJob(Logger):
           #if('AE' in str(ppChain.shortName())):
             for layer in reconstruct.keys():
               png_files=plot_input_reconstruction(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              for png_file in png_files:
+                png_f = open(png_file,'rb')
+                bot.sendPhoto('@ringer_tuning',png_f)
+
+          if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #if('AE' in str(ppChain.shortName())):
+            for layer in reconstruct.keys():
+              png_files=plot_input_reconstruction_diff_measures(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
               for png_file in png_files:
                 png_f = open(png_file,'rb')
                 bot.sendPhoto('@ringer_tuning',png_f)

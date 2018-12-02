@@ -42,6 +42,31 @@ def calc_MI2(x, y):
   mi = mutual_info_score(None, None, contingency=c_xy)
   return mi #,xaaa,yaaa,bins
 
+def calc_kl(x, y):
+    from scipy import stats
+    max_value = max(max(x),max(y))
+    min_value = min(min(x),min(y))
+    bins = min( len(np.histogram(x,'fd')[0]), len(np.histogram(y,'fd')[0]))
+    bins_list = np.linspace(min_value, max_value, num=bins)
+    p,phist_bins=np.histogram(x,bins_list)
+    q,qhist_bins=np.histogram(y,bins_list)
+    #print(len(p),len(q))
+    kl = stats.entropy(pk=p+0.00001, qk=q+0.00001)
+    return kl
+
+def calc_chisquare(x, y):
+    from scipy import stats
+    max_value = max(max(x),max(y))
+    min_value = min(min(x),min(y))
+    bins = min( len(np.histogram(x,'fd')[0]), len(np.histogram(y,'fd')[0]))
+    bins_list = np.linspace(min_value, max_value, num=bins)
+    p,phist_bins=np.histogram(x,bins_list)
+    q,qhist_bins=np.histogram(y,bins_list)
+    #print(len(p),len(q))
+    chi = stats.chisquare(q+0.00001, p+0.00001)
+    return chi
+
+
 def layer2number(x, y):
   return int(y.split('x')[1]) - int(x.split('x')[1])
 
@@ -870,9 +895,9 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   sgn=dfSignal.values.astype(np.float32)
   bkg=dfBkg.values.astype(np.float32)
 
-  print 'all',allClasses
-  print 'sgn', sgn
-  print 'bkg', bkg
+  #print 'all',allClasses
+  #print 'sgn', sgn
+  #print 'bkg', bkg
 
   plt.figure(figsize=(16,10))
   plt.errorbar(np.arange(100), np.mean(allClasses, axis=0),yerr=np.std(allClasses, axis=0), fmt='go-',color='green')
@@ -975,7 +1000,7 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
 
-def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,lstm_target=None):
+def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,lstm_target=None,measure='Normalized_MI'):
   #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
@@ -986,7 +1011,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   beforenorm = norm1Par[0]
   normlist = norm1Par[1]
   afternorm = norm1Par[2]
-
+  #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
   for layer in reconstruct.keys():
     print 'LAYER: '+str(layer)
   #for nsort in reconstruct[layer].keys():
@@ -1001,60 +1026,12 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
       ##ALL LABELS
 
-      # ##### Input Energy
-      # metrics['Class'] = 'All'
-      # metrics['Model'] = model_name
-      # metrics['Layer'] = str(layer)
-      # metrics['time'] = time
-      # metrics['Measure'] = 'Input_energy'
-      # #metrics['HL_Neuron'] = hl_neuron
-      # metrics['sort'] = sort
-      # metrics['etBinIdx'] = etBinIdx
-      # metrics['etaBinIdx'] = etaBinIdx
-      # metrics['phase'] = phase
-      # #metrics['Elapsed'] = elapsed
-      # #metrics['fine_tuning'] = fine_tuning
-
-      # for anel in range(100):
-        # try:
-          # metrics[str(anel+1)] = beforenorm_val_Data[:,anel]
-        # except:
-          # print 'Anel '+str(anel)+' apresenta erros de calculo'
-          # metrics[str(anel+1)] = None
-      # table.insert(metrics)
-
-      # metrics = OrderedDict()
-
-      # ##### Reconstructed Energy
-      # metrics['Class'] = 'All'
-      # metrics['Model'] = model_name
-      # metrics['Layer'] = str(layer)
-      # metrics['time'] = time
-      # metrics['Measure'] = 'Reconstructed_energy'
-      # #metrics['HL_Neuron'] = hl_neuron
-      # metrics['sort'] = sort
-      # metrics['etBinIdx'] = etBinIdx
-      # metrics['etaBinIdx'] = etaBinIdx
-      # metrics['phase'] = phase
-      # #metrics['Elapsed'] = elapsed
-      # #metrics['fine_tuning'] = fine_tuning
-
-      # for anel in range(100):
-        # try:
-          # metrics[str(anel+1)] = unnorm_reconstruct_val_Data[:,anel]
-        # except:
-          # print 'Anel '+str(anel)+' apresenta erros de calculo'
-          # metrics[str(anel+1)] = None
-      # table.insert(metrics)
-
-      # metrics = OrderedDict()
-
       ##### MI/KL
       metrics['Class'] = 'All'
       metrics['Model'] = model_name
       metrics['Layer'] = str(layer)
       metrics['time'] = time
-      metrics['Measure'] = 'Normalized_MI'
+      metrics['Measure'] = measure
       #metrics['HL_Neuron'] = hl_neuron
       metrics['sort'] = sort
       metrics['etBinIdx'] = etBinIdx
@@ -1067,12 +1044,18 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         ###print anel
         #print beforenorm_val_Data[:,anel].shape,unnorm_reconstruct_val_Data[:,anel].shape
         try:
-          rr = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
-          #pdf = drv.information_mutual(rr)[0][1]
-          mi_score = np.sqrt(1. - np.exp(-2 * rr))
-          #print mi_score
-          #kl_tot_sort[nsort] = pdf
-          metrics[str(anel+1)] = mi_score
+          if measure == 'Normalized_MI'
+            rr = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+            score = np.sqrt(1. - np.exp(-2 * rr))
+          elif measure == 'MI':
+            score = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+          elif measure == 'KLdiv':
+            score = calc_kl(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+          elif measure == 'chiSquared':
+            score,chi_pvalue =calc_chisquare(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+          elif measure == 'Correlation':
+            score,corr_pvalue= scipy.stats.pearsonr(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+          metrics[str(anel+1)] = score
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo'
           metrics[str(anel+1)] = None
@@ -1082,60 +1065,12 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       print "SIGNAL"
       #SIGNAL
 
-      # ##### Input Energy
-      # metrics['Class'] = 'Signal'
-      # metrics['Model'] = model_name
-      # metrics['Layer'] = str(layer)
-      # metrics['time'] = time
-      # metrics['Measure'] = 'Input_energy'
-      # #metrics['HL_Neuron'] = hl_neuron
-      # metrics['sort'] = sort
-      # metrics['etBinIdx'] = etBinIdx
-      # metrics['etaBinIdx'] = etaBinIdx
-      # metrics['phase'] = phase
-      # #metrics['Elapsed'] = elapsed
-      # #metrics['fine_tuning'] = fine_tuning
-
-      # for anel in range(100):
-        # try:
-          # metrics[str(anel+1)] = beforenorm[0][:,anel]
-        # except:
-          # print 'Anel '+str(anel)+' apresenta erros de calculo'
-          # metrics[str(anel+1)] = None
-      # table.insert(metrics)
-
-      # metrics = OrderedDict()
-
-      # ##### Reconstructed Energy
-      # metrics['Class'] = 'Signal'
-      # metrics['Model'] = model_name
-      # metrics['Layer'] = str(layer)
-      # metrics['time'] = time
-      # metrics['Measure'] = 'Reconstructed_energy'
-      # #metrics['HL_Neuron'] = hl_neuron
-      # metrics['sort'] = sort
-      # metrics['etBinIdx'] = etBinIdx
-      # metrics['etaBinIdx'] = etaBinIdx
-      # metrics['phase'] = phase
-      # #metrics['Elapsed'] = elapsed
-      # #metrics['fine_tuning'] = fine_tuning
-
-      # for anel in range(100):
-        # try:
-          # metrics[str(anel+1)] = unnorm_reconstruct[0][:,anel]
-        # except:
-          # print 'Anel '+str(anel)+' apresenta erros de calculo'
-          # metrics[str(anel+1)] = None
-      # table.insert(metrics)
-
-      # metrics = OrderedDict()
-
       ##### MI/KL
       metrics['Class'] = 'Signal'
       metrics['Model'] = model_name
       metrics['Layer'] = str(layer)
       metrics['time'] = time
-      metrics['Measure'] = 'Normalized_MI'
+      metrics['Measure'] = measure
       #metrics['HL_Neuron'] = hl_neuron
       metrics['sort'] = sort
       metrics['etBinIdx'] = etBinIdx
@@ -1148,11 +1083,18 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       for anel in range(100):
         #print anel
         try:
-          rr = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
-          #pdf = drv.information_mutual(rr)[0][1]
-          mi_score = np.sqrt(1. - np.exp(-2 * rr))
-          #kl_tot_sort[nsort] = pdf
-          metrics[str(anel+1)] = mi_score
+          if measure == 'Normalized_MI'
+            rr = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+            score = np.sqrt(1. - np.exp(-2 * rr))
+          elif measure == 'MI':
+            score = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+          elif measure == 'KLdiv':
+            score = calc_kl(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+          elif measure == 'chiSquared':
+            score,chi_pvalue =calc_chisquare(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+          elif measure == 'Correlation':
+            score,corr_pvalue= scipy.stats.pearsonr(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+          metrics[str(anel+1)] = score
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
@@ -1162,60 +1104,12 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       print "BACKGROUND"
       #BACKGROUND
 
-      # ##### Input Energy
-      # metrics['Class'] = 'Background'
-      # metrics['Model'] = model_name
-      # metrics['Layer'] = str(layer)
-      # metrics['time'] = time
-      # metrics['Measure'] = 'Input_energy'
-      # #metrics['HL_Neuron'] = hl_neuron
-      # metrics['sort'] = sort
-      # metrics['etBinIdx'] = etBinIdx
-      # metrics['etaBinIdx'] = etaBinIdx
-      # metrics['phase'] = phase
-      # #metrics['Elapsed'] = elapsed
-      # #metrics['fine_tuning'] = fine_tuning
-
-      # for anel in range(100):
-        # try:
-          # metrics[str(anel+1)] = beforenorm[1][:,anel]
-        # except:
-          # print 'Anel '+str(anel)+' apresenta erros de calculo'
-          # metrics[str(anel+1)] = None
-      # table.insert(metrics)
-
-      # metrics = OrderedDict()
-
-      # ##### Reconstructed Energy
-      # metrics['Class'] = 'Background'
-      # metrics['Model'] = model_name
-      # metrics['Layer'] = str(layer)
-      # metrics['time'] = time
-      # metrics['Measure'] = 'Reconstructed_energy'
-      # #metrics['HL_Neuron'] = hl_neuron
-      # metrics['sort'] = sort
-      # metrics['etBinIdx'] = etBinIdx
-      # metrics['etaBinIdx'] = etaBinIdx
-      # metrics['phase'] = phase
-      # #metrics['Elapsed'] = elapsed
-      # #metrics['fine_tuning'] = fine_tuning
-
-      # for anel in range(100):
-        # try:
-          # metrics[str(anel+1)] = unnorm_reconstruct[1][:,anel]
-        # except:
-          # print 'Anel '+str(anel)+' apresenta erros de calculo'
-          # metrics[str(anel+1)] = None
-      # table.insert(metrics)
-
-      # metrics = OrderedDict()
-
       ##### MI/KL
       metrics['Class'] = 'Background'
       metrics['Model'] = model_name
       metrics['Layer'] = str(layer)
       metrics['time'] = time
-      metrics['Measure'] = 'Normalized_MI'
+      metrics['Measure'] = measure
       #metrics['HL_Neuron'] = hl_neuron
       metrics['sort'] = sort
       metrics['etBinIdx'] = etBinIdx
@@ -1226,11 +1120,18 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 
       for anel in range(100):
         try:
-          rr = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
-          #pdf = drv.information_mutual(rr)[0][1]
-          mi_score = np.sqrt(1. - np.exp(-2 * rr))
-          #kl_tot_sort[nsort] = pdf
-          metrics[str(anel+1)] = mi_score
+          if measure == 'Normalized_MI'
+            rr = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+            score = np.sqrt(1. - np.exp(-2 * rr))
+          elif measure == 'MI':
+            score = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+          elif measure == 'KLdiv':
+            score = calc_kl(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+          elif measure == 'chiSquared':
+            score,chi_pvalue =calc_chisquare(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+          elif measure == 'Correlation':
+            score,corr_pvalue= scipy.stats.pearsonr(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+          metrics[str(anel+1)] = score
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
@@ -1283,8 +1184,11 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         axs[i,j].get_yaxis().set_ticks([])
                         rr = calc_MI2(b[:,rings],r[:,rings])
                         mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
-                        axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
-                        at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                        kl_score = calc_kl(b[:,rings],r[:,rings])
+                        chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+                        corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+                        axs[i,j].set_ylabel('#'+str(rings+1), color='b')
+                        at = AnchoredText(r'Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(rr)+"\nCorrelation: "+str(corr_score)+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(chi_score),
                                           prop=dict(size=8), frameon=True,
                                           loc='center right',
                                           )
@@ -1346,7 +1250,8 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             rr = calc_MI2(b[:,rings],r[:,rings])
                             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
                             axs[i,j].set_ylabel('#'+str(rings+1)+' MI: '+str(mi_score), color='b')
-                            at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                            # at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+                        at = AnchoredText(r'Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(rr)+"\nCorrelation: "+str(corr_score)+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(chi_score),
                                               prop=dict(size=8), frameon=True,
                                               loc='center right',
                                               )
@@ -1361,63 +1266,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
             plt.close()
             png_files.append(dirout+'/pdf_'+className+'_'+str(layer)+'_'+model_name+'_'+time+'.png')
     print len(png_files)
-    return png_files
-
-def plot_scatter():
-    import matplotlib.pyplot as plt
-    import seaborn as sb
-    fig, axs = plt.subplots(8, 14, figsize=(60, 40))
-    #beforenorm = norm1Par[0]
-    #normlist = norm1Par[1]
-    #afternorm = norm1Par[2]
-    #png_files=[]
-    #ax2 = axs.twinx()
-
-    for layer in ['100x90']:#reconstruct.keys():
-        #print 'LAYER: '+str(layer)
-        #for nsort in reconstruct[layer].keys():
-        #print "Sort: "+str(nsort)
-        #if isinstance(reconstruct[layer], (tuple, list,)):
-        #    unnorm_reconstruct = []
-        #    for i, cdata in enumerate(reconstruct[layer]):
-        #        #print i,cdata.shape
-        #        unnorm_reconstruct.append( cdata * normlist[i])
-        #    unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
-        #    beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
-            r=loaded['rEnergy']#unnorm_reconstruct_val_Data
-            b=loaded['iEnergy']#beforenorm_val_Data
-            model_name='ae'
-            rings=0
-            for j in range(14):
-                for i in range(8): ###CODE 10
-                    if j> 10 and i>3:
-                        fig.delaxes(axs[i,j])
-                        continue
-                    #rings=int(str(i)+str(j))
-                    print i,j,rings
-                    #ax2 = axs[i,j].twinx()
-                    #try:
-                    axs[i,j].scatter(b[:,rings],r[:,rings],color='royalblue')
-                    #axs[i,j].get_yaxis().set_ticks([])
-                    #axs[i,j].grid()
-                    axs[i,j].set_title('#'+str(rings+1), color='b')
-                    #axs[i,j].set_ylabel('#'+str(rings+1), color='b')
-#                    at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\nLH Medium\nInput Energy \nMean: "+str(b[:,rings].mean())+"\nStd: "+str(b[:,rings].std())+"\nSkw: "+str(skew(b[:,rings]))+"\nKur: "+str(kurtosis(b[:,rings]))+"\n\nReconstructed Energy \nMean: "+str(r[:,rings].mean())+"\nStd: "+str(r[:,rings].std())+"\nSkw: "+str(skew(r[:,rings]))+"\nKur: "+str(kurtosis(r[:,rings])),
-#                                        prop=dict(size=8), frameon=True,
-#                                        loc='center left',
-#                                        )
-#                    at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-#                    axs[i,j].add_artist(at)
-                    #except:
-                    #    print "Deu ruim no anel:"+str(rings+1)
-                    rings+=1
-
-            plt.show()
-        #plt.savefig(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
-        #plt.clf()
-        #plt.close()
-        #png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
-    #return png_files
+    return png_file
 
 def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
@@ -1504,10 +1353,10 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             #print i,cdata.shape
             unnorm_reconstruct.append( cdata * normlist[i])
 
-    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfSignal.fillna(value=nan, inplace=True)
-    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfBkg.fillna(value=nan, inplace=True)
     sgn=dfSignal.values.astype(np.float32)
@@ -1524,7 +1373,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     ax1.legend(loc='best', fontsize='xx-large')
     ax12 = ax1.twinx()
     ax12.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
-    ax12.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
+    ax12.set_ylabel('KL Divergence', fontsize='xx-large')
     ax12.set_ylim(top=1)
 
     ax2.errorbar(np.arange(100), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='o-',color='crimson', label='Mean Profile')
@@ -1536,7 +1385,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     ax2.legend(loc='best', fontsize='xx-large')
     ax22 = ax2.twinx()
     ax22.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
-    ax22.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
+    ax22.set_ylabel('KL Divergence', fontsize='xx-large')
     ax22.set_ylim(top=1)
     #plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
 
@@ -1565,3 +1414,170 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     plt.close()
     png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
+
+def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+  import sqlite3
+  import pandas as pd
+  from numpy import nan
+  #%matplotlib inline
+  import matplotlib.pyplot as plt
+  png_files=[]
+
+  plt.style.use('ggplot')
+  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+  # Et and Eta indices
+  et_index  = [0, 1, 2,3]
+  etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+
+  eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+  etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+
+  #et_index  = [1,2]
+  #etRange = ['[20, 30]']
+
+  #eta_index = [1,2]
+  #etaRange = ['[0.6, 0.8]']
+
+  #for iet, etrange in zip(et_index, etRange):
+  #  for ieta, etarange in zip(eta_index, etaRange):
+  iet =  etBinIdx
+  etrange = etRange[etBinIdx]
+  ieta = etaBinIdx
+  etarange = etaRange[etaBinIdx]
+      #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+      #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfAll.fillna(value=nan, inplace=True)
+
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  #dfSignal.fillna(value=nan, inplace=True)
+
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  #dfBkg.fillna(value=nan, inplace=True)
+
+  #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+  
+  allClasses_MI=dfAll[dfAll.measure == 'MI'].values.astype(np.float32)
+  sgn_MI=dfSignaldfAll[dfSignaldfAll.measure == 'MI'].values.astype(np.float32)
+  bkg_MI=dfBkgdfAll[dfBkgdfAll.measure == 'MI'].values.astype(np.float32)
+ 
+  allClasses_Corr=dfAll[dfAll.measure == 'Correlation'].values.astype(np.float32)
+  sgn_Corr=dfSignal[dfSignal.measure == 'Correlation'].values.astype(np.float32)
+  bkg_Corr=dfBkg[dfBkg.measure == 'Correlation'].values.astype(np.float32)
+  
+  allClasses_KL=dfAll[dfAll.measure == 'KLdiv'].values.astype(np.float32)
+  sgn_KL=dfSignal[dfSignal.measure == 'KLdiv'].values.astype(np.float32)
+  bkg_KL=dfBkg[dfBkg.measure == 'KLdiv'].values.astype(np.float32)
+  
+  allClasses_Chi=dfAll[dfAll.measure == 'chiSquared'].values.astype(np.float32)
+  sgn_Chi=dfSignal[dfSignal.measure == 'chiSquared'].values.astype(np.float32)
+  bkg_Chi=dfBkg[dfBkg.measure == 'chiSquared'].values.astype(np.float32)
+
+  #print 'all',allClasses
+  #print 'sgn', sgn
+  #print 'bkg', bkg
+
+  fig, ax = plt.subplots(2,2,figsize=(16,10))
+  
+  ####MI
+  
+  ax[0,0].errorbar(np.arange(100), np.mean(allClasses_MI, axis=0),yerr=np.std(allClasses_MI, axis=0), fmt='go-',color='green')
+  ax[0,0].errorbar(np.arange(100), np.mean(sgn_MI, axis=0),yerr=np.std(sgn_MI, axis=0), fmt='D-', color='cornflowerblue')
+  ax[0,0].errorbar(np.arange(100), np.mean(bkg_MI, axis=0),yerr=np.std(bkg_MI, axis=0), fmt='ro-')
+  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  for i in [7, 71, 79, 87, 91, 95]:
+    ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  ax[0,0].set_title(r'MI Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
+  ax[0,0].set_xlabel('#Rings', fontsize='xx-large')
+  plt.set_ylabel('Mutual Information', fontsize='xx-large')
+  #ax[0,0].ylim(ymax=1)
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = .9*np.max([np.mean(sgn_MI, axis=0), np.mean(bkg_MI, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    ax[0,0].text(x,y,text, fontsize=15, rotation=90)  
+
+  ####Corr
+  
+  ax[0,1].errorbar(np.arange(100), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
+  ax[0,1].errorbar(np.arange(100), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
+  ax[0,1].errorbar(np.arange(100), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
+  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  for i in [7, 71, 79, 87, 91, 95]:
+    ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  ax[0,1].set_title(r'Correlation Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
+  ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
+  plt.set_ylabel('Pearson s Correlation Coefficient', fontsize='xx-large')
+  #ax[0,0].ylim(ymax=1)
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = .9*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    ax[0,1].text(x,y,text, fontsize=15, rotation=90)  
+
+  ####KLDiv
+  
+  ax[1,0].errorbar(np.arange(100), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
+  ax[1,0].errorbar(np.arange(100), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
+  ax[1,0].errorbar(np.arange(100), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
+  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  for i in [7, 71, 79, 87, 91, 95]:
+    ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  ax[1,0].set_title(r'KL Divergence Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
+  ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
+  plt.set_ylabel('KL Divergence', fontsize='xx-large')
+  #ax[0,0].ylim(ymax=1)
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = .9*np.max([np.mean(sgn_KL, axis=0), np.mean(bkg_KL, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    ax[1,0].text(x,y,text, fontsize=15, rotation=90)  
+
+  ####ChiSquared
+  
+  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
+  ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
+  ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
+  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  for i in [7, 71, 79, 87, 91, 95]:
+    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  ax[1,1].set_title(r'Chi Squared Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
+  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+  plt.set_ylabel('Chi Squared', fontsize='xx-large')
+  #ax[0,0].ylim(ymax=1)
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = .9*np.max([np.mean(sgn_Chi, axis=0), np.mean(bkg_Chi, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    ax[1,1].text(x,y,text, fontsize=15, rotation=90)  
+
+  plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+  plt.savefig(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
+  plt.clf()
+  plt.close()
+  ng_files.append(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
+  return png_files
