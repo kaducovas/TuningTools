@@ -83,7 +83,7 @@ class NeuralClassificationTrnParams(TrnParams):
                  batch_size=4,
                  hidden_activation='tanh',
                  output_activation='linear',
-                 metrics=['kullback_leibler_divergence'],
+                 metrics=['mean_squared_error'], #['kullback_leibler_divergence'],
                  loss='mean_squared_error',
                  optmizerAlgorithm='Adam'
                 ):
@@ -108,7 +108,7 @@ class NeuralClassificationTrnParams(TrnParams):
         self.params['hidden_activation'] = hidden_activation
         self.params['output_activation'] = output_activation
         self.params['metrics'] = metrics
-        self.params['loss'] = kullback_leibler_divergence
+        self.params['loss'] = 'kullback_leibler_divergence'
         self.params['optmizerAlgorithm'] = optmizerAlgorithm
 
     def get_params_str(self):
