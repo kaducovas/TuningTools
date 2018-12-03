@@ -83,7 +83,7 @@ class NeuralClassificationTrnParams(TrnParams):
                  batch_size=4,
                  hidden_activation='tanh',
                  output_activation='linear',
-                 metrics=['mean_squared_error'], #['kullback_leibler_divergence'],
+                 metrics=['kullback_leibler_divergence'],
                  loss='mean_squared_error',
                  optmizerAlgorithm='Adam'
                 ):
