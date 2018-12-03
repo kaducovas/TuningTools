@@ -1457,36 +1457,60 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   etarange = etaRange[etaBinIdx]
       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+  #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
-  #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+  allClasses_MI=dfAll.values.astype(np.float32)
+  sgn_MI=dfSignal.values.astype(np.float32)
+  bkg_MI=dfBkg.values.astype(np.float32)
 
-  allClasses_MI=dfAll[dfAll.Measure == 'MI'].values.astype(np.float32)
-  sgn_MI=dfSignaldfAll[dfSignaldfAll.Measure == 'MI'].values.astype(np.float32)
-  bkg_MI=dfBkgdfAll[dfBkgdfAll.Measure == 'MI'].values.astype(np.float32)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfAll.fillna(value=nan, inplace=True)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  #dfSignal.fillna(value=nan, inplace=True)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
-  allClasses_Corr=dfAll[dfAll.Measure == 'Correlation'].values.astype(np.float32)
-  sgn_Corr=dfSignal[dfSignal.Measure == 'Correlation'].values.astype(np.float32)
-  bkg_Corr=dfBkg[dfBkg.Measure == 'Correlation'].values.astype(np.float32)
+  allClasses_Corr=dfAll.values.astype(np.float32)
+  sgn_Corr=dfSignal.values.astype(np.float32)
+  bkg_Corr=dfBkg.values.astype(np.float32)
 
-  allClasses_KL=dfAll[dfAll.Measure == 'KLdiv'].values.astype(np.float32)
-  sgn_KL=dfSignal[dfSignal.Measure == 'KLdiv'].values.astype(np.float32)
-  bkg_KL=dfBkg[dfBkg.Measure == 'KLdiv'].values.astype(np.float32)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfAll.fillna(value=nan, inplace=True)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  #dfSignal.fillna(value=nan, inplace=True)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
-  allClasses_Chi=dfAll[dfAll.Measure == 'chiSquared'].values.astype(np.float32)
-  sgn_Chi=dfSignal[dfSignal.Measure == 'chiSquared'].values.astype(np.float32)
-  bkg_Chi=dfBkg[dfBkg.Measure == 'chiSquared'].values.astype(np.float32)
+  allClasses_KL=dfAll.values.astype(np.float32)
+  sgn_KL=dfSignal.values.astype(np.float32)
+  bkg_KL=dfBkg.values.astype(np.float32)
+
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfAll.fillna(value=nan, inplace=True)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  #dfSignal.fillna(value=nan, inplace=True)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+
+  allClasses_Chi=dfAll.values.astype(np.float32)
+  sgn_Chi=dfSignal.values.astype(np.float32)
+  bkg_Chi=dfBkg.values.astype(np.float32)
 
   #print 'all',allClasses
   #print 'sgn', sgn
