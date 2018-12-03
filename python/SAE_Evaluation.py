@@ -1196,7 +1196,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
                         corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
                         axs[i,j].set_ylabel('#'+str(rings+1), color='b')
-                        at = AnchoredText(r'Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(round(100*corr_score,4))+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(round(chi_score,4)),
+                        at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(round(100*corr_score,4))+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(round(chi_score,4)),
                                           prop=dict(size=8), frameon=True,
                                           loc='center right',
                                           )
@@ -1262,7 +1262,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
                             axs[i,j].set_ylabel('#'+str(rings+1), color='b')
                             #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
-                            at = AnchoredText(r'Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(round(chi_score,4)),
+                            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(round(chi_score,4)),
                                               prop=dict(size=8), frameon=True,
                                               loc='center right',
                                               )
@@ -1426,6 +1426,94 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
+def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+    import sqlite3
+    import pandas as pd
+    from numpy import nan
+    #%matplotlib inline
+    import matplotlib.pyplot as plt
+    plt.style.use('ggplot')
+    cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    classes=['Signal','Background']
+##TEM DOIS IDENTS QUE TEM QUE TIRAR. O DO FOR LAYER E O DO IF IS INSTANCES
+    #for a in reconstruct.keys():
+
+    #print 'LAYER: '+str(layer)
+    #for nsort in reconstruct[layer].keys():
+    #print "Sort: "+str(nsort)
+    if isinstance(reconstruct[layer], (tuple, list,)):
+        unnorm_reconstruct = []
+        for i, cdata in enumerate(reconstruct[layer]):
+            #print i,cdata.shape
+            unnorm_reconstruct.append( cdata * normlist[i])
+
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+    #dfSignal.fillna(value=nan, inplace=True)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+    #dfBkg.fillna(value=nan, inplace=True)
+    sgn=dfSignal.values.astype(np.float32)
+    bkg=dfBkg.values.astype(np.float32)
+
+    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
+    ax1.plot(np.arange(100), np.mean(beforenorm[0], axis=0), fmt='D-', color='crimson', label='Mean Profile')
+    ax1.plot(np.arange(100), np.mean(unnorm_reconstruct[0], axis=0),fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+
+    ax1.set_title(r'Signal Profile',fontsize= 20)
+    ax1.set_xlabel('#Rings', fontsize= 20)
+    ax1.set_ylabel('Energy [MeV]',fontsize= 20)
+    ax1.tick_params(labelsize= 15)
+    ax1.legend(loc='best', fontsize='xx-large')
+    ax12 = ax1.twinx()
+    ax12.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
+    ax12.set_ylabel('KL Divergence', fontsize='xx-large')
+    #ax12.set_ylim(top=1)
+
+    ax2.plot(np.arange(100), np.mean(beforenorm[1], axis=0),fmt='o-',color='crimson', label='Mean Profile')
+    ax2.plot(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax2.set_title(r'Background Patterns',fontsize= 20)
+    ax2.set_xlabel('#Rings', fontsize= 20)
+    ax2.set_ylabel('Energy [MeV]',fontsize= 20)
+    ax2.tick_params(labelsize= 15)
+    ax2.legend(loc='best', fontsize='xx-large')
+    ax22 = ax2.twinx()
+    ax22.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
+    ax22.set_ylabel('KL Divergence', fontsize='xx-large')
+    #ax22.set_ylim(top=1)
+    #plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
+
+    for i in [7, 71, 79, 87, 91, 95]:
+        ax1.axvline(i, color='gray', linestyle='--', linewidth=.8)
+        ax2.axvline(i, color='gray', linestyle='--', linewidth=.8)
+    #log_scale=False
+    #if log_scale:
+    #  y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+    #else:
+    y_position = 0.98 #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+
+    for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+                      (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+                    (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+        ax1.text(x,y,text, fontsize=15, rotation=90)
+        ax2.text(x,y,text, fontsize=15, rotation=90)
+
+    #    plt.savefig('meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+    #else:
+    #    plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+    #plt.show()
+    plt.suptitle('Energy Profile - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+    plt.savefig(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    plt.clf()
+    plt.close()
+    png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    return png_files
+
 def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
   import sqlite3
   import pandas as pd
@@ -1548,7 +1636,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
   else:
-    y_position = .9*np.max([np.mean(sgn_NMI, axis=0), np.mean(bkg_NMI, axis=0)])
+    y_position = .9 #*np.max([np.mean(sgn_NMI, axis=0), np.mean(bkg_NMI, axis=0)])
 
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
@@ -1571,7 +1659,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
   else:
-    y_position = .9*np.max([np.mean(sgn_MI, axis=0), np.mean(bkg_MI, axis=0)])
+    y_position = 3 #.9*np.max([np.mean(sgn_MI, axis=0), np.mean(bkg_MI, axis=0)])
 
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
@@ -1594,7 +1682,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
   else:
-    y_position = .9*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)])
+    y_position = .9 #*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)])
 
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
