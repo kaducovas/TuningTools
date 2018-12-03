@@ -1462,8 +1462,8 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     bkg=dfBkg.values.astype(np.float32)
 
     f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
-    ax1.plot(np.arange(100), np.mean(beforenorm[0], axis=0), fmt='D-', color='crimson', label='Mean Profile')
-    ax1.plot(np.arange(100), np.mean(unnorm_reconstruct[0], axis=0),fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax1.plot(np.arange(100), np.mean(beforenorm[0], axis=0), marker='D-', color='crimson', label='Mean Profile')
+    ax1.plot(np.arange(100), np.mean(unnorm_reconstruct[0], axis=0),marker='^-', color='deepskyblue', label='Mean Reconstructed Profile')
 
     ax1.set_title(r'Signal Profile',fontsize= 20)
     ax1.set_xlabel('#Rings', fontsize= 20)
@@ -1475,8 +1475,8 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     ax12.set_ylabel('KL Divergence', fontsize='xx-large')
     #ax12.set_ylim(top=1)
 
-    ax2.plot(np.arange(100), np.mean(beforenorm[1], axis=0),fmt='o-',color='crimson', label='Mean Profile')
-    ax2.plot(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax2.plot(np.arange(100), np.mean(beforenorm[1], axis=0),marker='o-',color='crimson', label='Mean Profile')
+    ax2.plot(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),marker='^-', color='deepskyblue', label='Mean Reconstructed Profile')
     ax2.set_title(r'Background Patterns',fontsize= 20)
     ax2.set_xlabel('#Rings', fontsize= 20)
     ax2.set_ylabel('Energy [MeV]',fontsize= 20)
