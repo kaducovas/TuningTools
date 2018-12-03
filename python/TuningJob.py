@@ -1796,6 +1796,12 @@ class TuningJob(Logger):
             confMatrix_png_f = open(confMatrix_png_file,'rb')
             bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
 
+
+          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          for roc_png_file in roc_png_files:
+            roc_png_f = open(roc_png_file,'rb')
+            bot.sendPhoto('@ringer_tuning',roc_png_f)
+
           if('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           #if('AE' in str(ppChain.shortName())):
             for layer in reconstruct.keys():
@@ -1862,10 +1868,6 @@ class TuningJob(Logger):
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
-          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          for roc_png_file in roc_png_files:
-            roc_png_f = open(roc_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',roc_png_f)
 
           #time.sleep(20)
 
