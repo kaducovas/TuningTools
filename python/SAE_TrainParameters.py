@@ -7,8 +7,10 @@ import numpy as np
 from sklearn.externals import joblib
 from sklearn import model_selection
 from sklearn.model_selection import StratifiedKFold
-from TuningTools.MetricsLosses import kullback_leibler_divergence
+#from TuningTools.MetricsLosses import kullback_leibler_divergence
+from keras.losses import kullback_leibler_divergence
 from TuningTools.MetricsLosses import contractive_loss
+
 class TrnParams(object):
     """
         Basic class
@@ -106,7 +108,7 @@ class NeuralClassificationTrnParams(TrnParams):
         self.params['hidden_activation'] = hidden_activation
         self.params['output_activation'] = output_activation
         self.params['metrics'] = metrics
-        self.params['loss'] = loss
+        self.params['loss'] = kullback_leibler_divergence
         self.params['optmizerAlgorithm'] = optmizerAlgorithm
 
     def get_params_str(self):
