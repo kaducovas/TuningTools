@@ -108,7 +108,7 @@ class NeuralClassificationTrnParams(TrnParams):
         self.params['hidden_activation'] = hidden_activation
         self.params['output_activation'] = output_activation
         self.params['metrics'] = metrics
-        self.params['loss'] = 'categorical_crossentropy_loss'
+        self.params['loss'] = loss
         self.params['optmizerAlgorithm'] = optmizerAlgorithm
 
     def get_params_str(self):
