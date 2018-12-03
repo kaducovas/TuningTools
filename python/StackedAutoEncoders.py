@@ -28,6 +28,7 @@ from keras import backend as K
 from keras import regularizers
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.MetricsLosses import kullback_leibler_divergence, contractive_loss
+from keras.losses import kullback_leibler_divergence
 import keras.losses
 #keras.losses.custom_loss = contractive_loss
 import keras.backend as K
@@ -377,7 +378,7 @@ class StackedAutoEncoders:
               usedloss=contractive_loss
             else:
               usedloss=self.lossFunction
-            model.compile(loss=usedloss, #self.lossFunction,
+            model.compile(loss= kullback_leibler_divergence, #usedloss, #self.lossFunction,
                           optimizer=self.optmizer,
                           metrics=self.trn_params.params['metrics'])
 
