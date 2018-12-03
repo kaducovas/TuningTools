@@ -1004,6 +1004,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
+  import math
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
   #print point.sp_value
   table = db['reconstruction_metrics']
@@ -1055,7 +1056,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
             score,chi_pvalue =calc_chisquare(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
-          if score == nan:
+          if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
           print score
@@ -1097,7 +1098,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
             score,chi_pvalue =calc_chisquare(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
-          if score == nan:
+          if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
         except:
@@ -1136,7 +1137,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
             score,chi_pvalue =calc_chisquare(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
-          if score == nan:
+          if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
         except:
