@@ -1523,13 +1523,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   ax[0,0].errorbar(np.arange(100), np.mean(allClasses_MI, axis=0),yerr=np.std(allClasses_MI, axis=0), fmt='go-',color='green')
   ax[0,0].errorbar(np.arange(100), np.mean(sgn_MI, axis=0),yerr=np.std(sgn_MI, axis=0), fmt='D-', color='cornflowerblue')
   ax[0,0].errorbar(np.arange(100), np.mean(bkg_MI, axis=0),yerr=np.std(bkg_MI, axis=0), fmt='ro-')
-  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
   ax[0,0].set_title(r'MI Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
   ax[0,0].set_xlabel('#Rings', fontsize='xx-large')
-  plt.set_ylabel('Mutual Information', fontsize='xx-large')
+  ax[0,0].set_ylabel('Mutual Information', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
@@ -1546,13 +1546,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   ax[0,1].errorbar(np.arange(100), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
   ax[0,1].errorbar(np.arange(100), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
   ax[0,1].errorbar(np.arange(100), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
-  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
   ax[0,1].set_title(r'Correlation Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
   ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
-  plt.set_ylabel('Pearson s Correlation Coefficient', fontsize='xx-large')
+  ax[0,1].set_ylabel('Pearson s Correlation Coefficient', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
@@ -1569,13 +1569,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   ax[1,0].errorbar(np.arange(100), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
   ax[1,0].errorbar(np.arange(100), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
   ax[1,0].errorbar(np.arange(100), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
-  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
   ax[1,0].set_title(r'KL Divergence Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
   ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
-  plt.set_ylabel('KL Divergence', fontsize='xx-large')
+  ax[1,0].set_ylabel('KL Divergence', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
@@ -1592,13 +1592,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
   ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
   ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
-  plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
   ax[1,1].set_title(r'Chi Squared Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
   ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
-  plt.set_ylabel('Chi Squared', fontsize='xx-large')
+  ax[1,1].set_ylabel('Chi Squared', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
@@ -1614,5 +1614,5 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   plt.savefig(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
   plt.clf()
   plt.close()
-  ng_files.append(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
+  png_files.append(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
   return png_files
