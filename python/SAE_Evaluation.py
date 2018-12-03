@@ -1745,7 +1745,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   return png_files
 
 def mutualInformation_matrix(signal,measure='MI',sklearn=True,kde=False, n_bins=None):
-    from statsmodels.sandbox.distributions.mv_measures import mutualinfo_kde, mutualinfo_binned
+    #from statsmodels.sandbox.distributions.mv_measures import mutualinfo_kde, mutualinfo_binned
     print signal.shape
     cols,rows = signal.shape
     mat = np.zeros((rows, rows))
