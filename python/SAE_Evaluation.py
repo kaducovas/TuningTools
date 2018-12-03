@@ -1459,6 +1459,20 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
 
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  dfAll.fillna(value=nan, inplace=True)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  #dfSignal.fillna(value=nan, inplace=True)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  #dfBkg.fillna(value=nan, inplace=True)
+
+  allClasses_NMI=dfAll.values.astype(np.float32)
+  sgn_NMI=dfSignal.values.astype(np.float32)
+  bkg_NMI=dfBkg.values.astype(np.float32)
+
   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
@@ -1518,18 +1532,41 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 
   fig, ax = plt.subplots(2,2,figsize=(16,10))
 
-  ####MI
+  ####Normalized MI
 
-  ax[0,0].errorbar(np.arange(100), np.mean(allClasses_MI, axis=0),yerr=np.std(allClasses_MI, axis=0), fmt='go-',color='green')
-  ax[0,0].errorbar(np.arange(100), np.mean(sgn_MI, axis=0),yerr=np.std(sgn_MI, axis=0), fmt='D-', color='cornflowerblue')
-  ax[0,0].errorbar(np.arange(100), np.mean(bkg_MI, axis=0),yerr=np.std(bkg_MI, axis=0), fmt='ro-')
-  ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  ax[0,0].errorbar(np.arange(100), np.mean(allClasses_NMI, axis=0),yerr=np.std(allClasses_NMI, axis=0), fmt='go-',color='green')
+  ax[0,0].errorbar(np.arange(100), np.mean(sgn_NMI, axis=0),yerr=np.std(sgn_NMI, axis=0), fmt='D-', color='cornflowerblue')
+  ax[0,0].errorbar(np.arange(100), np.mean(bkg_NMI, axis=0),yerr=np.std(bkg_NMI, axis=0), fmt='ro-')
+  ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
-  ax[0,0].set_title(r'MI Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
+  ax[0,0].set_title(r'Normalized Mutual Information',fontsize= 20)
   ax[0,0].set_xlabel('#Rings', fontsize='xx-large')
-  ax[0,0].set_ylabel('Mutual Information', fontsize='xx-large')
+  ax[0,0].set_ylabel('Normalized Mutual Information', fontsize='xx-large')
+  #ax[0,0].ylim(ymax=1)
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = .9*np.max([np.mean(sgn_NMI, axis=0), np.mean(bkg_NMI, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    ax[0,0].text(x,y,text, fontsize=15, rotation=90)
+
+  ####MI
+
+  ax[0,1].errorbar(np.arange(100), np.mean(allClasses_MI, axis=0),yerr=np.std(allClasses_MI, axis=0), fmt='go-',color='green')
+  ax[0,1].errorbar(np.arange(100), np.mean(sgn_MI, axis=0),yerr=np.std(sgn_MI, axis=0), fmt='D-', color='cornflowerblue')
+  ax[0,1].errorbar(np.arange(100), np.mean(bkg_MI, axis=0),yerr=np.std(bkg_MI, axis=0), fmt='ro-')
+  ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+  for i in [7, 71, 79, 87, 91, 95]:
+    ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  ax[0,1].set_title(r'Mutual Information',fontsize= 20)
+  ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
+  ax[0,1].set_ylabel('Mutual Information', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
@@ -1539,20 +1576,20 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[0,0].text(x,y,text, fontsize=15, rotation=90)
+    ax[0,1].text(x,y,text, fontsize=15, rotation=90)
 
   ####Corr
 
-  ax[0,1].errorbar(np.arange(100), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
-  ax[0,1].errorbar(np.arange(100), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
-  ax[0,1].errorbar(np.arange(100), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
-  ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  ax[1,0].errorbar(np.arange(100), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
+  ax[1,0].errorbar(np.arange(100), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
+  ax[1,0].errorbar(np.arange(100), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
+  ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
-    ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+    ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
-  ax[0,1].set_title(r'Correlation Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
-  ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
-  ax[0,1].set_ylabel('Pearson s Correlation Coefficient', fontsize='xx-large')
+  ax[1,0].set_title(r'Pearson s Correlation Coefficient',fontsize= 20)
+  ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
+  ax[1,0].set_ylabel('Correlation Coefficient', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
@@ -1562,20 +1599,20 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[0,1].text(x,y,text, fontsize=15, rotation=90)
+    ax[1,0].text(x,y,text, fontsize=15, rotation=90)
 
   ####KLDiv
 
-  ax[1,0].errorbar(np.arange(100), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
-  ax[1,0].errorbar(np.arange(100), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
-  ax[1,0].errorbar(np.arange(100), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
-  ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
+  ax[1,1].errorbar(np.arange(100), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
+  ax[1,1].errorbar(np.arange(100), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
+  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
-    ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
-  ax[1,0].set_title(r'KL Divergence Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
-  ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
-  ax[1,0].set_ylabel('KL Divergence', fontsize='xx-large')
+  ax[1,1].set_title(r'Kullback-Leibler Divergence',fontsize= 20)
+  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+  ax[1,1].set_ylabel('KL Divergence', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
@@ -1585,32 +1622,32 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[1,0].text(x,y,text, fontsize=15, rotation=90)
+    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
 
   ####ChiSquared
 
-  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
-  ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
-  ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
-  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
-  for i in [7, 71, 79, 87, 91, 95]:
-    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+#  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
+#  ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
+#  ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
+#  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+#  for i in [7, 71, 79, 87, 91, 95]:
+#    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
-  ax[1,1].set_title(r'Chi Squared Input X Reconstruction '+model_name+' - Layer '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange),fontsize= 20)
-  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
-  ax[1,1].set_ylabel('Chi Squared', fontsize='xx-large')
-  #ax[0,0].ylim(ymax=1)
-  if log_scale:
-    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
-  else:
-    y_position = .9*np.max([np.mean(sgn_Chi, axis=0), np.mean(bkg_Chi, axis=0)])
+#  ax[1,1].set_title(r'Chi Squared',fontsize= 20)
+#  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+#  ax[1,1].set_ylabel('Chi Squared', fontsize='xx-large')
+#  #ax[0,0].ylim(ymax=1)
+#  if log_scale:
+#    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+#  else:
+#    y_position = .9*np.max([np.mean(sgn_Chi, axis=0), np.mean(bkg_Chi, axis=0)])
+#
+#  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+#           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+#          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+#    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
 
-  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
-           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
-          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
-    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
-
-  plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
+  plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange), fontsize=24)
   plt.savefig(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
   plt.clf()
   plt.close()
