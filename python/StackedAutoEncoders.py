@@ -378,7 +378,7 @@ class StackedAutoEncoders:
               usedloss=contractive_loss
             else:
               usedloss=self.lossFunction
-            model.compile(loss= kullback_leibler_divergence, #usedloss, #self.lossFunction,
+            model.compile(loss='categorical_crossentropy', #usedloss, #self.lossFunction,
                           optimizer=self.optmizer,
                           metrics=self.trn_params.params['metrics'])
 
