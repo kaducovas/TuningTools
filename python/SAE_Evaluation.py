@@ -1055,10 +1055,10 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
             score,chi_pvalue =calc_chisquare(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
-          if score == nan
+          if score == 'nan'
             score = None
           metrics[str(anel+1)] = score
-          #print score
+          print score
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo'
           metrics[str(anel+1)] = None
@@ -1097,7 +1097,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
             score,chi_pvalue =calc_chisquare(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
-          if score == nan
+          if score == 'nan'
             score = None
           metrics[str(anel+1)] = score
         except:
@@ -1136,7 +1136,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
             score,chi_pvalue =calc_chisquare(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
-          if score == nan
+          if score == 'nan'
             score = None
           metrics[str(anel+1)] = score
         except:
