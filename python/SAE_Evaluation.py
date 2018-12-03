@@ -1785,7 +1785,7 @@ def mutualInformation_matrix(signal,measure='MI',sklearn=True,kde=False, n_bins=
                     n_bins = min(p_bins, q_bins)
 
                 #mi = mutualinfo_binned(p, q, n_bins)[0]
-                
+
                 fx, binsx = np.histogram(p, bins = p_bins)
                 fy, binsy = np.histogram(q, bins = q_bins)
                 fyx, binsy, binsx = np.histogram2d(q, p, bins = (binsy, binsx))
@@ -1812,7 +1812,7 @@ def mutualInformation_matrix(signal,measure='MI',sklearn=True,kde=False, n_bins=
 
 def plot_MutualInformation(mixtures=None,reconstruction=None,measure='MI',sae=None,plot_corr=False , KDE = False, nbins = None):
     import seaborn as sb
-    
+
     if reconstruction is None:
         if plot_corr:
             fig, axs = plt.subplots(1,2, figsize=(40, 18))
@@ -1822,7 +1822,7 @@ def plot_MutualInformation(mixtures=None,reconstruction=None,measure='MI',sae=No
         if plot_corr:
             fig, axs = plt.subplots(2,2, figsize=(36, 18))
         else:
-            fig, axs = plt.subplots(1,2, figsize=(40, 18))    
+            fig, axs = plt.subplots(1,2, figsize=(40, 18))
 
     if measure == 'KL':
         mat = mutualInformation_matrix(mixtures,measure='KL')
@@ -1850,7 +1850,7 @@ def plot_MutualInformation(mixtures=None,reconstruction=None,measure='MI',sae=No
 
             sb.heatmap(np.abs(np.corrcoef(mixtures.T)), annot=False, cmap = 'YlOrRd', ax = axs[0,1], vmin = 0, vmax =  1)
             axs[0,1].set_title('Signal Abs Correlation matrix')
-            
+
             sb.heatmap(mutualInformation_matrix(reconstruction,measure=measure, kde=KDE, n_bins = nbins), ax=axs[1,0], annot=False, cmap = 'YlGnBu',  vmin = minval, vmax = maxval)
             axs[1,0].set_title('Reconstruction Mutual Information')
 
@@ -1860,13 +1860,13 @@ def plot_MutualInformation(mixtures=None,reconstruction=None,measure='MI',sae=No
         else:
             sb.heatmap(mutualInformation_matrix(mixtures,measure=measure, kde=KDE, n_bins = nbins),ax=axs[0] , annot=False, cmap = 'YlGnBu',  vmin = minval, vmax = maxval)
             axs[0].set_title('Signal Mutual Information')
-            
+
             sb.heatmap(mutualInformation_matrix(reconstruction,measure=measure, kde=KDE, n_bins = nbins),ax=axs[1] , annot=False, cmap = 'YlGnBu',  vmin = minval, vmax = maxval)
             axs[1].set_title('Reconstruction Mutual Information')
- 
+
     return fig
 
-def plot_measures_2d(norm1Par=None,reconstruct=None,model_name="",layer=layer,time=None,sort=None,etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+def plot_measures_2d(norm1Par=None,reconstruct=None,model_name="",layer=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
 
