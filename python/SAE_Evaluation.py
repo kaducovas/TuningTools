@@ -1472,21 +1472,21 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 
   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
 
-  allClasses_MI=dfAll[dfAll.measure == 'MI'].values.astype(np.float32)
-  sgn_MI=dfSignaldfAll[dfSignaldfAll.measure == 'MI'].values.astype(np.float32)
-  bkg_MI=dfBkgdfAll[dfBkgdfAll.measure == 'MI'].values.astype(np.float32)
+  allClasses_MI=dfAll[dfAll.Measure == 'MI'].values.astype(np.float32)
+  sgn_MI=dfSignaldfAll[dfSignaldfAll.Measure == 'MI'].values.astype(np.float32)
+  bkg_MI=dfBkgdfAll[dfBkgdfAll.Measure == 'MI'].values.astype(np.float32)
 
-  allClasses_Corr=dfAll[dfAll.measure == 'Correlation'].values.astype(np.float32)
-  sgn_Corr=dfSignal[dfSignal.measure == 'Correlation'].values.astype(np.float32)
-  bkg_Corr=dfBkg[dfBkg.measure == 'Correlation'].values.astype(np.float32)
+  allClasses_Corr=dfAll[dfAll.Measure == 'Correlation'].values.astype(np.float32)
+  sgn_Corr=dfSignal[dfSignal.Measure == 'Correlation'].values.astype(np.float32)
+  bkg_Corr=dfBkg[dfBkg.Measure == 'Correlation'].values.astype(np.float32)
 
-  allClasses_KL=dfAll[dfAll.measure == 'KLdiv'].values.astype(np.float32)
-  sgn_KL=dfSignal[dfSignal.measure == 'KLdiv'].values.astype(np.float32)
-  bkg_KL=dfBkg[dfBkg.measure == 'KLdiv'].values.astype(np.float32)
+  allClasses_KL=dfAll[dfAll.Measure == 'KLdiv'].values.astype(np.float32)
+  sgn_KL=dfSignal[dfSignal.Measure == 'KLdiv'].values.astype(np.float32)
+  bkg_KL=dfBkg[dfBkg.Measure == 'KLdiv'].values.astype(np.float32)
 
-  allClasses_Chi=dfAll[dfAll.measure == 'chiSquared'].values.astype(np.float32)
-  sgn_Chi=dfSignal[dfSignal.measure == 'chiSquared'].values.astype(np.float32)
-  bkg_Chi=dfBkg[dfBkg.measure == 'chiSquared'].values.astype(np.float32)
+  allClasses_Chi=dfAll[dfAll.Measure == 'chiSquared'].values.astype(np.float32)
+  sgn_Chi=dfSignal[dfSignal.Measure == 'chiSquared'].values.astype(np.float32)
+  bkg_Chi=dfBkg[dfBkg.Measure == 'chiSquared'].values.astype(np.float32)
 
   #print 'all',allClasses
   #print 'sgn', sgn
