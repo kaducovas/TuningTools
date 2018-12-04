@@ -1896,3 +1896,132 @@ def plot_measures_2d(norm1Par=None,reconstruct=None,model_name="",layer=None,tim
     #plt.close()
     png_files.append(dirout+'/matrix2d_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
+
+def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/'):
+
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    #for layer in reconstruct.keys():
+        #print 'LAYER: '+str(layer)
+        #for nsort in reconstruct[layer].keys():
+        #print "Sort: "+str(nsort)
+    if isinstance(reconstruct[layer], (tuple, list,)):
+        unnorm_reconstruct = []
+        for i, cdata in enumerate(reconstruct[layer]):
+            #print i,cdata.shape
+            unnorm_reconstruct.append( cdata * normlist[i])
+        unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+        beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+        
+    ###All Classes
+    r=unnorm_reconstruct_val_Data
+    b=beforenorm_val_Data
+
+    diroutAllclasses = dirout+model_name+'/'+time+'/allClasses/'
+    if not os.path.exists(diroutAllclasses):
+        print 'Creating output folder AllClasses...'
+        os.makedirs(diroutAllclasses)
+    fig, ax = plt.subplots(figsize=(16,10))
+    for rings in range(b.shape[1]):
+        rr = calc_MI2(b[:,rings],r[:,rings])
+        mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+        kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
+        chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+        corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+        at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+        #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+        prop=dict(size=12), frameon=True,
+        loc='center right',
+        )
+        at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+        ax.add_artist(at)
+        
+        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
+        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
+        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        plt.title(r'Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        plt.xlabel('Energy [MeV]', fontsize=20)
+        plt.tick_params(labelsize = 15)
+        plt.legend(loc='best', fontsize='medium')
+        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+        plt.savefig(diroutAllclasses+'/'+'hist_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings))
+        plt.clf()
+        plt.close()
+
+    ###Signal
+    r=unnorm_reconstruct[0]
+    b=beforenorm[0]
+
+    diroutSignal = dirout+model_name+'/'+time+'/Signal/'
+    if not os.path.exists(diroutSignal):
+        print 'Creating output folder Signal...'
+        os.makedirs(diroutSignal)
+    fig, ax = plt.subplots(figsize=(16,10))
+    for rings in range(b.shape[1]):
+        rr = calc_MI2(b[:,rings],r[:,rings])
+        mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+        kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
+        chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+        corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+        at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+        #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+        prop=dict(size=12), frameon=True,
+        loc='center right',
+        )
+        at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+        ax.add_artist(at)
+        
+        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
+        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
+        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        plt.title(r'Signal - Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        plt.xlabel('Energy [MeV]', fontsize=20)
+        plt.tick_params(labelsize = 15)
+        plt.legend(loc='best', fontsize='medium')
+        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+        plt.savefig(diroutSignal+'/'+'hist_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings))
+        plt.clf()
+        plt.close()
+
+    ###Background
+    r=unnorm_reconstruct[1]
+    b=beforenorm[1]
+
+    diroutBackground = dirout+model_name+'/'+time+'/Background/'
+    if not os.path.exists(diroutBackground):
+        print 'Creating output folder Background...'
+        os.makedirs(diroutBackground)
+    fig, ax = plt.subplots(figsize=(16,10))
+    for rings in range(b.shape[1]):
+        rr = calc_MI2(b[:,rings],r[:,rings])
+        mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+        kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
+        chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+        corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+        at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+        #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+        prop=dict(size=12), frameon=True,
+        loc='center right',
+        )
+        at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+        ax.add_artist(at)
+        
+        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
+        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
+        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        plt.title(r'Background - Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        plt.xlabel('Energy [MeV]', fontsize=20)
+        plt.tick_params(labelsize = 15)
+        plt.legend(loc='best', fontsize='medium')
+        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+        plt.savefig(diroutBackground+'/'+'hist_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings))
+        plt.clf()
+        plt.close()
+
+    return None
