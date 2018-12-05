@@ -1003,9 +1003,9 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   #print 'bkg', bkg
 
   plt.figure(figsize=(16,10))
-  plt.errorbar(np.arange(100), np.mean(allClasses, axis=0),yerr=np.std(allClasses, axis=0), fmt='go-',color='green')
-  plt.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='D-', color='cornflowerblue')
-  plt.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='ro-')
+  plt.errorbar(np.arange(allClasses.shape[1]), np.mean(allClasses, axis=0),yerr=np.std(allClasses, axis=0), fmt='go-',color='green')
+  plt.errorbar(np.arange(allClasses.shape[1]), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='D-', color='cornflowerblue')
+  plt.errorbar(np.arange(allClasses.shape[1]), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='ro-')
   #print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
   #print np.mean(sgn,axis=0),np.std(sgn,axis=0)
   #print np.mean(bkg,axis=0),np.std(bkg,axis=0)
@@ -1510,8 +1510,8 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     bkg=dfBkg.values.astype(np.float32)
 
     f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
-    ax1.errorbar(np.arange(100), np.mean(beforenorm[0], axis=0),yerr=np.std(beforenorm[0], axis=0), fmt='D-', color='crimson', label='Mean Profile')
-    ax1.errorbar(np.arange(100), np.mean(unnorm_reconstruct[0], axis=0),yerr=np.std(unnorm_reconstruct[0], axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax1.errorbar(np.arange(beforenorm[0].shape[1]), np.mean(beforenorm[0], axis=0),yerr=np.std(beforenorm[0], axis=0), fmt='D-', color='crimson', label='Mean Profile')
+    ax1.errorbar(np.arange(unnorm_reconstruct[0].shape[1]), np.mean(unnorm_reconstruct[0], axis=0),yerr=np.std(unnorm_reconstruct[0], axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
 
     ax1.set_title(r'Signal Profile',fontsize= 20)
     ax1.set_xlabel('#Rings', fontsize= 20)
@@ -1519,19 +1519,19 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     ax1.tick_params(labelsize= 15)
     ax1.legend(loc='best', fontsize='xx-large')
     ax12 = ax1.twinx()
-    ax12.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
+    ax12.errorbar(np.arange(sgn.shape[1]), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
     ax12.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
     #ax12.set_ylim(top=1)
 
-    ax2.errorbar(np.arange(100), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='o-',color='crimson', label='Mean Profile')
-    ax2.errorbar(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),yerr=np.std(unnorm_reconstruct[1], axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax2.errorbar(np.arange(beforenorm[1].shape[1]), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='o-',color='crimson', label='Mean Profile')
+    ax2.errorbar(np.arange(unnorm_reconstruct[1].shape[1]), np.mean(unnorm_reconstruct[1], axis=0),yerr=np.std(unnorm_reconstruct[1], axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
     ax2.set_title(r'Background Patterns',fontsize= 20)
     ax2.set_xlabel('#Rings', fontsize= 20)
     ax2.set_ylabel('Energy [MeV]',fontsize= 20)
     ax2.tick_params(labelsize= 15)
     ax2.legend(loc='best', fontsize='xx-large')
     ax22 = ax2.twinx()
-    ax22.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
+    ax22.errorbar(np.arange(bkg.shape[1]), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
     ax22.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
     #ax22.set_ylim(top=1)
     #plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
@@ -1598,8 +1598,8 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     bkg=dfBkg.values.astype(np.float32)
 
     f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
-    ax1.plot(np.arange(100), np.mean(beforenorm[0], axis=0), marker='<', color='crimson', label='Mean Profile')
-    ax1.plot(np.arange(100), np.mean(unnorm_reconstruct[0], axis=0),marker='>', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax1.plot(np.arange(beforenorm[0].shape[1]), np.mean(beforenorm[0], axis=0), marker='<', color='crimson', label='Mean Profile')
+    ax1.plot(np.arange(unnorm_reconstruct[0].shape[1]), np.mean(unnorm_reconstruct[0], axis=0),marker='>', color='deepskyblue', label='Mean Reconstructed Profile')
 
     ax1.set_title(r'Signal Profile',fontsize= 20)
     ax1.set_xlabel('#Rings', fontsize= 20)
@@ -1607,19 +1607,19 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     ax1.tick_params(labelsize= 15)
     ax1.legend(loc='best', fontsize='xx-large')
     ax12 = ax1.twinx()
-    ax12.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
+    ax12.errorbar(np.arange(sgn.shape[1]), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
     ax12.set_ylabel('KL Divergence', fontsize='xx-large')
     #ax12.set_ylim(top=1)
 
-    ax2.plot(np.arange(100), np.mean(beforenorm[1], axis=0),marker='<',color='crimson', label='Mean Profile')
-    ax2.plot(np.arange(100), np.mean(unnorm_reconstruct[1], axis=0),marker='>', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax2.plot(np.arange(beforenorm[1].shape[1]), np.mean(beforenorm[1], axis=0),marker='<',color='crimson', label='Mean Profile')
+    ax2.plot(np.arange(unnorm_reconstruct[1].shape[1]), np.mean(unnorm_reconstruct[1], axis=0),marker='>', color='deepskyblue', label='Mean Reconstructed Profile')
     ax2.set_title(r'Background Patterns',fontsize= 20)
     ax2.set_xlabel('#Rings', fontsize= 20)
     ax2.set_ylabel('Energy [MeV]',fontsize= 20)
     ax2.tick_params(labelsize= 15)
     ax2.legend(loc='best', fontsize='xx-large')
     ax22 = ax2.twinx()
-    ax22.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
+    ax22.errorbar(np.arange(bkg.shape[1]), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
     ax22.set_ylabel('KL Divergence', fontsize='xx-large')
     #ax22.set_ylim(top=1)
     #plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
@@ -1775,9 +1775,9 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 
   ####Normalized MI
 
-  ax[0,0].errorbar(np.arange(100), np.mean(allClasses_NMI, axis=0),yerr=np.std(allClasses_NMI, axis=0), fmt='go-',color='green')
-  ax[0,0].errorbar(np.arange(100), np.mean(sgn_NMI, axis=0),yerr=np.std(sgn_NMI, axis=0), fmt='D-', color='cornflowerblue')
-  ax[0,0].errorbar(np.arange(100), np.mean(bkg_NMI, axis=0),yerr=np.std(bkg_NMI, axis=0), fmt='ro-')
+  ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_NMI, axis=0),yerr=np.std(allClasses_NMI, axis=0), fmt='go-',color='green')
+  ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_NMI, axis=0),yerr=np.std(sgn_NMI, axis=0), fmt='D-', color='cornflowerblue')
+  ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_NMI, axis=0),yerr=np.std(bkg_NMI, axis=0), fmt='ro-')
   ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
@@ -1798,9 +1798,9 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 
   ####MI
 
-  ax[0,1].errorbar(np.arange(100), np.mean(allClasses_MSE, axis=0),yerr=np.std(allClasses_MSE, axis=0), fmt='go-',color='green')
-  ax[0,1].errorbar(np.arange(100), np.mean(sgn_MSE, axis=0),yerr=np.std(sgn_MSE, axis=0), fmt='D-', color='cornflowerblue')
-  ax[0,1].errorbar(np.arange(100), np.mean(bkg_MSE, axis=0),yerr=np.std(bkg_MSE, axis=0), fmt='ro-')
+  ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_MSE, axis=0),yerr=np.std(allClasses_MSE, axis=0), fmt='go-',color='green')
+  ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_MSE, axis=0),yerr=np.std(sgn_MSE, axis=0), fmt='D-', color='cornflowerblue')
+  ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_MSE, axis=0),yerr=np.std(bkg_MSE, axis=0), fmt='ro-')
   ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
@@ -1821,9 +1821,9 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 
   ####Corr
 
-  ax[1,0].errorbar(np.arange(100), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
-  ax[1,0].errorbar(np.arange(100), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
-  ax[1,0].errorbar(np.arange(100), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
+  ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
+  ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
+  ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
   ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
@@ -1844,9 +1844,9 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 
   ####KLDiv
 
-  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
-  ax[1,1].errorbar(np.arange(100), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
-  ax[1,1].errorbar(np.arange(100), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
+  ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
+  ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
+  ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
   ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
