@@ -980,8 +980,8 @@ class StackedAutoEncoder( PrepObj ):
     em1ae=True
     if em1ae:
       data = [d[:,14:72] for d in data]
-      val_Data = [d[:,14:72] for d in val_Data]  
-  
+      val_Data = [d[:,14:72] for d in val_Data]
+
     self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
     self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
 
@@ -2037,13 +2037,13 @@ class PreProcChain ( Logger ):
     emcalo = False
     hadcalo = False
     em1ae = True
-      
+
     for pp in self:
       if pp.shortName() == 'N1':
         ##starts
         if em1ae:
           norm1Par.append([d[:,14:72] for d in pp._beforenorm])
-          norm1Par.append([d[:,14:72] for d in pp._normslist])
+          norm1Par.append(pp._normslist)
           norm1Par.append([d[:,14:72] for d in pp._afternorm])
         else:
           norm1Par.append(pp._beforenorm)
