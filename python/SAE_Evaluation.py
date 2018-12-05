@@ -1222,7 +1222,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(input[0][:,anel],reconstructed[0][:,anel])
           elif measure == 'MSE':
-            score= mean_squared_error(input[0][:,anel],reconstructed[0][:,anel])
+            score= float(mean_squared_error(input[0][:,anel],reconstructed[0][:,anel]))
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
@@ -1264,7 +1264,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(input[1][:,anel],reconstructed[1][:,anel])
           elif measure == 'MSE':
-            score= mean_squared_error(input[1][:,anel],reconstructed[1][:,anel])
+            score= float(mean_squared_error(input[1][:,anel],reconstructed[1][:,anel]))
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
