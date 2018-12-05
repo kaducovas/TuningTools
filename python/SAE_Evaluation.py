@@ -945,8 +945,8 @@ def getCode(fname,norm1Par,sort):
       #print predict[0].shape,predict[1].shape
   return code
   #if K.backend() == 'tensorflow':
-  #    K.clear_session()  
-  
+  #    K.clear_session()
+
 def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
   import sqlite3
   import pandas as pd
@@ -1132,7 +1132,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 
       reconstruct_val_Data = np.concatenate( reconstruct[layer], axis=0 )
       afternorm_val_Data = np.concatenate( afternorm, axis=0 )
-  
+
       if Normed:
         input_val_Data=afternorm_val_Data
         reconstruct_val_Data=reconstruct_val_Data
@@ -1143,7 +1143,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         reconstruct_val_Data=unnorm_reconstruct_val_Data
         input=beforenorm
         reconstructed=unnorm_reconstruct
-  
+
       ##ALL LABELS
 
       ##### MI/KL
@@ -1177,7 +1177,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           elif measure == 'Correlation':
             score,corr_pvalue= scipy.stats.pearsonr(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
           elif measure == 'MSE':
-            score= mean_squared_error(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
+            score= float(mean_squared_error(input_val_Data[:,anel],reconstruct_val_Data[:,anel]))
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
@@ -2097,7 +2097,7 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
             unnorm_reconstruct.append( cdata * normlist[i])
         unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
         beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
-        
+
     ###All Classes
     r=unnorm_reconstruct_val_Data
     b=beforenorm_val_Data
@@ -2163,7 +2163,7 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
             ax.add_artist(at)
         except:
             print "Error on ring: "+str(rings+1)
-        
+
         plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
         plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
         plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
@@ -2203,7 +2203,7 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
             ax.add_artist(at)
         except:
             print "Error on ring: "+str(rings+1)
-        
+
         plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
         plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
         plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
