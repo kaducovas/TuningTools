@@ -1894,7 +1894,8 @@ class TuningJob(Logger):
             #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys()
             make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
-            bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
+            #bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
+            print 'Finished Plotting RIngs Histogram Input X Reconstruction'
 
           #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
