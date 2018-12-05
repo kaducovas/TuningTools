@@ -73,61 +73,61 @@ class NLPCA():
         nlpca_extractor = {}
         trn_desc = {}
         
-        for inlpca in [n_nlpcas]: #range(1,train_info['n_nlpcas']+1):
-            best_init = 0
-            best_loss = 999
+        #for inlpca in [n_nlpcas]: #range(1,train_info['n_nlpcas']+1):
+        best_init = 0
+        best_loss = 999
                 
-            for i_init in range(train_info['n_inits']):
-                print ('Fold: %i of %i - NLPCA: %i of %i - Init: %i of %i'
-                       %(sort+1, train_info['n_folds'],
-                         inlpca, train_info['n_nlpcas'],
-                         i_init+1,train_info['n_inits']))
-                model = Sequential()
-                model.add(Dense(all_data.shape[1],
-                                input_dim=all_data.shape[1], 
-                                init='identity',trainable=False))
-                model.add(Activation('linear'))
-                model.add(Dense(n_neurons_mapping, input_dim=all_data.shape[1], init='uniform'))
-                model.add(Activation('tanh'))
-                model.add(Dense(inlpca+1,init='uniform'))
-                model.add(Activation('tanh'))
-                model.add(Dense(n_neurons_mapping,init='uniform'))
-                model.add(Activation('tanh'))
-                model.add(Dense(all_data.shape[1],init='uniform'))
-                model.add(Activation('linear'))
+        for i_init in range(train_info['n_inits']):
+            print ('Fold: %i of %i - NLPCA: %i of %i - Init: %i of %i'
+                   %(sort+1, train_info['n_folds'],
+                     inlpca, train_info['n_nlpcas'],
+                     i_init+1,train_info['n_inits']))
+            model = Sequential()
+            # model.add(Dense(all_data.shape[1],
+                            # input_dim=all_data.shape[1], 
+                            # init='identity',trainable=False))
+            # model.add(Activation('linear'))
+            model.add(Dense(n_neurons_mapping, input_dim=data.shape[1], init='uniform'))
+            model.add(Activation('tanh'))
+            model.add(Dense(inlpca,init='uniform'))
+            model.add(Activation('tanh'))
+            model.add(Dense(n_neurons_mapping,init='uniform'))
+            model.add(Activation('tanh'))
+            model.add(Dense(data.shape[1],init='uniform'))
+            model.add(Activation('linear'))
                  
-                sgd = SGD(lr=train_info['learning_rate'], 
-                          decay=train_info['learning_decay'], 
-                          momentum=train_info['momentum'], 
-                          nesterov=train_info['nesterov'])
-                model.compile(loss='mean_squared_error', 
-                              optimizer=sgd,
-                              metrics=['mean_squared_error'])
+            sgd = SGD(lr=train_info['learning_rate'], 
+                      decay=train_info['learning_decay'], 
+                      momentum=train_info['momentum'], 
+                      nesterov=train_info['nesterov'])
+            model.compile(loss='mean_squared_error', 
+                          optimizer=sgd,
+                          metrics=['mean_squared_error'])
                 
-                earlyStopping = callbacks.EarlyStopping(monitor='val_loss', 
-                                                        patience=10,
-                                                        verbose=0, 
-                                                        mode='auto')
-                # Train model
-                init_trn_desc = model.fit(data, data, 
-                                          nb_epoch=train_info['n_epochs'], 
-                                          batch_size=train_info['batch_size'],
-                                          callbacks=[earlyStopping], 
-                                          verbose=train_info['train_verbose'],
-                                          validation_data=(trgt,
-                                                           trgt),
-                                          shuffle=True)
-                if np.min(init_trn_desc.history['val_loss']) < best_loss:
-                    best_init = i_init
-                    best_loss = np.min(init_trn_desc.history['val_loss'])
-                    nlpca_extractor[inlpca] = model
-                    trn_desc[inlpca] = {}
-                    trn_desc[inlpca]['epochs'] = init_trn_desc.epoch
-                    trn_desc[inlpca]['perf'] = init_trn_desc.history['loss']
-                    trn_desc[inlpca]['vperf'] = init_trn_desc.history['val_loss']
+            earlyStopping = callbacks.EarlyStopping(monitor='val_loss', 
+                                                    patience=10,
+                                                    verbose=0, 
+                                                    mode='auto')
+            # Train model
+            init_trn_desc = model.fit(data, data, 
+                                      nb_epoch=train_info['n_epochs'], 
+                                      batch_size=train_info['batch_size'],
+                                      callbacks=[earlyStopping], 
+                                      verbose=train_info['train_verbose'],
+                                      validation_data=(trgt,
+                                                       trgt),
+                                      shuffle=True)
+            if np.min(init_trn_desc.history['val_loss']) < best_loss:
+                best_init = i_init
+                best_loss = np.min(init_trn_desc.history['val_loss'])
+                nlpca_extractor[inlpca] = model
+                trn_desc[inlpca] = {}
+                trn_desc[inlpca]['epochs'] = init_trn_desc.epoch
+                trn_desc[inlpca]['perf'] = init_trn_desc.history['loss']
+                trn_desc[inlpca]['vperf'] = init_trn_desc.history['val_loss']
                     
-            (nlpca_extractor[inlpca].save(
-                    '%s_fold_%i_inlpca_%i.h5'%(nlpcas_file_name,sort,inlpca)))
+        (nlpca_extractor[inlpca].save(
+                '%s_fold_%i_inlpca_%i.h5'%(nlpcas_file_name,sort,inlpca)))
 
 
         joblib.dump([trn_desc],'%s_train_desc.jbl'%(nlpcas_file_name),compress=9)
