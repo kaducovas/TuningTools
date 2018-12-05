@@ -32,7 +32,7 @@ class NLPCA():
         self.analysis_str     = 'NLPCA'
         self._aetype = aetype    
 
-    def trainNLPPCA(self, n_folds = 1, n_inits = 1, n_nlpcas=30, n_neurons_mapping=30, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200):
+    def trainNLPPCA(self, data=None, trgt=None,n_folds = 1, n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200):
 
         # Create a train information file
         n_folds = n_folds
@@ -69,13 +69,11 @@ class NLPCA():
         nlpca_extractor = {}
         trn_desc = {}
         nlpca = {}
-
-        n_neurons_mapping = 30
    
         nlpca_extractor = {}
         trn_desc = {}
         
-        for inlpca in [29]: #range(1,train_info['n_nlpcas']+1):
+        for inlpca in [n_nlpcas]: #range(1,train_info['n_nlpcas']+1):
             best_init = 0
             best_loss = 999
                 
@@ -104,21 +102,20 @@ class NLPCA():
                           nesterov=train_info['nesterov'])
                 model.compile(loss='mean_squared_error', 
                               optimizer=sgd,
-                              metrics=['accuracy',
-                                       'mean_squared_error'])
+                              metrics=['mean_squared_error'])
                 
                 earlyStopping = callbacks.EarlyStopping(monitor='val_loss', 
-                                                        patience=25,
+                                                        patience=10,
                                                         verbose=0, 
                                                         mode='auto')
                 # Train model
-                init_trn_desc = model.fit(norm_all_data[train_id], norm_all_data[train_id], 
+                init_trn_desc = model.fit(data, data, 
                                           nb_epoch=train_info['n_epochs'], 
                                           batch_size=train_info['batch_size'],
                                           callbacks=[earlyStopping], 
                                           verbose=train_info['train_verbose'],
-                                          validation_data=(norm_all_data[test_id],
-                                                           norm_all_data[test_id]),
+                                          validation_data=(trgt,
+                                                           trgt),
                                           shuffle=True)
                 if np.min(init_trn_desc.history['val_loss']) < best_loss:
                     best_init = i_init
