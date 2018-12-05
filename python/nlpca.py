@@ -32,7 +32,7 @@ class NLPCA():
         self.analysis_str     = 'NLPCA'
         self._aetype = aetype    
 
-    def trainNLPPCA(self, data=None, trgt=None,n_folds = 1, n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200):
+    def trainNLPPCA(self, data=None, trgt=None,n_folds = 1, n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200,sort=999,etBinIdx=999, etaBinIdx=999):
 
         # Create a train information file
         n_folds = n_folds
@@ -54,9 +54,11 @@ class NLPCA():
         train_info['n_epochs'] = n_epochs
         train_info['batch_size'] = batch_size
 
-        train_info_name = result_analysis_path+'/train_info_files'+'/'+date+'_train_info.jbl'
-        classifiers_name = result_analysis_path+'/classifiers_files'+'/'+date+'_classifiers'
-        nlpcas_file_name = result_analysis_path+'/output_files'+'/'+date+'_nlpcas'
+        file_name = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i_model.h5'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
+
+        train_info_name = self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
+        classifiers_name = self.save_path+'/classifiers_files'+'/'+file_name+'_classifiers'
+        nlpcas_file_name = self.save_path+'/output_files'+'/'+file_name+'_nlpcas'
 
 
         # CVO = cross_validation.StratifiedKFold(all_trgt, train_info['n_folds'])
@@ -127,7 +129,7 @@ class NLPCA():
                 trn_desc[inlpca]['vperf'] = init_trn_desc.history['val_loss']
                     
         (nlpca_extractor[inlpca].save(
-                '%s_fold_%i_inlpca_%i.h5'%(nlpcas_file_name,sort,inlpca)))
+                '%s.h5'%(nlpcas_file_name)))
 
 
         joblib.dump([trn_desc],'%s_train_desc.jbl'%(nlpcas_file_name),compress=9)
@@ -157,7 +159,7 @@ class NLPCA():
             classifiers[ifold] = {}
             results[ifold] = {}
         
-            nlpcas_file_name = result_analysis_path+'/output_files'+'/'+choose_date+'_nlpcas'
+            nlpcas_file_name = self.save_path+'/output_files'+'/'+choose_date+'_nlpcas'
         
             for inlpca in range(train_info['n_nlpcas']):
                 
