@@ -2117,8 +2117,9 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
         os.makedirs(diroutAllclasses)
     plt.clf()
 
-    fig, ax = plt.subplots(figsize=(16,10))
+
     for rings in range(b.shape[1]):
+        fig, ax = plt.subplots(figsize=(16,10))
         try:
             rr = calc_MI2(b[:,rings],r[:,rings])
             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
@@ -2156,8 +2157,8 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
     if not os.path.exists(diroutSignal):
         print 'Creating output folder Signal...'
         os.makedirs(diroutSignal)
-    fig, ax = plt.subplots(figsize=(16,10))
     for rings in range(b.shape[1]):
+        fig, ax = plt.subplots(figsize=(16,10))
         try:
             rr = calc_MI2(b[:,rings],r[:,rings])
             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
@@ -2196,24 +2197,24 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
     if not os.path.exists(diroutBackground):
         print 'Creating output folder Background...'
         os.makedirs(diroutBackground)
-    fig, ax = plt.subplots(figsize=(16,10))
     for rings in range(b.shape[1]):
-        #try:
-        rr = calc_MI2(b[:,rings],r[:,rings])
-        mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
-        kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
-        #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
-        mse_score = mean_squared_error(b[:,rings],r[:,rings])
-        corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
-        at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
-        #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
-        prop=dict(size=12), frameon=True,
-        loc='center right',
-        )
-        at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-        ax.add_artist(at)
-        #except:
-        #    print "Error on ring: "+str(rings+1)
+        fig, ax = plt.subplots(figsize=(16,10))
+        try:
+            rr = calc_MI2(b[:,rings],r[:,rings])
+            mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+            kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
+            #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            mse_score = mean_squared_error(b[:,rings],r[:,rings])
+            corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
+            #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            prop=dict(size=12), frameon=True,
+            loc='center right',
+            )
+            at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+            ax.add_artist(at)
+        except:
+            print "Error on ring: "+str(rings+1)
 
         plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
         plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
