@@ -812,13 +812,13 @@ def getReconstruct(fname,norm1Par,sort):
         for layer in layers_list[1:]:
           neuron = int(layer.split('x')[1])
           model.add(Dense(neuron, weights=enc_model[layer]))
-
+          model.add(Activation('tanh'))
       ## Add decoders
       for layer in reversed(layers_list):
         print layer
         neuron = int(layer.split('x')[0])
         model.add(Dense(neuron, weights=dec_model[layer]))
-      model.add(Activation('tanh'))
+        model.add(Activation('tanh'))
 
       print model.summary()
       model.compile('adam','mse')
@@ -846,6 +846,107 @@ def getReconstruct(fname,norm1Par,sort):
   #if K.backend() == 'tensorflow':
   #    K.clear_session()
 
+def getCode(fname,norm1Par,sort):
+  #from SAE_Evaluation import *
+
+  predict_data = {}
+  code = OrderedDict()
+  modelo={}
+  enc_model={}
+  dec_model={}
+
+  #if K.backend() == 'tensorflow':
+  #    K.clear_session()
+
+  with open(fname) as f:
+    content = f.readlines()
+  f.close()
+  layers_list =[f.split('/')[-1].split('_')[24] for f in content]
+  layers=sorted(list(set(layers_list)),cmp=layer2number)
+  print layers
+  #dirin='/home/caducovas/DeepRinger/data/run_layer1/adam_80/'
+  #layers = ['100x80','80x60','60x40','40x10']
+  #nsorts=10
+
+  #for i in [len(layers)]:
+  for i in range(len(layers)):
+    nlayers=i+1
+    layers_list=layers[:nlayers]
+    print range(len(layers)),nlayers,layers_list
+
+    predict_data = {} ##predict data junta os sortes
+
+    #for isort in range(nsorts):
+    for isort in [sort]:
+      enc_model={}
+      dec_model={}
+      print "Sort: "+str(isort)
+
+      #Itera sobre os layers para adquirir o encoder e o decoder
+      for layer in layers_list: #Different archtectures (each time one more autoencoder)
+        #print "Reading files of: "+layer
+
+        neuron = int(layer.split('x')[1])
+        files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort))]
+        ifile=files[0]
+        #print ifile
+        custom_obj={}
+        if 'CAE' in fname:
+          from TuningTools.MetricsLosses import contractive_loss
+          par_list=ifile.split('/')[-1].split('_')
+          custom_obj['contractive_loss']=contractive_loss(int(par_list[24].split('x')[1]),int(par_list[24].split('x')[0]),par_list[10],par_list[13])
+          modelo = load_model(ifile.replace('\n','')+'_model.h5',custom_objects=custom_obj)
+        else:
+          modelo = load_model(ifile.replace('\n','')+'_model.h5')
+        #modelo = load_model(dirin+ifile)
+        enc_model[layer] = modelo.layers[0].get_weights()
+        dec_model[layer] = modelo.layers[2].get_weights()
+
+      #print "Creating the model"
+      model = Sequential()
+      print "just to make sure it is the first key "+list(enc_model.keys())[0]
+      first_layer = [k for k in list(enc_model.keys()) if '100x' in k][0]
+      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=100, weights=enc_model[first_layer]))
+
+      if(nlayers >1):
+        ## Add encoders
+        for layer in layers_list[1:]:
+          neuron = int(layer.split('x')[1])
+          model.add(Dense(neuron, weights=enc_model[layer]))
+          model.add(Activation('tanh'))
+      # ## Add decoders
+      # for layer in reversed(layers_list):
+        # print layer
+        # neuron = int(layer.split('x')[0])
+        # model.add(Dense(neuron, weights=dec_model[layer]))
+      # model.add(Activation('tanh'))
+
+      print model.summary()
+      model.compile('adam','mse')
+
+      ###################
+      bottleneck=int(layers_list[-1].split('x')[1])
+      afternorm = norm1Par[2]
+      print type(afternorm)
+      print len(afternorm)
+      if isinstance(afternorm, (tuple, list,)):
+        predict = []
+        for i, cdata in enumerate(afternorm):
+          print i,cdata.shape
+          model_predict = model.predict(cdata, batch_size=cdata.shape[0], verbose=2)
+          print 'what now?'
+          predict.append(model_predict)
+      print 'Predictions Done'
+      #print isort
+      #@@predict_data[int(isort)] = predict
+      #print predict_data
+      #@@reconstruct[bottleneck] = predict_data
+      code[bottleneck] = predict
+      #print predict[0].shape,predict[1].shape
+  return code
+  #if K.backend() == 'tensorflow':
+  #    K.clear_session()  
+  
 def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
   import sqlite3
   import pandas as pd
@@ -878,15 +979,15 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and Measure = 'Normalized_MI' and Normed=False  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
 
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed=False  and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
 
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed=False  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
@@ -1000,9 +1101,10 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
 
-def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,lstm_target=None,measure='Normalized_MI'):
+def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,lstm_target=None,measure='Normalized_MI',Normed=False):
   #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
+  from sklearn.metrics import mean_squared_error
   import dataset
   import math
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
@@ -1027,6 +1129,21 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         np.savez_compressed('/scratch/22061a/caducovas/run/reconstruction_files/recEnergy_'+model_name+'_'+str(layer),iEnergy=beforenorm,rEnergy=unnorm_reconstruct)
       unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
       beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+
+      reconstruct_val_Data = np.concatenate( reconstruct[layer], axis=0 )
+      afternorm_val_Data = np.concatenate( afternorm, axis=0 )
+  
+      if Normed:
+        input_val_Data=afternorm_val_Data
+        reconstruct_val_Data=reconstruct_val_Data
+        input=afternorm
+        reconstructed=reconstruct[layer]
+      else:
+        input_val_Data=beforenorm_val_Data
+        reconstruct_val_Data=unnorm_reconstruct_val_Data
+        input=beforenorm
+        reconstructed=unnorm_reconstruct
+  
       ##ALL LABELS
 
       ##### MI/KL
@@ -1035,6 +1152,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       metrics['Layer'] = str(layer)
       metrics['time'] = time
       metrics['Measure'] = measure
+      metrics['Normed'] = False
       #metrics['HL_Neuron'] = hl_neuron
       metrics['sort'] = sort
       metrics['etBinIdx'] = etBinIdx
@@ -1048,16 +1166,18 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         #print beforenorm_val_Data[:,anel].shape,unnorm_reconstruct_val_Data[:,anel].shape
         try:
           if measure == 'Normalized_MI':
-            rr = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+            rr = calc_MI2(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
             score = np.sqrt(1. - np.exp(-2 * rr))
           elif measure == 'MI':
-            score = calc_MI2(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+            score = calc_MI2(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
           elif measure == 'KLdiv':
-            score = calc_kl(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+            score = calc_kl(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
           elif measure == 'chiSquared':
-            score,chi_pvalue =calc_chisquare(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+            score,chi_pvalue =calc_chisquare(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
           elif measure == 'Correlation':
-            score,corr_pvalue= scipy.stats.pearsonr(beforenorm_val_Data[:,anel],unnorm_reconstruct_val_Data[:,anel])
+            score,corr_pvalue= scipy.stats.pearsonr(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
+          elif measure == 'MSE':
+            score= mean_squared_error(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
@@ -1077,6 +1197,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       metrics['Layer'] = str(layer)
       metrics['time'] = time
       metrics['Measure'] = measure
+      metrics['Normed'] = False
       #metrics['HL_Neuron'] = hl_neuron
       metrics['sort'] = sort
       metrics['etBinIdx'] = etBinIdx
@@ -1090,16 +1211,18 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         #print anel
         try:
           if measure == 'Normalized_MI':
-            rr = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+            rr = calc_MI2(input[0][:,anel],reconstructed[0][:,anel])
             score = np.sqrt(1. - np.exp(-2 * rr))
           elif measure == 'MI':
-            score = calc_MI2(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+            score = calc_MI2(input[0][:,anel],reconstructed[0][:,anel])
           elif measure == 'KLdiv':
-            score = calc_kl(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+            score = calc_kl(input[0][:,anel],reconstructed[0][:,anel])
           elif measure == 'chiSquared':
-            score,chi_pvalue =calc_chisquare(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+            score,chi_pvalue =calc_chisquare(input[0][:,anel],reconstructed[0][:,anel])
           elif measure == 'Correlation':
-            score,corr_pvalue= scipy.stats.pearsonr(beforenorm[0][:,anel],unnorm_reconstruct[0][:,anel])
+            score,corr_pvalue= scipy.stats.pearsonr(input[0][:,anel],reconstructed[0][:,anel])
+          elif measure == 'MSE':
+            score= mean_squared_error(input[0][:,anel],reconstructed[0][:,anel])
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
@@ -1118,6 +1241,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       metrics['Layer'] = str(layer)
       metrics['time'] = time
       metrics['Measure'] = measure
+      metrics['Normed'] = False
       #metrics['HL_Neuron'] = hl_neuron
       metrics['sort'] = sort
       metrics['etBinIdx'] = etBinIdx
@@ -1129,16 +1253,18 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       for anel in range(100):
         try:
           if measure == 'Normalized_MI':
-            rr = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+            rr = calc_MI2(input[1][:,anel],reconstructed[1][:,anel])
             score = np.sqrt(1. - np.exp(-2 * rr))
           elif measure == 'MI':
-            score = calc_MI2(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+            score = calc_MI2(input[1][:,anel],reconstructed[1][:,anel])
           elif measure == 'KLdiv':
-            score = calc_kl(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+            score = calc_kl(input[1][:,anel],reconstructed[1][:,anel])
           elif measure == 'chiSquared':
-            score,chi_pvalue =calc_chisquare(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+            score,chi_pvalue =calc_chisquare(input[1][:,anel],reconstructed[1][:,anel])
           elif measure == 'Correlation':
-            score,corr_pvalue= scipy.stats.pearsonr(beforenorm[1][:,anel],unnorm_reconstruct[1][:,anel])
+            score,corr_pvalue= scipy.stats.pearsonr(input[1][:,anel],reconstructed[1][:,anel])
+          elif measure == 'MSE':
+            score= mean_squared_error(input[1][:,anel],reconstructed[1][:,anel])
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
@@ -1152,6 +1278,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
+    from sklearn.metrics import mean_squared_error
 
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
@@ -1195,10 +1322,11 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         rr = calc_MI2(b[:,rings],r[:,rings])
                         mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
                         kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
-                        chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+                        #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+                        mse_score = mean_squared_error(b[:,rings],r[:,rings])
                         corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
                         axs[i,j].set_ylabel('#'+str(rings+1), color='b')
-                        at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(round(100*corr_score,4))+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(round(chi_score,4)),
+                        at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(round(100*corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
                                           prop=dict(size=8), frameon=True,
                                           loc='center right',
                                           )
@@ -1217,6 +1345,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
 def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
+    from sklearn.metrics import mean_squared_error
 
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
@@ -1260,11 +1389,12 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             rr = calc_MI2(b[:,rings],r[:,rings])
                             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
                             kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
-                            chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+                            #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+                            mse_score = mean_squared_error(b[:,rings],r[:,rings])
                             corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
                             axs[i,j].set_ylabel('#'+str(rings+1), color='b')
                             #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
-                            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nChi Squared: "+str(round(chi_score,4)),
+                            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(round(100*corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
                                               prop=dict(size=8), frameon=True,
                                               loc='center right',
                                               )
@@ -1366,10 +1496,10 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             #print i,cdata.shape
             unnorm_reconstruct.append( cdata * normlist[i])
 
-    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed=False and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfSignal.fillna(value=nan, inplace=True)
-    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed=False and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfBkg.fillna(value=nan, inplace=True)
     sgn=dfSignal.values.astype(np.float32)
@@ -1386,7 +1516,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     ax1.legend(loc='best', fontsize='xx-large')
     ax12 = ax1.twinx()
     ax12.errorbar(np.arange(100), np.mean(sgn, axis=0),yerr=np.std(sgn, axis=0), fmt='gD-', color='cornflowerblue')
-    ax12.set_ylabel('KL Divergence', fontsize='xx-large')
+    ax12.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
     #ax12.set_ylim(top=1)
 
     ax2.errorbar(np.arange(100), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='o-',color='crimson', label='Mean Profile')
@@ -1398,7 +1528,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     ax2.legend(loc='best', fontsize='xx-large')
     ax22 = ax2.twinx()
     ax22.errorbar(np.arange(100), np.mean(bkg, axis=0),yerr=np.std(bkg, axis=0), fmt='go-')
-    ax22.set_ylabel('KL Divergence', fontsize='xx-large')
+    ax22.set_ylabel('Normalized Mutual Information', fontsize='xx-large')
     #ax22.set_ylim(top=1)
     #plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
 
@@ -1454,10 +1584,10 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
             #print i,cdata.shape
             unnorm_reconstruct.append( cdata * normlist[i])
 
-    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and Normed=False and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfSignal.fillna(value=nan, inplace=True)
-    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and Normed=False and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfBkg.fillna(value=nan, inplace=True)
     sgn=dfSignal.values.astype(np.float32)
@@ -1497,7 +1627,7 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     #if log_scale:
     #  y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
     #else:
-    y_position = 0.98 #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+    y_position = 0.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
 
     for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
                       (76,y_position,r'EM2'),(80,y_position,r'EM3'),
@@ -1516,7 +1646,7 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
-def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False,Normed=False, dirout=None):
   import sqlite3
   import pandas as pd
   from numpy import nan
@@ -1549,13 +1679,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and Normed="+str(Normed)+" and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
@@ -1563,59 +1693,72 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   sgn_NMI=dfSignal.values.astype(np.float32)
   bkg_NMI=dfBkg.values.astype(np.float32)
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  # dfAll.fillna(value=nan, inplace=True)
+  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed="+str(Normed)+" and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  # #dfSignal.fillna(value=nan, inplace=True)
+  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  # #dfBkg.fillna(value=nan, inplace=True)
+
+  # allClasses_MI=dfAll.values.astype(np.float32)
+  # sgn_MI=dfSignal.values.astype(np.float32)
+  # bkg_MI=dfBkg.values.astype(np.float32)
+
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and Normed="+str(Normed)+" and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
-  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
-  #dfBkg.fillna(value=nan, inplace=True)
-
-  allClasses_MI=dfAll.values.astype(np.float32)
-  sgn_MI=dfSignal.values.astype(np.float32)
-  bkg_MI=dfBkg.values.astype(np.float32)
-
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
-  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
-  dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
-  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
-  #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
   allClasses_Corr=dfAll.values.astype(np.float32)
   sgn_Corr=dfSignal.values.astype(np.float32)
   bkg_Corr=dfBkg.values.astype(np.float32)
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and Normed="+str(Normed)+" and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
   allClasses_KL=dfAll.values.astype(np.float32)
   sgn_KL=dfSignal.values.astype(np.float32)
   bkg_KL=dfBkg.values.astype(np.float32)
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  # dfAll.fillna(value=nan, inplace=True)
+  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed="+str(Normed)+" and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+  # #dfSignal.fillna(value=nan, inplace=True)
+  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+
+  # allClasses_Chi=dfAll.values.astype(np.float32)
+  # sgn_Chi=dfSignal.values.astype(np.float32)
+  # bkg_Chi=dfBkg.values.astype(np.float32)
+
+
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed="+str(Normed)+" and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed="+str(Normed)+" and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
-  allClasses_Chi=dfAll.values.astype(np.float32)
-  sgn_Chi=dfSignal.values.astype(np.float32)
-  bkg_Chi=dfBkg.values.astype(np.float32)
-
+  allClasses_MSE=dfAll.values.astype(np.float32)
+  sgn_MSE=dfSignal.values.astype(np.float32)
+  bkg_MSE=dfBkg.values.astype(np.float32)
   #print 'all',allClasses
   #print 'sgn', sgn
   #print 'bkg', bkg
@@ -1647,21 +1790,21 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 
   ####MI
 
-  ax[0,1].errorbar(np.arange(100), np.mean(allClasses_MI, axis=0),yerr=np.std(allClasses_MI, axis=0), fmt='go-',color='green')
-  ax[0,1].errorbar(np.arange(100), np.mean(sgn_MI, axis=0),yerr=np.std(sgn_MI, axis=0), fmt='D-', color='cornflowerblue')
-  ax[0,1].errorbar(np.arange(100), np.mean(bkg_MI, axis=0),yerr=np.std(bkg_MI, axis=0), fmt='ro-')
+  ax[0,1].errorbar(np.arange(100), np.mean(allClasses_MSE, axis=0),yerr=np.std(allClasses_MSE, axis=0), fmt='go-',color='green')
+  ax[0,1].errorbar(np.arange(100), np.mean(sgn_MSE, axis=0),yerr=np.std(sgn_MSE, axis=0), fmt='D-', color='cornflowerblue')
+  ax[0,1].errorbar(np.arange(100), np.mean(bkg_MSE, axis=0),yerr=np.std(bkg_MSE, axis=0), fmt='ro-')
   ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
   for i in [7, 71, 79, 87, 91, 95]:
     ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
 
-  ax[0,1].set_title(r'Mutual Information',fontsize= 20)
+  ax[0,1].set_title(r'Reconstruction Error',fontsize= 20)
   ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
-  ax[0,1].set_ylabel('Mutual Information', fontsize='xx-large')
+  ax[0,1].set_ylabel('Reconstruction Error', fontsize='xx-large')
   #ax[0,0].ylim(ymax=1)
   if log_scale:
     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
   else:
-    y_position = 3 #.9*np.max([np.mean(sgn_MI, axis=0), np.mean(bkg_MI, axis=0)])
+    y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
 
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
@@ -1736,8 +1879,12 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 #           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
 #          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
 #    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
-
-  plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange), fontsize=24)
+  plt.tight_layout()
+  if Normed:
+    prefix='Normalized '
+  else:
+    prefix=''
+  plt.suptitle(prefix+'Input X Reconstruction - '+model_name+' - '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange), fontsize=24)
   plt.savefig(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
   plt.clf()
   plt.close()
@@ -1897,8 +2044,43 @@ def plot_measures_2d(norm1Par=None,reconstruct=None,model_name="",layer=None,tim
     png_files.append(dirout+'/matrix2d_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
-def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/'):
+def plot_representation_2d(norm1Par=None,code=None,model_name="",layer=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+    import matplotlib.pyplot as plt
+    import seaborn as sb
 
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    #for layer in reconstruct.keys():
+        #print 'LAYER: '+str(layer)
+        #for nsort in reconstruct[layer].keys():
+        #print "Sort: "+str(nsort)
+    if isinstance(code[layer], (tuple, list,)):
+        unnorm_code = []
+        for i, cdata in enumerate(code[layer]):
+            #print i,cdata.shape
+            unnorm_code.append( cdata * normlist[i])
+        unnorm_code_val_Data = np.concatenate( unnorm_code, axis=0 )
+        beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+
+        code_val_Data = np.concatenate( code[layer], axis=0 )
+        afternorm_val_Data = np.concatenate( afternorm, axis=0 )
+
+        r=code_val_Data
+        b=afternorm_val_Data
+
+    fig = plot_MutualInformation(b,r,plot_corr=True)
+    fig.suptitle('MI and Correlation Matrix - Input X Representation - '+model_name+' - '+str(layer), fontsize=24)
+    fig.savefig(dirout+'/codematrix2d_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    fig.clf()
+    #plt.close()
+    png_files.append(dirout+'/codematrix2d_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    return png_files
+
+def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/'):
+    from sklearn.metrics import mean_squared_error
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -1930,9 +2112,10 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
             rr = calc_MI2(b[:,rings],r[:,rings])
             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
             kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
-            chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            mse_score = mean_squared_error(b[:,rings],r[:,rings])
             corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
-            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
             #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
             prop=dict(size=12), frameon=True,
             loc='center right',
@@ -1968,9 +2151,10 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
             rr = calc_MI2(b[:,rings],r[:,rings])
             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
             kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
-            chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            mse_score = mean_squared_error(b[:,rings],r[:,rings])
             corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
-            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
             #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
             prop=dict(size=12), frameon=True,
             loc='center right',
@@ -2007,9 +2191,10 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
             rr = calc_MI2(b[:,rings],r[:,rings])
             mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
             kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
-            chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            mse_score = mean_squared_error(b[:,rings],r[:,rings])
             corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
-            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
             #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
             prop=dict(size=12), frameon=True,
             loc='center right',
