@@ -976,6 +976,10 @@ class StackedAutoEncoder( PrepObj ):
       data = [d[:,88:] for d in data]
       val_Data = [d[:,88:] for d in val_Data]
 
+    ###teste AE para EM1
+    data = [d[:,14:72] for d in data]
+    val_Data = [d[:,14:72] for d in val_Data]  
+  
     self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
     self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
 
@@ -1127,6 +1131,7 @@ class StackedAutoEncoder( PrepObj ):
         data = [d[:,88:] for d in data]
         #val_Data = [d[:,88:] for d in val_Data]
       #data = [d[:100] for d in data]
+      data = [d[:,14:72] for d in data]
       for cdata in data:
 	#self._info(cdata.shape)
         ret.append(self._SAE.getDataProjection(cdata, cdata, hidden_neurons=self._hidden_neurons, layer=self._layer, ifold=0,sort=self._sort,etBinIdx=self._etBinIdx,etaBinIdx=self._etaBinIdx,))
