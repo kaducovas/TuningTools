@@ -806,8 +806,8 @@ def getReconstruct(fname,norm1Par,sort):
       #print "Creating the model"
       model = Sequential()
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
-      first_layer = [k for k in list(enc_model.keys()) if str(norm1Par[2].shape[1])+'x' in k][0]
-      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=norm1Par[2].shape[1], weights=enc_model[first_layer]))
+      first_layer = [k for k in list(enc_model.keys()) if str(norm1Par[2][0].shape[1])+'x' in k][0]
+      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=norm1Par[2][0].shape[1], weights=enc_model[first_layer]))
 
       if(nlayers >1):
         ## Add encoders
@@ -907,8 +907,8 @@ def getCode(fname,norm1Par,sort):
       #print "Creating the model"
       model = Sequential()
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
-      first_layer = [k for k in list(enc_model.keys()) if str(norm1Par[2].shape[1])+'x' in k][0]
-      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=norm1Par[2].shape[1], weights=enc_model[first_layer]))
+      first_layer = [k for k in list(enc_model.keys()) if str(norm1Par[2][0].shape[1])+'x' in k][0]
+      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=norm1Par[2][0].shape[1], weights=enc_model[first_layer]))
 
       if(nlayers >1):
         ## Add encoders
@@ -1661,7 +1661,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
     normalizacao='yes'
   else:
     normalizacao='no'
-  
+
   plt.style.use('ggplot')
   cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
   # Et and Eta indices
