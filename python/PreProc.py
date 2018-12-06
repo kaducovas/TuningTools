@@ -1106,7 +1106,7 @@ class StackedAutoEncoder( PrepObj ):
       encodetypename=''
     elif self._dataEncoded == 'signal':
       encodetypename='Signal'
-    elif self._dataEncoded == 'backgroung':
+    elif self._dataEncoded == 'background':
       encodetypename='Background'
     return (encodetypename+aetypename+sname+"_%d" % self._hidden_neurons[0])
 
@@ -1136,7 +1136,7 @@ class StackedAutoEncoder( PrepObj ):
       encodetypename=''
     elif self._dataEncoded == 'signal':
       encodetypename='Sgn'
-    elif self._dataEncoded == 'backgroung':
+    elif self._dataEncoded == 'background':
       encodetypename='Bkg'
     return (encodetypename+aetypename+sname+"_%d" % self._hidden_neurons[0])
 
