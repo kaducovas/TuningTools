@@ -1298,7 +1298,7 @@ def concatReconstructionError(data=None,reconstructErrVector=None):
       concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1)))
   return concatReconstructionError
 
-def applyNorm1(data=data):
+def applyNorm1(data=None):
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
@@ -1320,7 +1320,7 @@ def applyNorm1(data=data):
     else:
       ret = data / norms
     return ret
-  
+
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
