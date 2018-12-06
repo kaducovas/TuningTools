@@ -1055,7 +1055,7 @@ class StackedAutoEncoder( PrepObj ):
                               n_folds = 1,
                               save_path = results_path,
                               prefix_str=self._caltype,
-                              aetype=self._aetype
+                              aetype=self._aetype,
                               dataEncoded=self._dataEncoded
                               )
 
