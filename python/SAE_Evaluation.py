@@ -804,7 +804,7 @@ def getReconstruct(fname,data,sort):
         dec_model[layer] = modelo.layers[2].get_weights()
 
       #print "Creating the model"
-      print data[0].shape[1]
+      print len(data) #[0].shape[1]
       model = Sequential()
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
       first_layer = [k for k in list(enc_model.keys()) if str(data[0].shape[1])+'x' in k][0]
