@@ -1299,6 +1299,7 @@ def concatReconstructionError(data=None,reconstructErrVector=None):
   return concatReconstructionError
 
 def applyNorm1(data=None):
+    from TuningTools.coreDef import npCurrent
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
