@@ -1294,7 +1294,7 @@ def concatReconstructionError(data=None,reconstructErrVector=None):
     concatReconstructionError = []
     for i, cdata in enumerate(data):
       # #print i,cdata.shape
-      concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1))
+      concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1)))
   return concatReconstructionError
 
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
