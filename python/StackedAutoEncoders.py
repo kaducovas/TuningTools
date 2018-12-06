@@ -37,7 +37,7 @@ import keras.backend as K
 #num_process = multiprocessing.cpu_count()
 
 class StackedAutoEncoders:
-    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla', CVO=None,
+    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla',dataEncoded='all' CVO=None,
                  noveltyDetection=False, inovelty = 0):
         self.trn_params       = params
         self.development_flag = development_flag
@@ -49,6 +49,7 @@ class StackedAutoEncoders:
         self.params_str       = self.trn_params.get_params_str()
         self.analysis_str     = 'StackedAutoEncoder'
         self._aetype = aetype
+        self._dataEncoded = dataEncoded
 
         # Distinguish between a SAE for Novelty Detection and SAE for 'simple' Classification
         if noveltyDetection:
@@ -56,7 +57,7 @@ class StackedAutoEncoders:
             self.prefix_str   = prefix_str+'_%i_novelty'%(inovelty)
         else:
             self.CVO          = CVO
-            self.prefix_str   = prefix_str+'-'+aetype
+            self.prefix_str   = prefix_str+'-'+aetype+'-'+dataEncoded
 
         # Choose optmizer algorithm
         if self.trn_params.params['optmizerAlgorithm'] == 'SGD':

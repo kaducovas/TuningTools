@@ -895,6 +895,7 @@ class StackedAutoEncoder( PrepObj ):
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
     self._caltype = retrieve_kw(d,'caltype','allcalo')
     self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
+    self._dataEncoded = retrieve_kw(d,'_dataEncoded','all') #all, signal, background
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits
@@ -977,7 +978,7 @@ class StackedAutoEncoder( PrepObj ):
       val_Data = [d[:,88:] for d in val_Data]
 
     ###teste AE para EM1
-    em1ae=True
+    em1ae=False
     if em1ae:
       data = [d[:,14:72] for d in data]
       val_Data = [d[:,14:72] for d in val_Data]
@@ -992,10 +993,21 @@ class StackedAutoEncoder( PrepObj ):
 
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 
-    if isinstance(data, (tuple, list,)):
-      data = np.concatenate( data, axis=npCurrent.odim )
-    if isinstance(val_Data, (tuple, list,)):
-      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
+    if self._dataEncoded == 'all':
+      if isinstance(data, (tuple, list,)):
+        data = np.concatenate( data, axis=npCurrent.odim )
+      if isinstance(val_Data, (tuple, list,)):
+        val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
+    elif self._dataEncoded == 'signal':
+      if isinstance(data, (tuple, list,)):
+        data = data[0]
+      if isinstance(val_Data, (tuple, list,)):
+        val_Data = val_Data[0]
+    elif self._dataEncoded == 'background':
+      if isinstance(data, (tuple, list,)):
+        data = data[1]
+      if isinstance(val_Data, (tuple, list,)):
+        val_Data = val_Data[1]
 
     import numpy
     work_path='/scratch/22061a/caducovas/run/'
@@ -1044,6 +1056,7 @@ class StackedAutoEncoder( PrepObj ):
                               save_path = results_path,
                               prefix_str=self._caltype,
                               aetype=self._aetype
+                              dataEncoded=self._dataEncoded
                               )
 
     self._SAE = SAE
@@ -1089,7 +1102,13 @@ class StackedAutoEncoder( PrepObj ):
     elif self._aetype == 'contractive':
       aetypename = 'Contractive'
 
-    return (aetypename+sname+"_%d" % self._hidden_neurons[0])
+    if self._dataEncoded == 'all':
+      encodetypename=''
+    elif self._dataEncoded == 'signal':
+      encodetypename='Signal'
+    elif self._dataEncoded == 'Backgroung':
+      encodetypename='Background'
+    return (encodetypename+aetypename+sname+"_%d" % self._hidden_neurons[0])
 
   def shortName(self):
     """
@@ -1113,7 +1132,13 @@ class StackedAutoEncoder( PrepObj ):
     elif self._aetype == 'contractive':
       aetypename = 'C'
 
-    return (aetypename+sname+"_%d" % self._hidden_neurons[0])
+    if self._dataEncoded == 'all':
+      encodetypename=''
+    elif self._dataEncoded == 'signal':
+      encodetypename='Sgn'
+    elif self._dataEncoded == 'Backgroung':
+      encodetypename='Bkg'
+    return (encodetypename+aetypename+sname+"_%d" % self._hidden_neurons[0])
 
   def _apply(self, data):
     #self._info(pp.shortName())
@@ -1133,7 +1158,7 @@ class StackedAutoEncoder( PrepObj ):
         data = [d[:,88:] for d in data]
         #val_Data = [d[:,88:] for d in val_Data]
       #data = [d[:100] for d in data]
-      em1ae=True
+      em1ae=False
       if em1ae:
         data = [d[:,14:72] for d in data]
       for cdata in data:
@@ -2036,7 +2061,7 @@ class PreProcChain ( Logger ):
       return
     emcalo = False
     hadcalo = False
-    em1ae = True
+    em1ae = False
 
     for pp in self:
       if pp.shortName() == 'N1':
