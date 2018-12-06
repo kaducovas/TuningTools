@@ -1290,7 +1290,7 @@ def get_reconstructionErrVector(data=None,reconstruct=None):
   return reconstructionError
 
 def concatReconstructionError(data=None,reconstructErrVector=None):
-  reconstructErrVectorapplyNorm1(data=reconstructErrVector)
+  reconstructErrVector = applyNorm1(data=reconstructErrVector)
   if isinstance(data, (tuple, list,)):
     concatReconstructionError = []
     for i, cdata in enumerate(data):
