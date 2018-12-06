@@ -895,7 +895,7 @@ class StackedAutoEncoder( PrepObj ):
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
     self._caltype = retrieve_kw(d,'caltype','allcalo')
     self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
-    self._dataEncoded = retrieve_kw(d,'_dataEncoded','all') #all, signal, background
+    self._dataEncoded = retrieve_kw(d,'dataEncoded','all') #all, signal, background
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits

@@ -747,7 +747,7 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
   reconstruct[bottleneck]=predict
   return reconstruct,target
 
-def getReconstruct(fname,norm1Par,sort):
+def getReconstruct(fname,data,sort):
   #from SAE_Evaluation import *
 
   predict_data = {}
@@ -806,8 +806,8 @@ def getReconstruct(fname,norm1Par,sort):
       #print "Creating the model"
       model = Sequential()
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
-      first_layer = [k for k in list(enc_model.keys()) if str(norm1Par[2][0].shape[1])+'x' in k][0]
-      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=norm1Par[2][0].shape[1], weights=enc_model[first_layer]))
+      first_layer = [k for k in list(enc_model.keys()) if str(data[0].shape[1])+'x' in k][0]
+      model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=data[0].shape[1], weights=enc_model[first_layer]))
 
       if(nlayers >1):
         ## Add encoders
@@ -827,7 +827,7 @@ def getReconstruct(fname,norm1Par,sort):
 
       ###################
       bottleneck=int(layers_list[-1].split('x')[1])
-      afternorm = norm1Par[2]
+      afternorm = data
       print type(afternorm)
       print len(afternorm)
       if isinstance(afternorm, (tuple, list,)):
@@ -1279,6 +1279,16 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
       table.insert(metrics)
   return metrics
 
+def get_reconstructionErrVector(data=None,reconstruct=None):
+  if isinstance(data, (tuple, list,)):
+    reconstructionError = []
+    for i, cdata in enumerate(data):
+      # #print i,cdata.shape
+      reconstructionError.append( (cdata - reconstruct[i]) ** 2)
+
+  return reconstructionError
+  
+  
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
@@ -1649,6 +1659,51 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     plt.close()
     png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
+
+def plot_reconstruction_error(trnReconError=None,valReconError=None,dirout=None):
+    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
+    ax1.plot(np.arange(trnReconError[0].shape[1]), np.mean(trnReconError[0], axis=0), marker='<', color='crimson', label='Signal')
+    ax1.plot(np.arange(trnReconError[1].shape[1]), np.mean(trnReconError[1], axis=0), marker='>', color='deepskyblue', label='Background')
+
+    ax1.set_title(r'Training Set Reconstruction Error',fontsize= 20)
+    ax1.set_xlabel('#Rings', fontsize= 20)
+    ax1.set_ylabel('Reconstruction Error',fontsize= 20)
+    ax1.tick_params(labelsize= 15)
+    ax1.legend(loc='best', fontsize='xx-large')
+
+    ax2.plot(np.arange(valReconError[0].shape[1]), np.mean(valReconError[0], axis=0),marker='<',color='crimson', label='Signal')
+    ax2.plot(np.arange(valReconError[1].shape[1]), np.mean(valReconError[1], axis=0),marker='>', color='deepskyblue', label='Background')
+    ax2.set_title(r'Validation Set Reconstruction Error',fontsize= 20)
+    ax2.set_xlabel('#Rings', fontsize= 20)
+    ax2.set_ylabel('Reconstruction Error',fontsize= 20)
+    ax2.tick_params(labelsize= 15)
+    ax2.legend(loc='best', fontsize='xx-large')
+
+    for i in [7, 71, 79, 87, 91, 95]:
+        ax1.axvline(i, color='gray', linestyle='--', linewidth=.8)
+        ax2.axvline(i, color='gray', linestyle='--', linewidth=.8)
+    #log_scale=False
+    #if log_scale:
+    #  y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+    #else:
+    y_position = 0.8*np.max([np.mean(valReconError[0], axis=0), np.mean(valReconError[1], axis=0)])
+
+    for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+                      (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+                    (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+        ax1.text(x,y,text, fontsize=15, rotation=90)
+        ax2.text(x,y,text, fontsize=15, rotation=90)
+
+    #    plt.savefig('meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+    #else:
+    #    plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+    #plt.show()
+    plt.suptitle('Reconstruction Error - '+model_name+' - '+str(layer), fontsize=24)
+    plt.savefig(dirout+'/recons_error'+str(layer)+'_'+model_name+'_'+time+'.png')
+    plt.clf()
+    plt.close()
+    png_files.append(dirout+'/recons_error'+str(layer)+'_'+model_name+'_'+time+'.png')
+    return png_files  
 
 def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False,Normed=False, dirout=None):
   import sqlite3

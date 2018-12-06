@@ -1516,6 +1516,7 @@ class TuningJob(Logger):
             trnData,valData = ppChain.getNorm1()
             hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           norm1Par = ppChain.getNorm1Parameters()
+          trnDataN1,valDataN1 = ppChain.getNorm1()
 
 
           #from scipy.io import wavfile
@@ -1548,7 +1549,7 @@ class TuningJob(Logger):
               #np.savez_compressed(work_path+'lstm_Target_'+str(sort)+'et_1_eta_1',target)
               #np.savez_compressed(work_path+'afternorm_'+str(sort)+'et_1_eta_1',norm1Par[2])
             else:
-              reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
+              reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,valDataN1,sort)
               code = getCode(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
               target=None
 
@@ -1573,6 +1574,13 @@ class TuningJob(Logger):
             print 'MSE'
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MSE',Normed=False)
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MSE',Normed=True)
+
+            trnReconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,trnDataN1,sort)
+            trnReconError = get_reconstructionErrVector(data=trnDataN1,reconstruct=trnReconstruct[trnReconstruct.keys()[-1]])
+            valReconError = get_reconstructionErrVector(data=valDataN1,reconstruct=reconstruct[reconstruct.keys()[-1]])
+            #reconstructionErrorAE = True
+            #if reconstructionErrorAE:
+
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
@@ -1798,6 +1806,12 @@ class TuningJob(Logger):
             for png_file in png_files:
               png_f = open(png_file,'rb')
               bot.sendPhoto('@ringer_tuning',png_f)
+ 
+          if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
+            png_files=plot_reconstruction_error(trnReconError=trnReconError,valReconError=valReconError,dirout=work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendPhoto('@ringer_tuning',png_f) 
 
           confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[0])
           for confMatrix_png_file in confMatrix_png_files:
