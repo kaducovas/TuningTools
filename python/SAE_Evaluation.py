@@ -804,6 +804,7 @@ def getReconstruct(fname,data,sort):
         dec_model[layer] = modelo.layers[2].get_weights()
 
       #print "Creating the model"
+      print len(data) #[0].shape[1]
       model = Sequential()
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
       first_layer = [k for k in list(enc_model.keys()) if str(data[0].shape[1])+'x' in k][0]
@@ -1287,8 +1288,8 @@ def get_reconstructionErrVector(data=None,reconstruct=None):
       reconstructionError.append( (cdata - reconstruct[i]) ** 2)
 
   return reconstructionError
-  
-  
+
+
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
@@ -1703,7 +1704,7 @@ def plot_reconstruction_error(trnReconError=None,valReconError=None,model_name=N
     plt.clf()
     plt.close()
     png_files.append(dirout+'/recons_error'+str(layer)+'_'+model_name+'_'+time+'.png')
-    return png_files  
+    return png_files
 
 def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False,Normed=False, dirout=None):
   import sqlite3

@@ -1511,12 +1511,14 @@ class TuningJob(Logger):
           self._debug('Done tuning pre-processing chain!')
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
+          trnDataN1,valDataN1 = ppChain.getNorm1()
+          print trnDataN1,valDataN1
           f_tuning=True
           if f_tuning and coreConf() == 2:
             trnData,valData = ppChain.getNorm1()
             hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           norm1Par = ppChain.getNorm1Parameters()
-          trnDataN1,valDataN1 = ppChain.getNorm1()
+
 
 
           #from scipy.io import wavfile
@@ -1806,12 +1808,12 @@ class TuningJob(Logger):
             for png_file in png_files:
               png_f = open(png_file,'rb')
               bot.sendPhoto('@ringer_tuning',png_f)
- 
+
           if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
             png_files=plot_reconstruction_error(trnReconError=trnReconError,valReconError=valReconError,model_name=ppChain.shortName(),layer=reconstruct.keys()[-1],time=startTime,dirout=work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
               png_f = open(png_file,'rb')
-              bot.sendPhoto('@ringer_tuning',png_f) 
+              bot.sendPhoto('@ringer_tuning',png_f)
 
           confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[0])
           for confMatrix_png_file in confMatrix_png_files:
