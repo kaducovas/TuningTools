@@ -135,15 +135,15 @@ class NLPCA():
         joblib.dump([trn_desc],'%s_train_desc.jbl'%(nlpcas_file_name),compress=9)
 
 
-    def getDataProjection(self, data, trgt, hidden_neurons=[80], layer=1, ifold=0,sort=999,etBinIdx=999, etaBinIdx=999):
+    def getDataProjection(self, data, trgt, n_inits = 1, n_nlpcas=30, n_neurons_mapping=50,n_epochs=5000,sort=999,etBinIdx=999, etaBinIdx=999,sort=999,etBinIdx=999, etaBinIdx=999):
 
         #choose_date = '2016_09_21_20_56_00'
-
+        file_name = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i_model.h5'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
         # load train info
-        self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
-        train_info_name = result_analysis_path+'/train_info_files'+'/'+choose_date+'_train_info.jbl'
+        train_info_name = self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
         train_info = joblib.load(train_info_name)
         train_info = train_info[0]
+        nlpcas_file_name = self.save_path+'/output_files'+'/'+file_name+'_nlpcas'
 
         classifiers = {}
         results = {}

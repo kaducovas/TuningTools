@@ -1289,6 +1289,13 @@ def get_reconstructionErrVector(data=None,reconstruct=None):
 
   return reconstructionError
 
+def concatReconstructionError(data=None,reconstructErrVector=None):
+  if isinstance(data, (tuple, list,)):
+    concatReconstructionError = []
+    for i, cdata in enumerate(data):
+      # #print i,cdata.shape
+      concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1))
+  return concatReconstructionError
 
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt

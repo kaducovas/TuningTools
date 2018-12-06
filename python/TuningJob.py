@@ -1580,8 +1580,10 @@ class TuningJob(Logger):
             trnReconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,trnDataN1,sort)
             trnReconError = get_reconstructionErrVector(data=trnDataN1,reconstruct=trnReconstruct[trnReconstruct.keys()[-1]])
             valReconError = get_reconstructionErrVector(data=valDataN1,reconstruct=reconstruct[reconstruct.keys()[-1]])
-            #reconstructionErrorAE = True
-            #if reconstructionErrorAE:
+            reconstructionErrorAE = True
+            if reconstructionErrorAE:
+             trnData = concatReconstructionError(data=trnDataN1,reconstructErrVector=trnReconError)  
+             valData = concatReconstructionError(data=valDataN1,reconstructErrVector=valReconError)  
 
           ###self._info(hidden_neurons)
           #self._info(config)
