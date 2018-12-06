@@ -1290,6 +1290,7 @@ def get_reconstructionErrVector(data=None,reconstruct=None):
   return reconstructionError
 
 def concatReconstructionError(data=None,reconstructErrVector=None):
+  reconstructErrVectorapplyNorm1(data=reconstructErrVector)
   if isinstance(data, (tuple, list,)):
     concatReconstructionError = []
     for i, cdata in enumerate(data):
@@ -1297,6 +1298,29 @@ def concatReconstructionError(data=None,reconstructErrVector=None):
       concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1)))
   return concatReconstructionError
 
+def applyNorm1(data=data):
+    if isinstance(data, (tuple, list,)):
+      norms = []
+      for cdata in data:
+        cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
+            npCurrent.access( pidx=1,
+                              oidx=cdata.shape[npCurrent.odim] ) )
+        cnorm[cnorm==0] = 1
+        norms.append( cnorm )
+    else:
+      norms = data.sum(axis=npCurrent.pdim).reshape(
+            npCurrent.access( pidx=1,
+                              oidx=data.shape[npCurrent.odim] ) )
+      norms[norms==0] = 1
+
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      for i, cdata in enumerate(data):
+        ret.append( cdata / norms[i] )
+    else:
+      ret = data / norms
+    return ret
+  
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
