@@ -1662,6 +1662,7 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     return png_files
 
 def plot_reconstruction_error(trnReconError=None,valReconError=None,model_name=None,layer=None,time=None,dirout=None):
+    png_files=[]
     f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
     ax1.plot(np.arange(trnReconError[0].shape[1]), np.mean(trnReconError[0], axis=0), marker='<', color='crimson', label='Signal')
     ax1.plot(np.arange(trnReconError[1].shape[1]), np.mean(trnReconError[1], axis=0), marker='>', color='deepskyblue', label='Background')
