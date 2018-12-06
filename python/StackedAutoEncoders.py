@@ -57,7 +57,10 @@ class StackedAutoEncoders:
             self.prefix_str   = prefix_str+'_%i_novelty'%(inovelty)
         else:
             self.CVO          = CVO
-            self.prefix_str   = prefix_str+'-'+aetype+'-'+dataEncoded
+            if dataEncoded == 'all':
+              self.prefix_str   = prefix_str+'-'+aetype
+            else:
+              self.prefix_str   = prefix_str+'-'+aetype+'-'+dataEncoded
 
         # Choose optmizer algorithm
         if self.trn_params.params['optmizerAlgorithm'] == 'SGD':
