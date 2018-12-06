@@ -37,7 +37,7 @@ import keras.backend as K
 #num_process = multiprocessing.cpu_count()
 
 class StackedAutoEncoders:
-    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla',dataEncoded='all' CVO=None,
+    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla',dataEncoded='all', CVO=None,
                  noveltyDetection=False, inovelty = 0):
         self.trn_params       = params
         self.development_flag = development_flag
