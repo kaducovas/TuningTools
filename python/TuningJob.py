@@ -1810,7 +1810,7 @@ class TuningJob(Logger):
               bot.sendPhoto('@ringer_tuning',png_f)
 
           if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
-            png_files=plot_reconstruction_error(trnReconError=trnReconError,valReconError=valReconError,dirout=work_path+'files/'+tuning_folder_name+'/')
+            png_files=plot_reconstruction_error(trnReconError=trnReconError,valReconError=valReconError,model_name=ppChain.shortName(),layer=reconstruct.keys()[-1],time=startTime,dirout=work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
               png_f = open(png_file,'rb')
               bot.sendPhoto('@ringer_tuning',png_f)
