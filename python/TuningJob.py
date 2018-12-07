@@ -1512,10 +1512,10 @@ class TuningJob(Logger):
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
           trnDataN1,valDataN1 = ppChain.getNorm1()
-          print trnDataN1,valDataN1
+          #print trnDataN1,valDataN1
           f_tuning=True
           if f_tuning and coreConf() == 2:
-            trnData,valData = ppChain.getNorm1()
+            trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
             hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           norm1Par = ppChain.getNorm1Parameters()
 
@@ -1582,8 +1582,12 @@ class TuningJob(Logger):
             valReconError = get_reconstructionErrVector(data=valDataN1,reconstruct=reconstruct[reconstruct.keys()[-1]])
             reconstructionErrorAE = True
             if reconstructionErrorAE:
-             trnData = concatReconstructionError(data=trnDataN1,reconstructErrVector=trnReconError)  
-             valData = concatReconstructionError(data=valDataN1,reconstructErrVector=valReconError)  
+             trnData = concatReconstructionError(data=trnDataN1,reconstructErrVector=trnReconError)
+             valData = concatReconstructionError(data=valDataN1,reconstructErrVector=valReconError)
+             if f_tuning and coreConf() == 2:
+               ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder_name)
+               self._debug('Done tuning pre-processing chain in new dataset including reconstruction error!')
+               hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
           ###self._info(hidden_neurons)
           #self._info(config)
