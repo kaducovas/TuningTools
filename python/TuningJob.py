@@ -1580,10 +1580,14 @@ class TuningJob(Logger):
             trnReconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,trnDataN1,sort)
             trnReconError = get_reconstructionErrVector(data=trnDataN1,reconstruct=trnReconstruct[trnReconstruct.keys()[-1]])
             valReconError = get_reconstructionErrVector(data=valDataN1,reconstruct=reconstruct[reconstruct.keys()[-1]])
-            reconstructionErrorAE = True
-            if reconstructionErrorAE:
-             trnData = concatReconstructionError(data=trnDataN1,reconstructErrVector=trnReconError)
-             valData = concatReconstructionError(data=valDataN1,reconstructErrVector=valReconError)
+            reconstructionErrorAE = Truei
+            onlyREAE=True
+            if reconstructionErrorAE:i
+              if onlyREAE:
+                trnData,valData = trnReconError,valReconError
+              else:
+               trnData = concatReconstructionError(data=trnDataN1,reconstructErrVector=trnReconError)
+               valData = concatReconstructionError(data=valDataN1,reconstructErrVector=valReconError)
              if f_tuning and coreConf() == 2:
                ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder_name)
                self._debug('Done tuning pre-processing chain in new dataset including reconstruction error!')
