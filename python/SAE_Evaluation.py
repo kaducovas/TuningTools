@@ -1976,7 +1976,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 #           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
 #          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
 #    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
-  plt.tight_layout()
+  plt.tight_layout(rect=[0, 0.03, 1, 0.95])
   if Normed:
     prefix='Normalized '
   else:
