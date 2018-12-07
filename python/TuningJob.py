@@ -1582,7 +1582,7 @@ class TuningJob(Logger):
             valReconError = get_reconstructionErrVector(data=valDataN1,reconstruct=reconstruct[reconstruct.keys()[-1]])
             reconstructionErrorAE = Truei
             onlyREAE=True
-            if reconstructionErrorAE:i
+            if reconstructionErrorAE:
               if onlyREAE:
                 trnData,valData = trnReconError,valReconError
               else:
