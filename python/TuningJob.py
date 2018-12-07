@@ -1580,8 +1580,8 @@ class TuningJob(Logger):
             trnReconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,trnDataN1,sort)
             trnReconError = get_reconstructionErrVector(data=trnDataN1,reconstruct=trnReconstruct[trnReconstruct.keys()[-1]])
             valReconError = get_reconstructionErrVector(data=valDataN1,reconstruct=reconstruct[reconstruct.keys()[-1]])
-            reconstructionErrorAE = True
-            onlyREAE=True
+            reconstructionErrorAE = False
+            onlyREAE=False
             if reconstructionErrorAE:
               if onlyREAE:
                 trnData,valData = trnReconError,valReconError
