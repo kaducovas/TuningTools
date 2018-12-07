@@ -1586,12 +1586,12 @@ class TuningJob(Logger):
               if onlyREAE:
                 trnData,valData = trnReconError,valReconError
               else:
-               trnData = concatReconstructionError(data=trnDataN1,reconstructErrVector=trnReconError)
-               valData = concatReconstructionError(data=valDataN1,reconstructErrVector=valReconError)
-             if f_tuning and coreConf() == 2:
-               ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder_name)
-               self._debug('Done tuning pre-processing chain in new dataset including reconstruction error!')
-               hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+                trnData = concatReconstructionError(data=trnDataN1,reconstructErrVector=trnReconError)
+                valData = concatReconstructionError(data=valDataN1,reconstructErrVector=valReconError)
+              if f_tuning and coreConf() == 2:
+                ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder_name)
+                self._debug('Done tuning pre-processing chain in new dataset including reconstruction error!')
+                hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
           ###self._info(hidden_neurons)
           #self._info(config)
