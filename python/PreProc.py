@@ -1588,7 +1588,7 @@ class NLPCA( PrepObj ):
 
 
     # Train Process
-    NLPCA = nlpca(params = trn_params,
+    NLPCA = NLPCA(params = trn_params,
                               development_flag = False,
                               #n_folds = 1,
                               save_path = results_path #,
