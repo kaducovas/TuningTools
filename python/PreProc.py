@@ -2197,7 +2197,7 @@ class PreProcChain ( Logger ):
       return
     for pp in self:
       self._info(pp.shortName())
-      if 'AE' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
+      if 'AE' in str(pp.shortName()) or 'NLPCA' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
         trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder)
         valData = pp(valData, False)
       else:
