@@ -1550,7 +1550,7 @@ class NLPCA( PrepObj ):
     import numpy
     work_path='/scratch/22061a/caducovas/run/'
     results_path = work_path+"StackedAutoEncoder_preproc/"
-    numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0]),val_Data)
+    #numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0]),val_Data)
     #trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0])+'.jbl'
 
     # #Autoencoder Types paraemters and definitions
