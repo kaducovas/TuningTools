@@ -15,7 +15,7 @@ from sklearn import preprocessing
 
 import numpy.linalg as la
 
-m_time = time.time()
+#m_time = time.time()
 
 class NLPCA():
 
@@ -29,7 +29,7 @@ class NLPCA():
         #self.n_inits          = self.trn_params.params['n_inits']
         #self.params_str       = self.trn_params.get_params_str()
         self.analysis_str     = 'NLPCA'
-        #self._aetype = aetype    
+        #self._aetype = aetype
 
     def trainNLPPCA(self, data=None, trgt=None,n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200,sort=999,etBinIdx=999, etaBinIdx=999, tuning_folder=None):
 
@@ -70,22 +70,22 @@ class NLPCA():
         nlpca_extractor = {}
         trn_desc = {}
         nlpca = {}
-   
+
         nlpca_extractor = {}
         trn_desc = {}
-        
+
         #for inlpca in [n_nlpcas]: #range(1,train_info['n_nlpcas']+1):
         best_init = 0
         best_loss = 999
-                
+
         for i_init in range(train_info['n_inits']):
             print ('Fold: %i of %i - NLPCA: %i of %i - Init: %i of %i'
-                   %(sort+1, 
+                   %(sort+1,
                      inlpca, train_info['n_nlpcas'],
                      i_init+1,train_info['n_inits']))
             model = Sequential()
             # model.add(Dense(all_data.shape[1],
-                            # input_dim=all_data.shape[1], 
+                            # input_dim=all_data.shape[1],
                             # init='identity',trainable=False))
             # model.add(Activation('linear'))
             model.add(Dense(n_neurons_mapping, input_dim=data.shape[1], init='uniform'))
@@ -96,24 +96,24 @@ class NLPCA():
             model.add(Activation('tanh'))
             model.add(Dense(data.shape[1],init='uniform'))
             model.add(Activation('linear'))
-                 
-            sgd = SGD(lr=train_info['learning_rate'], 
-                      decay=train_info['learning_decay'], 
-                      momentum=train_info['momentum'], 
+
+            sgd = SGD(lr=train_info['learning_rate'],
+                      decay=train_info['learning_decay'],
+                      momentum=train_info['momentum'],
                       nesterov=train_info['nesterov'])
-            model.compile(loss='mean_squared_error', 
+            model.compile(loss='mean_squared_error',
                           optimizer=sgd,
                           metrics=['mean_squared_error'])
-                
-            earlyStopping = callbacks.EarlyStopping(monitor='val_loss', 
+
+            earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
                                                     patience=10,
-                                                    verbose=0, 
+                                                    verbose=0,
                                                     mode='auto')
             # Train model
-            init_trn_desc = model.fit(data, data, 
-                                      nb_epoch=train_info['n_epochs'], 
+            init_trn_desc = model.fit(data, data,
+                                      nb_epoch=train_info['n_epochs'],
                                       batch_size=train_info['batch_size'],
-                                      callbacks=[earlyStopping], 
+                                      callbacks=[earlyStopping],
                                       verbose=train_info['train_verbose'],
                                       validation_data=(trgt,
                                                        trgt),
@@ -126,7 +126,7 @@ class NLPCA():
                 trn_desc[inlpca]['epochs'] = init_trn_desc.epoch
                 trn_desc[inlpca]['perf'] = init_trn_desc.history['loss']
                 trn_desc[inlpca]['vperf'] = init_trn_desc.history['val_loss']
-                    
+
         (nlpca_extractor[inlpca].save(
                 '%s.h5'%(nlpcas_file_name)))
 
@@ -160,19 +160,19 @@ class NLPCA():
         #for ifold in range(train_info['n_folds']):
             #if ifold > 1:
             #    continue
-        
+
             # classifiers = {}
             # results = {}
-        
+
             # nlpcas_file_name = self.save_path+'/output_files'+'/'+choose_date+'_nlpcas'
-        
+
         for inlpca in range(train_info['n_nlpcas']):
-                
+
             nlpca_model = load_model('%s.h5'%(nlpcas_file_name))
             print "Loading Model: "+file_name
             # best_init = 0
             # best_loss = 999
-            
+
             # with a Sequential model
             get_layer_output = K.function([nlpca_model.layers[0].input],
                                   [nlpca_model.layers[2].output])
@@ -185,28 +185,28 @@ class NLPCA():
                        # (ifold+1,train_info['n_folds'],
                         # inlpca+1,train_info['n_nlpcas'],
                         # i_init+1,train_info['n_inits']))
-                
+
                 # model = Sequential()
-                # model.add(Dense(data_proj_nlpca.shape[1], 
+                # model.add(Dense(data_proj_nlpca.shape[1],
                                 # input_dim=data_proj_nlpca.shape[1],
                                 # init='identity',trainable=False))
                 # model.add(Activation('linear'))
                 # model.add(Dense(50, input_dim=data_proj_nlpca.shape[1], init='uniform'))
                 # model.add(Activation('tanh'))
-                # model.add(Dense(trgt_sparse.shape[1], init='uniform')) 
+                # model.add(Dense(trgt_sparse.shape[1], init='uniform'))
                 # model.add(Activation('tanh'))
-                
+
                 # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-                # model.compile(loss='mean_squared_error', 
+                # model.compile(loss='mean_squared_error',
                               # optimizer=sgd, metrics=['accuracy'])
-                    
-                # earlyStopping = callbacks.EarlyStopping(monitor='val_loss', patience=25, 
+
+                # earlyStopping = callbacks.EarlyStopping(monitor='val_loss', patience=25,
                                                 # verbose=0, mode='auto')
                 # # Train model
-                # init_trn_desc = model.fit(data_proj_nlpca[train_id], trgt_sparse[train_id], 
+                # init_trn_desc = model.fit(data_proj_nlpca[train_id], trgt_sparse[train_id],
                                           # nb_epoch=50,
                                           # batch_size=8,
-                                          # callbacks=[earlyStopping], 
+                                          # callbacks=[earlyStopping],
                                           # verbose=0,
                                           # validation_data=(data_proj_nlpca[test_id],
                                                            # trgt_sparse[test_id]),
@@ -215,5 +215,5 @@ class NLPCA():
                     # best_init = i_init
                     # best_loss = np.min(init_trn_desc.history['val_loss'])
                     # classifiers[ifold][inlpca] = model
-                    
-            # classifiers[ifold][inlpca].save('%s_classifiers_fold_%i_inlpca_%i.h5'%(nlpcas_file_name,ifold,inlpca))  
+
+            # classifiers[ifold][inlpca].save('%s_classifiers_fold_%i_inlpca_%i.h5'%(nlpcas_file_name,ifold,inlpca))
