@@ -1531,7 +1531,7 @@ class NLPCA( PrepObj ):
     self._sort = sort
     self._etBinIdx = etBinIdx
     self._etaBinIdx = etaBinIdx
-    print(self._caltype)
+    #print(self._caltype)
 
     import copy
     data = copy.deepcopy(trnData)
