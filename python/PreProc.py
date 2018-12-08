@@ -1605,21 +1605,21 @@ class NLPCA( PrepObj ):
     #self._info(self._hidden_neurons)
 
     self._NLPCA.trainNLPCA(data=data,
-                      trgt=val_Data,
-                      n_inits = self._n_inits,
-                      n_nlpcas=self._n_nlpcas,
-                      n_neurons_mapping=self._n_neurons_mapping,
-                      learning_rate=0.01,
-                      learning_decay=0.00001,
-                      momentum=0.3,
-                      nesterov=True,
-                      train_verbose=True,
-                      n_epochs=self._n_epochs,
-                      batch_size=self._batch_size,
-                      sort=sort,
-                      etBinIdx=etBinIdx,
-                      etaBinIdx=etaBinIdx,
-                      tuning_folder = tuning_folder)
+                           trgt=val_Data,
+                           n_inits = self._n_inits,
+                           n_nlpcas=self._n_nlpcas,
+                           n_neurons_mapping=self._n_neurons_mapping,
+                           learning_rate=0.01,
+                           learning_decay=0.00001,
+                           momentum=0.3,
+                           nesterov=True,
+                           train_verbose=True,
+                           n_epochs=self._n_epochs,
+                           batch_size=self._batch_size,
+                           sort=sort,
+                           etBinIdx=etBinIdx,
+                           etaBinIdx=etaBinIdx,
+                           tuning_folder = tuning_folder)
 
     # self._trn_desc = trn_desc
     # self._weights = model.get_weights()

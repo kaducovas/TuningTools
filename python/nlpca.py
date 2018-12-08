@@ -31,7 +31,7 @@ class NLPCA():
         self.analysis_str     = 'NLPCA'
         #self._aetype = aetype
 
-    def trainNLPPCA(self, data=None, trgt=None,n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200,sort=999,etBinIdx=999, etaBinIdx=999, tuning_folder=None):
+    def trainNLPCA(self, data=None, trgt=None,n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200,sort=999,etBinIdx=999, etaBinIdx=999, tuning_folder=None):
 
         # Create a train information file
         #n_folds = n_folds
