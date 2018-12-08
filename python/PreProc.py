@@ -1604,7 +1604,7 @@ class NLPCA( PrepObj ):
 
     #self._info(self._hidden_neurons)
 
-    self._NLPCA.trainNLPPCA(data=data,
+    self._NLPCA.trainNLPCA(data=data,
                       trgt=val_Data,
                       n_inits = self._n_inits,
                       n_nlpcas=self._n_nlpcas,
