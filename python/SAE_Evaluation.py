@@ -1290,15 +1290,16 @@ def get_reconstructionErrVector(data=None,reconstruct=None):
   return reconstructionError
 
 def concatReconstructionError(data=None,reconstructErrVector=None):
-  reconstructErrVectorapplyNorm1(data=reconstructErrVector)
+  reconstructErrVector = applyNorm1(data=reconstructErrVector)
   if isinstance(data, (tuple, list,)):
     concatReconstructionError = []
     for i, cdata in enumerate(data):
       # #print i,cdata.shape
-      concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1))
+      concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1)))
   return concatReconstructionError
 
-def applyNorm1(data=data):
+def applyNorm1(data=None):
+    from TuningTools.coreDef import npCurrent
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
@@ -1320,7 +1321,7 @@ def applyNorm1(data=data):
     else:
       ret = data / norms
     return ret
-  
+
 def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
@@ -1975,7 +1976,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
 #           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
 #          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
 #    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
-  plt.tight_layout()
+  plt.tight_layout(rect=[0, 0.03, 1, 0.95])
   if Normed:
     prefix='Normalized '
   else:
