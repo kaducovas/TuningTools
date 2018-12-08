@@ -1500,10 +1500,10 @@ class NLPCA( PrepObj ):
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits
-    
+
     self._n_nlpcas=n_nlpcas
     self._n_neurons_mapping=n_neurons_mapping
-    
+
     self._hidden_activation = hidden_activation
     self._output_activation = output_activation
     self._n_epochs = n_epochs
@@ -1518,17 +1518,6 @@ class NLPCA( PrepObj ):
     self._trn_params = ''
     self._trn_desc = ''
     self._weights = ''
-
-                      n_inits = self._n_inits, 
-                      n_nlpcas=self._n_nlpcas, 
-                      n_neurons_mapping=self._n_neurons_mapping, 
-                      learning_rate=0.01,
-                      learning_decay=0.00001, 
-                      momentum=0.3, 
-                      nesterov=True, 
-                      train_verbose=True, 
-                      n_epochs=self._n_epochs, 
-                      batch_size=self._batch_size,
 
   def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
 
@@ -1616,20 +1605,20 @@ class NLPCA( PrepObj ):
     #self._info(self._hidden_neurons)
 
     NLPCA.trainNLPPCA(data=data,
-                      trgt=val_Data, 
-                      n_inits = self._n_inits, 
-                      n_nlpcas=self._n_nlpcas, 
-                      n_neurons_mapping=self._n_neurons_mapping, 
+                      trgt=val_Data,
+                      n_inits = self._n_inits,
+                      n_nlpcas=self._n_nlpcas,
+                      n_neurons_mapping=self._n_neurons_mapping,
                       learning_rate=0.01,
-                      learning_decay=0.00001, 
-                      momentum=0.3, 
-                      nesterov=True, 
-                      train_verbose=True, 
-                      n_epochs=self._n_epochs, 
+                      learning_decay=0.00001,
+                      momentum=0.3,
+                      nesterov=True,
+                      train_verbose=True,
+                      n_epochs=self._n_epochs,
                       batch_size=self._batch_size,
                       sort=sort,
-                      etBinIdx=etBinIdx, 
-                      etaBinIdx=etaBinIdx, 
+                      etBinIdx=etBinIdx,
+                      etaBinIdx=etaBinIdx,
                       tuning_folder = tuning_folder)
 
     # self._trn_desc = trn_desc
@@ -1646,7 +1635,7 @@ class NLPCA( PrepObj ):
       String representation of the object.
     """
     return ("NLPCA_"+str(self._n_neurons_mapping)+'-'+str(self._n_nlpcas))
-    
+
   def shortName(self):
     """
       Short string representation of the object.
@@ -1664,7 +1653,7 @@ class NLPCA( PrepObj ):
       ret = []
       for cdata in data:
 	#self._info(cdata.shape)
-	
+
         ret.append(self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=_sort,etBinIdx=_etBinIdx, etaBinIdx=_etaBinIdx))
     else:
       ret = self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=_sort,etBinIdx=_etBinIdx, etaBinIdx=_etaBinIdx)
