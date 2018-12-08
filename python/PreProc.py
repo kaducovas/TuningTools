@@ -34,6 +34,7 @@ print 'PreProc '+keras.__version__
 
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.StackedAutoEncoders import StackedAutoEncoders
+from TuningTools.nlpca import NLPCA
 
 import multiprocessing
 
@@ -1588,8 +1589,7 @@ class NLPCA( PrepObj ):
 
 
     # Train Process
-    NLPCA = NLPCA(params = trn_params,
-                              development_flag = False,
+    NLPCA = NLPCA(development_flag = False,
                               #n_folds = 1,
                               save_path = results_path #,
                               #prefix_str=self._caltype,
