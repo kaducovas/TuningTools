@@ -1482,6 +1482,205 @@ class LSTMAutoEncoder( PrepObj ):
     #
     return ret
 
+class NLPCA( PrepObj ):
+  """
+    Train the encoders in order to stack them as pre-processing afterwards.
+  """
+
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_NLPCA',})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {})
+
+
+  def __init__(self,n_inits=1,n_nlpcas=30, n_neurons_mapping=50, hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=10,batch_size=200,layer=1, d = {}, **kw):
+    d.update( kw ); del kw
+    from RingerCore import retrieve_kw
+    #self._caltype = retrieve_kw(d,'caltype','allcalo')
+    #self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
+    #self._dataEncoded = retrieve_kw(d,'dataEncoded','all') #all, signal, background
+    PrepObj.__init__( self, d )
+    checkForUnusedVars(d, self._warning )
+    self._n_inits = n_inits
+    
+    self._n_nlpcas=n_nlpcas
+    self._n_neurons_mapping=n_neurons_mapping
+    
+    self._hidden_activation = hidden_activation
+    self._output_activation = output_activation
+    self._n_epochs = n_epochs
+    self._patience = patience
+    self._batch_size = batch_size
+    self._layer= layer
+    del d
+    self._sort = ''
+    self._etBinIdx = ''
+    self._etaBinIdx = ''
+    self._SAE = ''
+    self._trn_params = ''
+    self._trn_desc = ''
+    self._weights = ''
+
+                      n_inits = self._n_inits, 
+                      n_nlpcas=self._n_nlpcas, 
+                      n_neurons_mapping=self._n_neurons_mapping, 
+                      learning_rate=0.01,
+                      learning_decay=0.00001, 
+                      momentum=0.3, 
+                      nesterov=True, 
+                      train_verbose=True, 
+                      n_epochs=self._n_epochs, 
+                      batch_size=self._batch_size,
+
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
+
+  ###trainlayer
+
+    """
+      Perform the layerwise algorithm to train the SAE
+    """
+
+    # TODO...
+    self._sort = sort
+    self._etBinIdx = etBinIdx
+    self._etaBinIdx = etaBinIdx
+    print(self._caltype)
+
+    import copy
+    data = copy.deepcopy(trnData)
+    val_Data = copy.deepcopy(valData)
+
+    self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
+    self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
+
+    #data = [d[:100] for d in data]
+    #val_Data = [d[:100] for d in val_Data]
+
+    #print "TESTEEEE"+tuning_folder
+
+    self._batch_size = min(data[0].shape[0],data[1].shape[0])
+
+    import numpy
+    work_path='/scratch/22061a/caducovas/run/'
+    results_path = work_path+"StackedAutoEncoder_preproc/"
+    numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0]),val_Data)
+    #trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0])+'.jbl'
+
+    # #Autoencoder Types paraemters and definitions
+    # if self._aetype == 'sparse':
+      # regularizer='l1'
+      # regularizer_param=10e-5
+    # else:
+      # #regularizer='dropout'
+      # #regularizer_param=0.5
+      # regularizer=None
+      # regularizer_param=None
+
+    ###if self._aetype == 'contractive':
+    ###  from TuningTools.MetricsLosses import contractive_loss
+    ####  loss=contractive_loss
+    ####else:
+    ####  loss='mean_squared_error'
+
+    # if os.path.exists(trn_params_folder):
+        # os.remove(trn_params_folder)
+    # if not os.path.exists(trn_params_folder):
+        # trn_params = trnparams.NeuralClassificationTrnParams(n_inits=self._n_inits,
+                                                             # hidden_activation=self._hidden_activation,
+                                                             # output_activation=self._output_activation,
+                                                             # n_epochs=self._n_epochs,
+                                                             # patience=self._patience,
+                                                             # batch_size=self._batch_size) #,
+                                                             # #loss=loss)
+    # trn_params.save(trn_params_folder)
+
+    # self._trn_params = trn_params
+
+    # self._info(trn_params.get_params_str())
+
+
+
+    # Train Process
+    NLPCA = nlpca(params = trn_params,
+                              development_flag = False,
+                              #n_folds = 1,
+                              save_path = results_path #,
+                              #prefix_str=self._caltype,
+                              # aetype=self._aetype,
+                              # dataEncoded=self._dataEncoded
+                              )
+
+    self._NLPCA = NLPCA
+
+    # Choose layer to be trained
+    #layer = self._layer
+
+    #self._info(self._hidden_neurons)
+
+    NLPCA.trainNLPPCA(data=data,
+                      trgt=val_Data, 
+                      n_inits = self._n_inits, 
+                      n_nlpcas=self._n_nlpcas, 
+                      n_neurons_mapping=self._n_neurons_mapping, 
+                      learning_rate=0.01,
+                      learning_decay=0.00001, 
+                      momentum=0.3, 
+                      nesterov=True, 
+                      train_verbose=True, 
+                      n_epochs=self._n_epochs, 
+                      batch_size=self._batch_size,
+                      sort=sort,
+                      etBinIdx=etBinIdx, 
+                      etaBinIdx=etaBinIdx, 
+                      tuning_folder = tuning_folder)
+
+    # self._trn_desc = trn_desc
+    # self._weights = model.get_weights()
+    # self._trn_params = model.get_config()
+    #self._info(self._SAE)
+
+    return self._apply(trnData)
+
+
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+    return ("NLPCA_"+str(self._n_neurons_mapping)+'-'+str(self._n_nlpcas))
+    
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return ("NLPCA_"+str(self._n_neurons_mapping)+'-'+str(self._n_nlpcas))
+
+  def _apply(self, data):
+    #self._info(pp.shortName())
+    #self._info(self._etBinIdx)
+    #self._info(self._etaBinIdx)
+    ###get data projection
+    #if not self._mean.size or not self._invRMS.size:
+    #  self._fatal("Attempted to apply MapStd before taking its parameters.")
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      for cdata in data:
+	#self._info(cdata.shape)
+	
+        ret.append(self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=_sort,etBinIdx=_etBinIdx, etaBinIdx=_etaBinIdx))
+    else:
+      ret = self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=_sort,etBinIdx=_etBinIdx, etaBinIdx=_etaBinIdx)
+    return ret
+
+  # def _undo(self, data):
+    # if not self._mean.size or not self._invRMS.size:
+      # self._fatal("Attempted to undo MapStd before taking its parameters.")
+    # if isinstance(data, (tuple, list,)):
+      # ret = []
+      # for i, cdata in enumerate(data):
+        # ret.append( ( cdata / self._invRMS ) + self._mean )
+    # else:
+      # ret = ( data / self._invRMS ) + self._mean
+    #
+    return ret
 
 class MapStd_MassInvariant( MapStd ):
   """

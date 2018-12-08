@@ -21,26 +21,25 @@ class NLPCA():
 
     def __init__(self, params = None, development_flag = False, save_path='', prefix_str='RawData',aetype='vanilla', CVO=None,
                  noveltyDetection=False, inovelty = 0):
-        self.trn_params       = params
+        #self.trn_params       = params
         self.development_flag = development_flag
-        self.n_folds          = n_folds
+        #self.n_folds          = n_folds
         self.save_path        = save_path
-        self.noveltyDetection = noveltyDetection
 
-        self.n_inits          = self.trn_params.params['n_inits']
-        self.params_str       = self.trn_params.get_params_str()
+        #self.n_inits          = self.trn_params.params['n_inits']
+        #self.params_str       = self.trn_params.get_params_str()
         self.analysis_str     = 'NLPCA'
-        self._aetype = aetype    
+        #self._aetype = aetype    
 
-    def trainNLPPCA(self, data=None, trgt=None,n_folds = 1, n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200,sort=999,etBinIdx=999, etaBinIdx=999):
+    def trainNLPPCA(self, data=None, trgt=None,n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200,sort=999,etBinIdx=999, etaBinIdx=999, tuning_folder=None):
 
         # Create a train information file
-        n_folds = n_folds
+        #n_folds = n_folds
         n_inits = n_inits
         n_nlpcas = n_nlpcas
 
         train_info = {}
-        train_info['n_folds'] = n_folds
+        #train_info['n_folds'] = n_folds
         train_info['n_inits'] = n_inits
         train_info['n_nlpcas'] = n_nlpcas
         train_info['n_neurons_mapping'] = n_neurons_mapping
@@ -81,7 +80,7 @@ class NLPCA():
                 
         for i_init in range(train_info['n_inits']):
             print ('Fold: %i of %i - NLPCA: %i of %i - Init: %i of %i'
-                   %(sort+1, train_info['n_folds'],
+                   %(sort+1, 
                      inlpca, train_info['n_nlpcas'],
                      i_init+1,train_info['n_inits']))
             model = Sequential()
@@ -134,10 +133,17 @@ class NLPCA():
 
         joblib.dump([trn_desc],'%s_train_desc.jbl'%(nlpcas_file_name),compress=9)
 
+        file_name_prefix  = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
+        with open(self.save_path+tuning_folder,'a+') as t_file:
+            t_file.write(file_name_prefix+ "\n")
+        t_file.close()
+        return
 
-    def getDataProjection(self, data, trgt, n_inits = 1, n_nlpcas=30, n_neurons_mapping=50,n_epochs=5000,sort=999,etBinIdx=999, etaBinIdx=999,sort=999,etBinIdx=999, etaBinIdx=999):
+
+    def getDataProjection(self, data, trgt, n_inits = 1, n_nlpcas=30, n_neurons_mapping=50,n_epochs=5000,sort=999,etBinIdx=999, etaBinIdx=999):
 
         #choose_date = '2016_09_21_20_56_00'
+        proj_all_data = data
         file_name = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i_model.h5'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
         # load train info
         train_info_name = self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
@@ -151,30 +157,29 @@ class NLPCA():
         # get the output of an intermediate layer
         from keras import backend as K
 
-        for ifold in range(train_info['n_folds']):
-            if ifold > 1:
-                continue
-            
-            train_id, test_id = train_info['CVO'][ifold]
+        #for ifold in range(train_info['n_folds']):
+            #if ifold > 1:
+            #    continue
         
-            classifiers[ifold] = {}
-            results[ifold] = {}
+            # classifiers = {}
+            # results = {}
         
-            nlpcas_file_name = self.save_path+'/output_files'+'/'+choose_date+'_nlpcas'
+            # nlpcas_file_name = self.save_path+'/output_files'+'/'+choose_date+'_nlpcas'
         
-            for inlpca in range(train_info['n_nlpcas']):
+        for inlpca in range(train_info['n_nlpcas']):
                 
-                nlpca_model = load_model('%s_fold_%i_inlpca_%i.h5'%(nlpcas_file_name,ifold,inlpca))
+            nlpca_model = load_model('%s.h5'%(nlpcas_file_name))
+            print "Loading Model: "+file_name
+            # best_init = 0
+            # best_loss = 999
             
-                best_init = 0
-                best_loss = 999
-            
-                # with a Sequential model
-                get_layer_output = K.function([nlpca_model.layers[0].input],
-                                      [nlpca_model.layers[2].output])
-                data_proj_nlpca = get_layer_output([norm_all_data])[0]
+            # with a Sequential model
+            get_layer_output = K.function([nlpca_model.layers[0].input],
+                                  [nlpca_model.layers[2].output])
+            data_proj_nlpca = get_layer_output([proj_all_data])[0]
         return data_proj_nlpca
-            # ###Daqui pra baixo é o classificador. Acho que nao precisa
+
+            # ###Daqui pra baixo eh o classificador. Acho que nao precisa
             # for i_init in range(train_info['n_inits']):
                 # print ("Processing Fold: %i of %i - NLPCA %i of %i - Init %i of %i"%
                        # (ifold+1,train_info['n_folds'],
