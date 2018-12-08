@@ -1589,7 +1589,7 @@ class NLPCA( PrepObj ):
 
 
     # Train Process
-    self._NLPCA = NLPCA(development_flag = False,
+    NonLinearPCA = NLPCA(development_flag = False,
                               #n_folds = 1,
                               save_path = results_path #,
                               #prefix_str=self._caltype,
@@ -1597,14 +1597,14 @@ class NLPCA( PrepObj ):
                               # dataEncoded=self._dataEncoded
                               )
 
-    #self._NLPCA = NLPCA
+    self._NLPCA = NonLinearPCA
 
     # Choose layer to be trained
     #layer = self._layer
 
     #self._info(self._hidden_neurons)
 
-    self._NLPCA.trainNLPCA(data=data,
+    NonLinearPCA.trainNLPCA(data=data,
                            trgt=val_Data,
                            n_inits = self._n_inits,
                            n_nlpcas=self._n_nlpcas,
