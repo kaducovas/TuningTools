@@ -34,7 +34,7 @@ print 'PreProc '+keras.__version__
 
 from TuningTools import SAE_TrainParameters as trnparams
 from TuningTools.StackedAutoEncoders import StackedAutoEncoders
-from TuningTools.nlpca import NLPCA
+from TuningTools.nlpca import NonLinPCA
 
 import multiprocessing
 
@@ -1515,7 +1515,7 @@ class NLPCA( PrepObj ):
     self._sort = ''
     self._etBinIdx = ''
     self._etaBinIdx = ''
-    self._SAE = ''
+    self._NLPCA = ''
     self._trn_params = ''
     self._trn_desc = ''
     self._weights = ''
@@ -1550,9 +1550,14 @@ class NLPCA( PrepObj ):
 
     import numpy
     work_path='/scratch/22061a/caducovas/run/'
-    results_path = work_path+"StackedAutoEncoder_preproc/"
+    results_path = work_path+"nlpca_preproc/"
     #numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0]),val_Data)
     #trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0])+'.jbl'
+
+    if isinstance(data, (tuple, list,)):
+      data = np.concatenate( data, axis=npCurrent.odim )
+    if isinstance(val_Data, (tuple, list,)):
+      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
 
     # #Autoencoder Types paraemters and definitions
     # if self._aetype == 'sparse':
@@ -1589,20 +1594,14 @@ class NLPCA( PrepObj ):
 
 
     # Train Process
-    NonLinearPCA = NLPCA(development_flag = False,
-                              #n_folds = 1,
-                              save_path = results_path #,
-                              #prefix_str=self._caltype,
-                              # aetype=self._aetype,
-                              # dataEncoded=self._dataEncoded
-                              )
+    NonLinearPCA = NonLinPCA(save_path = results_path)
 
     self._NLPCA = NonLinearPCA
 
     # Choose layer to be trained
     #layer = self._layer
 
-    #self._info(self._hidden_neurons)
+    self._info(NonLinearPCA)
 
     NonLinearPCA.trainNLPCA(data=data,
                            trgt=val_Data,

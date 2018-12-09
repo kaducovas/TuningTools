@@ -17,19 +17,12 @@ import numpy.linalg as la
 
 #m_time = time.time()
 
-class NLPCA():
+class NonLinPCA:
 
-    def __init__(self, params = None, development_flag = False, save_path='', prefix_str='RawData',aetype='vanilla', CVO=None,
-                 noveltyDetection=False, inovelty = 0):
-        #self.trn_params       = params
-        self.development_flag = development_flag
-        #self.n_folds          = n_folds
+    def __init__(self, save_path=''):
+        self.development_flag = False
         self.save_path        = save_path
-
-        #self.n_inits          = self.trn_params.params['n_inits']
-        #self.params_str       = self.trn_params.get_params_str()
         self.analysis_str     = 'NLPCA'
-        #self._aetype = aetype
 
     def trainNLPCA(self, data=None, trgt=None,n_inits = 1, n_nlpcas=30, n_neurons_mapping=50, learning_rate=0.01,learning_decay=0.00001, momentum=0.3, nesterov=True, train_verbose=True, n_epochs=5000, batch_size=200,sort=999,etBinIdx=999, etaBinIdx=999, tuning_folder=None):
 
@@ -37,7 +30,7 @@ class NLPCA():
         #n_folds = n_folds
         n_inits = n_inits
         n_nlpcas = n_nlpcas
-
+        print "qq eh isso"
         train_info = {}
         #train_info['n_folds'] = n_folds
         train_info['n_inits'] = n_inits
@@ -79,9 +72,9 @@ class NLPCA():
         best_loss = 999
 
         for i_init in range(train_info['n_inits']):
-            print ('Fold: %i of %i - NLPCA: %i of %i - Init: %i of %i'
+            print ('Fold: %i - NLPCA: %i of %i - Init: %i of %i'
                    %(sort+1,
-                     inlpca, train_info['n_nlpcas'],
+                     n_nlpcas, train_info['n_nlpcas'],
                      i_init+1,train_info['n_inits']))
             model = Sequential()
             # model.add(Dense(all_data.shape[1],
@@ -90,7 +83,7 @@ class NLPCA():
             # model.add(Activation('linear'))
             model.add(Dense(n_neurons_mapping, input_dim=data.shape[1], init='uniform'))
             model.add(Activation('tanh'))
-            model.add(Dense(inlpca,init='uniform'))
+            model.add(Dense(n_nlpcas,init='uniform'))
             model.add(Activation('tanh'))
             model.add(Dense(n_neurons_mapping,init='uniform'))
             model.add(Activation('tanh'))
