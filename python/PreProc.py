@@ -1653,9 +1653,9 @@ class NLPCA( PrepObj ):
       for cdata in data:
 	#self._info(cdata.shape)
 
-        ret.append(self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=_sort,etBinIdx=_etBinIdx, etaBinIdx=_etaBinIdx))
+        ret.append(self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=self._sort,etBinIdx=self._etBinIdx, etaBinIdx=self._etaBinIdx))
     else:
-      ret = self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=_sort,etBinIdx=_etBinIdx, etaBinIdx=_etaBinIdx)
+      ret = self._NLPCA.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=self._sort,etBinIdx=self._etBinIdx, etaBinIdx=self._etaBinIdx)
     return ret
 
   # def _undo(self, data):
