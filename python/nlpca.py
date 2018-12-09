@@ -114,13 +114,13 @@ class NonLinPCA:
             if np.min(init_trn_desc.history['val_loss']) < best_loss:
                 best_init = i_init
                 best_loss = np.min(init_trn_desc.history['val_loss'])
-                nlpca_extractor[inlpca] = model
-                trn_desc[inlpca] = {}
-                trn_desc[inlpca]['epochs'] = init_trn_desc.epoch
-                trn_desc[inlpca]['perf'] = init_trn_desc.history['loss']
-                trn_desc[inlpca]['vperf'] = init_trn_desc.history['val_loss']
+                nlpca_extractor[n_nlpcas] = model
+                trn_desc[n_nlpcas] = {}
+                trn_desc[n_nlpcas]['epochs'] = init_trn_desc.epoch
+                trn_desc[n_nlpcas]['perf'] = init_trn_desc.history['loss']
+                trn_desc[n_nlpcas]['vperf'] = init_trn_desc.history['val_loss']
 
-        (nlpca_extractor[inlpca].save(
+        (nlpca_extractor[n_nlpcas].save(
                 '%s.h5'%(nlpcas_file_name)))
 
 
@@ -159,17 +159,17 @@ class NonLinPCA:
 
             # nlpcas_file_name = self.save_path+'/output_files'+'/'+choose_date+'_nlpcas'
 
-        for inlpca in range(train_info['n_nlpcas']):
+        #for inlpca in range(train_info['n_nlpcas']):
 
-            nlpca_model = load_model('%s.h5'%(nlpcas_file_name))
-            print "Loading Model: "+file_name
+        nlpca_model = load_model('%s.h5'%(nlpcas_file_name))
+        print "Loading Model: "+file_name
             # best_init = 0
             # best_loss = 999
 
             # with a Sequential model
-            get_layer_output = K.function([nlpca_model.layers[0].input],
-                                  [nlpca_model.layers[2].output])
-            data_proj_nlpca = get_layer_output([proj_all_data])[0]
+        get_layer_output = K.function([nlpca_model.layers[0].input],
+                              [nlpca_model.layers[2].output])
+        data_proj_nlpca = get_layer_output([proj_all_data])[0]
         return data_proj_nlpca
 
             # ###Daqui pra baixo eh o classificador. Acho que nao precisa
