@@ -12,7 +12,7 @@ from sklearn.externals import joblib
 
 from sklearn import cross_validation
 from sklearn import preprocessing
-
+import numpy as np
 import numpy.linalg as la
 
 #m_time = time.time()
