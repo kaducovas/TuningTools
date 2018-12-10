@@ -1510,7 +1510,7 @@ class TuningJob(Logger):
           trnData,valData = ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder_name)
           self._debug('Done tuning pre-processing chain!')
           print "TA FODA HEIN"
-          self._info('Applying pre-processing chain to remaining sets...')
+          #self._info('Applying pre-processing chain to remaining sets...')
           print  "Apply ppChain:"
           time.sleep(2*sort)
 
