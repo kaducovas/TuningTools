@@ -860,6 +860,7 @@ class MapStd( PrepObj ):
     return "std"
 
   def _apply(self, data):
+    self._beforenorm = data
     if not self._mean.size or not self._invRMS.size:
       self._fatal("Attempted to apply MapStd before taking its parameters.")
     if isinstance(data, (tuple, list,)):
@@ -868,6 +869,7 @@ class MapStd( PrepObj ):
         ret.append( ( cdata - self._mean ) * self._invRMS )
     else:
       ret = ( data - self._mean ) * self._invRMS
+    self._afternorm = ret
     return ret
 
   def _undo(self, data):
@@ -890,7 +892,7 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=10,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=10,hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=10,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
@@ -2217,7 +2219,7 @@ class PreProcChain ( Logger ):
     emcalo = False
     hadcalo = False
     for pp in self:
-      if pp.shortName() == 'N1':
+      if pp.shortName() == 'N1' or pp.shortName() == 'std':
         trnData = pp._trn_norm1
         valData = pp._val_norm1
         pp._trn_norm1=''
@@ -2265,12 +2267,19 @@ class PreProcChain ( Logger ):
         print len(pp._beforenorm),pp._beforenorm[0].shape,pp._beforenorm[1].shape
         print len(pp._afternorm),pp._afternorm[0].shape,pp._afternorm[1].shape
         print len(pp._normslist),pp._normslist[0].shape,pp._normslist[1].shape
+
         self._normslist = ''
         self._beforenorm = ''
         self._afternorm = ''
         pp._trn_norm1=''
         pp._val_norm1=''
-
+      elif pp.shortName() == 'std':
+        normslist=[]
+        normslist.append(pp._mean)
+        normslist.append(pp._invRMS)
+        norm1Par.append(pp._beforenorm)
+        norm1Par.append(normslist)
+        norm1Par.append(pp._afternorm)
         # valData = pp._val_norm1
         # pp._trn_norm1=''
         # pp._val_norm1=''
