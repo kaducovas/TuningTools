@@ -1812,7 +1812,7 @@ def plot_input_reconstruction_delta_separed(norm1Par=None,reconstruct=None,model
     ax1.tick_params(labelsize= 15)
     ax1.legend(loc='best', fontsize='xx-large')
     ax12 = ax1.twinx()
-    ax12.plot(np.arange(beforenorm[0].shape[1]), (np.mean(unnorm_reconstruct[0], axis=0) - np.mean(beforenorm[0], axis=0))/np.std(beforenorm[0], axis=0), marker='<' color='cornflowerblue')
+    ax12.plot(np.arange(beforenorm[0].shape[1]), (np.mean(unnorm_reconstruct[0], axis=0) - np.mean(beforenorm[0], axis=0))/np.std(beforenorm[0], axis=0), marker='<', color='cornflowerblue')
     ax12.set_ylabel('Delta Energy / Sigma(Input Energy)', fontsize='xx-large')
     #ax12.set_ylim(top=1)
 
