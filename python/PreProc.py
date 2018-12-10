@@ -2298,6 +2298,14 @@ class PreProcChain ( Logger ):
 
     return norm1Par
 
+  def getPCAModel(self):
+    """
+      Return the PCA model in order to make it possible to return to the original space
+    """
+    for pp in self:
+      if 'PCA' in str(pp.shortName()):
+        return self._pca
+
   def getHiddenLayer(self):
     """
       Return a list with the number of neurons on the hidden layer,weights and configuration for Stacked AutoEncoders.

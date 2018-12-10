@@ -747,6 +747,16 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
   reconstruct[bottleneck]=predict
   return reconstruct,target
 
+def getPCAReconstruct(data=None,model=None):
+  reconstruct = OrderedDict()
+  if isinstance(data, (tuple, list,)):
+    ret = []
+    for i, cdata in enumerate(data):
+      ret.append( self._pca.inverse_transform(cdata) )
+   else:
+     ret = self._pca.inverse_transform(cdata)
+   reconstruct[data[0].shape[1] = ret
+
 def getReconstruct(fname,data,sort):
   #from SAE_Evaluation import *
 
@@ -1372,6 +1382,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                         #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
                         mse_score = mean_squared_error(b[:,rings],r[:,rings])
                         corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+                        axs[i,j].legend(loc=2)
                         axs[i,j].set_ylabel('#'+str(rings+1), color='b')
                         at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(round(100*corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
                                           prop=dict(size=8), frameon=True,
@@ -1439,6 +1450,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
                             #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
                             mse_score = mean_squared_error(b[:,rings],r[:,rings])
                             corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+                            axs[i,j].legend(loc=2)
                             axs[i,j].set_ylabel('#'+str(rings+1), color='b')
                             #at = AnchoredText(r'ATLAS $\sqrt{s}$ = 13 TeV'+"\nMC16 Calo\n\nInput \nMean: "+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
                             at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(round(100*corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
