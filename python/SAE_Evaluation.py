@@ -1693,6 +1693,169 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
+def plot_input_reconstruction_delta(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+  import sqlite3
+  import pandas as pd
+  from numpy import nan
+  #%matplotlib inline
+  import matplotlib.pyplot as plt
+  png_files=[]
+
+  plt.style.use('ggplot')
+  # # Et and Eta indices
+  # et_index  = [0, 1, 2,3]
+  # etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+
+  # eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+  # etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+
+  beforenorm = norm1Par[0]
+  normlist = norm1Par[1]
+  afternorm = norm1Par[2]
+
+  if isinstance(reconstruct[layer], (tuple, list,)):
+      unnorm_reconstruct = []
+      for i, cdata in enumerate(reconstruct[layer]):
+          #print i,cdata.shape
+          unnorm_reconstruct.append( cdata * normlist[i])
+      unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+      beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+
+  #et_index  = [1,2]
+  #etRange = ['[20, 30]']
+
+  #eta_index = [1,2]
+  #etaRange = ['[0.6, 0.8]']
+
+  #for iet, etrange in zip(et_index, etRange):
+  #  for ieta, etarange in zip(eta_index, etaRange):
+  iet =  etBinIdx
+  etrange = etRange[etBinIdx]
+  ieta = etaBinIdx
+  etarange = etaRange[etaBinIdx]
+      #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+      #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+
+
+  fig, ax = plt.figure(figsize=(16,10))
+  ax.errorbar(np.arange(beforenorm_val_Data.shape[1]), np.mean(beforenorm_val_Data, axis=0),yerr=np.std(beforenorm_val_Data, axis=0), fmt='D-', color='crimson', label='Mean Profile')
+  ax.errorbar(np.arange(unnorm_reconstruct_val_Data.shape[1]), np.mean(unnorm_reconstruct_val_Data, axis=0),yerr=np.std(unnorm_reconstruct_val_Data, axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+  ax2 = ax.twinx()
+  ax2.plot(np.arange(beforenorm_val_Data.shape[1]), (np.mean(unnorm_reconstruct_val_Data, axis=0) - np.mean(beforenorm_val_Data, axis=0))/np.std(beforenorm_val_Data, axis=0), marker='gD-', color='cornflowerblue')
+  ax2.set_ylabel('Delta Energy / Sigma(Input Energy', fontsize='xx-large')  
+  #print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
+  #print np.mean(sgn,axis=0),np.std(sgn,axis=0)
+  #print np.mean(bkg,axis=0),np.std(bkg,axis=0)
+
+  ax2.set_xlabel('#Rings', fontsize= 20)
+  ax2.set_ylabel('Energy [MeV]',fontsize= 20)
+  ax2.tick_params(labelsize= 15)
+  ax.legend(loc='best', fontsize='xx-large')
+
+  #plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  for i in [7, 71, 79, 87, 91, 95]:
+    plt.axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  plt.title(r'Delta Energy - '+model_name+' - '+str(layer), fontsize=24)
+
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = 0 #*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    plt.text(x,y,text, fontsize=15, rotation=90)
+
+  #plt.show()
+  plt.savefig(dirout+'/delta_energy_'+str(layer)+'_'+model_name+'_'+time+'.png')
+  png_files.append(dirout+'/delta_energy_'+str(layer)+'_'+model_name+'_'+time+'.png')
+  plt.clf()
+  plt.close()
+  return png_files
+
+def plot_input_reconstruction_delta_separed(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+    import sqlite3
+    import pandas as pd
+    from numpy import nan
+    #%matplotlib inline
+    import matplotlib.pyplot as plt
+    plt.style.use('ggplot')
+
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    classes=['Signal','Background']
+##TEM DOIS IDENTS QUE TEM QUE TIRAR. O DO FOR LAYER E O DO IF IS INSTANCES
+    #for a in reconstruct.keys():
+
+    #print 'LAYER: '+str(layer)
+    #for nsort in reconstruct[layer].keys():
+    #print "Sort: "+str(nsort)
+    if isinstance(reconstruct[layer], (tuple, list,)):
+        unnorm_reconstruct = []
+        for i, cdata in enumerate(reconstruct[layer]):
+            #print i,cdata.shape
+            unnorm_reconstruct.append( cdata * normlist[i])
+
+
+    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
+    ax1.errorbar(np.arange(beforenorm[0].shape[1]), np.mean(beforenorm[0], axis=0),yerr=np.std(beforenorm[0], axis=0), fmt='D-', color='crimson', label='Mean Profile')
+    ax1.errorbar(np.arange(unnorm_reconstruct[0].shape[1]), np.mean(unnorm_reconstruct[0], axis=0),yerr=np.std(unnorm_reconstruct[0], axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+
+    ax1.set_title(r'Signal Profile',fontsize= 20)
+    ax1.set_xlabel('#Rings', fontsize= 20)
+    ax1.set_ylabel('Energy [MeV]',fontsize= 20)
+    ax1.tick_params(labelsize= 15)
+    ax1.legend(loc='best', fontsize='xx-large')
+    ax12 = ax1.twinx()
+    ax12.plot(np.arange(beforenorm[0].shape[1]), (np.mean(unnorm_reconstruct[0], axis=0) - np.mean(beforenorm[0], axis=0))/np.std(beforenorm[0], axis=0), marker='gD-', color='cornflowerblue')
+    ax12.set_ylabel('Delta Energy / Sigma(Input Energy)', fontsize='xx-large')
+    #ax12.set_ylim(top=1)
+
+    ax2.errorbar(np.arange(beforenorm[1].shape[1]), np.mean(beforenorm[1], axis=0),yerr=np.std(beforenorm[1], axis=0), fmt='o-',color='crimson', label='Mean Profile')
+    ax2.errorbar(np.arange(unnorm_reconstruct[1].shape[1]), np.mean(unnorm_reconstruct[1], axis=0),yerr=np.std(unnorm_reconstruct[1], axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+    ax2.set_title(r'Background Patterns',fontsize= 20)
+    ax2.set_xlabel('#Rings', fontsize= 20)
+    ax2.set_ylabel('Energy [MeV]',fontsize= 20)
+    ax2.tick_params(labelsize= 15)
+    ax2.legend(loc='best', fontsize='xx-large')
+    ax22 = ax2.twinx()
+    ax22.plot(np.arange(beforenorm[1].shape[1]), (np.mean(unnorm_reconstruct[1], axis=0) - np.mean(beforenorm[1], axis=0))/np.std(beforenorm[1], axis=0), marker='gD-', color='cornflowerblue')
+    ax22.set_ylabel('Delta Energy / Sigma(Input Energy)', fontsize='xx-large')
+    #ax22.set_ylim(top=1)
+    #plt.legend(['Electron', 'Background'], loc='best', fontsize='xx-large')
+
+    for i in [7, 71, 79, 87, 91, 95]:
+        ax1.axvline(i, color='gray', linestyle='--', linewidth=.8)
+        ax2.axvline(i, color='gray', linestyle='--', linewidth=.8)
+    #log_scale=False
+    #if log_scale:
+    #  y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+    #else:
+    y_position = 0 #0.98 *np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+
+    for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+                      (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+                    (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+        ax1.text(x,y,text, fontsize=15, rotation=90)
+        ax2.text(x,y,text, fontsize=15, rotation=90)
+
+    #    plt.savefig('meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+    #else:
+    #    plt.savefig(output_name+'_meanProfile_et{}_eta{}.pdf'.format(iet, ieta))
+    #plt.show()
+    plt.suptitle('Delta Energy - Signal and Background- '+model_name+' - '+str(layer), fontsize=24)
+    plt.savefig(dirout+'/delta_energy_separated'+str(layer)+'_'+model_name+'_'+time+'.png')
+    plt.clf()
+    plt.close()
+    png_files.append(dirout+'/delta_energy_separated'+str(layer)+'_'+model_name+'_'+time+'.png')
+    return png_files
+
+
 def plot_reconstruction_error(trnReconError=None,valReconError=None,model_name=None,layer=None,time=None,dirout=None):
     png_files=[]
     f, (ax1, ax2) = plt.subplots(1, 2, sharey=True,figsize=(25,10))
