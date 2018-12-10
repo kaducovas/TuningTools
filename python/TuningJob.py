@@ -1829,7 +1829,7 @@ class TuningJob(Logger):
 
           bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
 
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
+          if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
             png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
               png_f = open(png_file,'rb')
