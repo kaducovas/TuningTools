@@ -2304,7 +2304,7 @@ class PreProcChain ( Logger ):
     """
     for pp in self:
       if 'PCA' in str(pp.shortName()):
-        return self._pca
+        return pp._pca
 
   def getHiddenLayer(self):
     """
