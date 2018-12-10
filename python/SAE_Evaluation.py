@@ -758,6 +758,11 @@ def getPCAReconstruct(data=None,model=None):
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
+def getPCACode(data=None):
+  code = OrderedDict()
+  code[data[0].shape[1]] = data
+  return code
+
 def getReconstruct(fname,data,sort):
   #from SAE_Evaluation import *
 

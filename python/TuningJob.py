@@ -1549,6 +1549,7 @@ class TuningJob(Logger):
               pcamodel= ppChain.getPCAModel()
               reconstruct = getPCAReconstruct(data=valData,model=pcamodel)
               target=None
+              code= getPCACode(data=valData)
 
           elif('AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             if('LSTM' in str(ppChain.shortName()) or 'GRU' in str(ppChain.shortName())):
