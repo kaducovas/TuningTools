@@ -1729,10 +1729,10 @@ def plot_input_reconstruction_delta(norm1Par=None,reconstruct=None,model_name=No
 
   #for iet, etrange in zip(et_index, etRange):
   #  for ieta, etarange in zip(eta_index, etaRange):
-  iet =  etBinIdx
-  etrange = etRange[etBinIdx]
-  ieta = etaBinIdx
-  etarange = etaRange[etaBinIdx]
+  ###iet =  etBinIdx
+  ###etrange = etRange[etBinIdx]
+  ###ieta = etaBinIdx
+  ###etarange = etaRange[etaBinIdx]
       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
 
@@ -1742,7 +1742,7 @@ def plot_input_reconstruction_delta(norm1Par=None,reconstruct=None,model_name=No
   ax.errorbar(np.arange(unnorm_reconstruct_val_Data.shape[1]), np.mean(unnorm_reconstruct_val_Data, axis=0),yerr=np.std(unnorm_reconstruct_val_Data, axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
   ax2 = ax.twinx()
   ax2.plot(np.arange(beforenorm_val_Data.shape[1]), (np.mean(unnorm_reconstruct_val_Data, axis=0) - np.mean(beforenorm_val_Data, axis=0))/np.std(beforenorm_val_Data, axis=0), marker='gD-', color='cornflowerblue')
-  ax2.set_ylabel('Delta Energy / Sigma(Input Energy', fontsize='xx-large')  
+  ax2.set_ylabel('Delta Energy / Sigma(Input Energy', fontsize='xx-large')
   #print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
   #print np.mean(sgn,axis=0),np.std(sgn,axis=0)
   #print np.mean(bkg,axis=0),np.std(bkg,axis=0)
