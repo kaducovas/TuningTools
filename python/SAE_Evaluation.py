@@ -755,7 +755,7 @@ def getPCAReconstruct(data=None,model=None):
       ret.append( self._pca.inverse_transform(cdata) )
   else:
     ret = self._pca.inverse_transform(cdata)
-  reconstruct[data[0].shape[1] = ret
+  reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
 def getReconstruct(fname,data,sort):
