@@ -1542,7 +1542,7 @@ class TuningJob(Logger):
           if(sort == 0):
             time.sleep(240)
 
-          if('PCA' in str(ppChain.shortName()):
+          if 'PCA' in str(ppChain.shortName()):
             if('NLPCA' in str(ppChain.shortName()):
               print 'NLPCA Model'
             else:
@@ -1582,7 +1582,7 @@ class TuningJob(Logger):
                 self._debug('Done tuning pre-processing chain in new dataset including reconstruction error!')
                 hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
-            
+
           if 'PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()):
             print 'RECONS',reconstruct.keys()
             time.sleep(int(20*int(sort)))
@@ -1607,7 +1607,7 @@ class TuningJob(Logger):
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MSE',Normed=True)
 
 
-          
+
           ###self._info(hidden_neurons)
           #self._info(config)
           #self._info('Applying pp chain to train dataset...')
