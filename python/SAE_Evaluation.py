@@ -752,9 +752,9 @@ def getPCAReconstruct(data=None,model=None):
   if isinstance(data, (tuple, list,)):
     ret = []
     for i, cdata in enumerate(data):
-      ret.append( self._pca.inverse_transform(cdata) )
+      ret.append( model.inverse_transform(cdata) )
   else:
-    ret = self._pca.inverse_transform(cdata)
+    ret = model.inverse_transform(cdata)
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
