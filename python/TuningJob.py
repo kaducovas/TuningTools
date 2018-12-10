@@ -1543,7 +1543,7 @@ class TuningJob(Logger):
             time.sleep(240)
 
           if 'PCA' in str(ppChain.shortName()):
-            if('NLPCA' in str(ppChain.shortName()):
+            if 'NLPCA' in str(ppChain.shortName()):
               print 'NLPCA Model'
             else:
               pcamodel= ppChain.getPCAModel()
