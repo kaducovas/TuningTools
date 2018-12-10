@@ -1512,7 +1512,7 @@ class TuningJob(Logger):
           self._info('Applying pre-processing chain to remaining sets...')
           # Apply ppChain:
           trnDataN1,valDataN1 = ppChain.getNorm1()
-          #print trnDataN1,valDataN1
+          print "ate aqui foi " #trnDataN1,valDataN1
           f_tuning=True
           if f_tuning and coreConf() == 2:
             trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
