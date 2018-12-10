@@ -1737,7 +1737,7 @@ def plot_input_reconstruction_delta(norm1Par=None,reconstruct=None,model_name=No
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
 
 
-  fig, ax = plt.figure(figsize=(16,10))
+  fig, ax = plt.subplots(figsize=(16,10))
   ax.errorbar(np.arange(beforenorm_val_Data.shape[1]), np.mean(beforenorm_val_Data, axis=0),yerr=np.std(beforenorm_val_Data, axis=0), fmt='D-', color='crimson', label='Mean Profile')
   ax.errorbar(np.arange(unnorm_reconstruct_val_Data.shape[1]), np.mean(unnorm_reconstruct_val_Data, axis=0),yerr=np.std(unnorm_reconstruct_val_Data, axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
   ax2 = ax.twinx()
