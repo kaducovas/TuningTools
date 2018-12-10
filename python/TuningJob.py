@@ -1509,10 +1509,13 @@ class TuningJob(Logger):
           self._debug('Retrieving parameters and applying pp chain to train dataset...')
           trnData,valData = ppChain.takeParams( trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder_name)
           self._debug('Done tuning pre-processing chain!')
-          self._info('Applying pre-processing chain to remaining sets...')
-          # Apply ppChain:
+          print "TA FODA HEIN"
+          #self._info('Applying pre-processing chain to remaining sets...')
+          print  "Apply ppChain:"
+          time.sleep(2*sort)
+
           trnDataN1,valDataN1 = ppChain.getNorm1()
-          #print trnDataN1,valDataN1
+          print "ate aqui foi " #trnDataN1,valDataN1
           f_tuning=True
           if f_tuning and coreConf() == 2:
             trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
