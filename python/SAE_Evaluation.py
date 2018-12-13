@@ -2596,3 +2596,83 @@ def make_representation_hist(norm1Par=None,code=None,model_name=None,layer=None,
         plt.close()
 
     return None
+
+def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/'):
+    from sklearn.metrics import mean_squared_error
+    import matplotlib.pyplot as plt
+    beforenorm = norm1Par[0]
+    normlist = norm1Par[1]
+    afternorm = norm1Par[2]
+    png_files=[]
+
+    #for layer in reconstruct.keys():
+        #print 'LAYER: '+str(layer)
+        #for nsort in reconstruct[layer].keys():
+        #print "Sort: "+str(nsort)
+    # if isinstance(reconstruct[layer], (tuple, list,)):
+        # unnorm_reconstruct = []
+        # for i, cdata in enumerate(reconstruct[layer]):
+            # #print i,cdata.shape
+            # unnorm_reconstruct.append( cdata * normlist[i])
+        # unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+        # beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+
+      # reconstruct_val_Data = np.concatenate( reconstruct[layer], axis=0 )
+      # afternorm_val_Data = np.concatenate( afternorm, axis=0 )
+  
+      # if Normed:
+        # input_val_Data=afternorm_val_Data
+        # reconstruct_val_Data=reconstruct_val_Data
+        # input=afternorm
+        # reconstructed=reconstruct[layer]
+        # normalizacao='yes'
+      # else:
+        # input_val_Data=beforenorm_val_Data
+        # reconstruct_val_Data=unnorm_reconstruct_val_Data
+        # input=beforenorm
+        # reconstructed=unnorm_reconstruct
+        # normalizacao='no'
+
+    ###All Classes
+    b=reconstructErrVector[layer][0] ###signal
+    r=reconstructErrVector[layer][1] ###background
+
+    diroutAllclasses = dirout+model_name+'/'+time+'/ReconstructionError/'
+    if not os.path.exists(diroutAllclasses):
+        print 'Creating output folder ReconstructionError...'
+        os.makedirs(diroutAllclasses)
+    plt.clf()
+
+
+    for rings in range(b.shape[1]):
+        fig, ax = plt.subplots(figsize=(16,10))
+        try:
+            #rr = calc_MI2(b[:,rings],r[:,rings])
+            #mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+            #kl_score = round(calc_kl(b[:,rings],r[:,rings]),4)
+            #chi_score,chi_pvalue =calc_chisquare(b[:,rings],r[:,rings])
+            #mse_score = mean_squared_error(b[:,rings],r[:,rings])
+            #corr_score,corr_pvalue= scipy.stats.pearsonr(b[:,rings],r[:,rings])
+            at = AnchoredText('Signal \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nBackground \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+            #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            prop=dict(size=12), frameon=True,
+            loc='center right',
+            )
+            at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+            ax.add_artist(at)
+        except:
+            print "Error on ring: "+str(rings+1)
+        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Signal')
+        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Background')
+        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Energy')
+        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Energy')
+        plt.title(r'Rings number: '+str(rings+1)+' Reconstruction Error - '+model_name+' - '+str(layer),fontsize=25)
+        plt.xlabel('Reconstruction Error', fontsize=20)
+        plt.tick_params(labelsize = 15)
+        plt.legend(loc='best', fontsize='medium')
+        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+        plt.savefig(diroutAllclasses+'/'+'reconstructionError_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings+1))
+        plt.clf()
+        plt.close()
+
+    return None
