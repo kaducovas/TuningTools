@@ -1314,7 +1314,7 @@ def concatReconstructionError(data=None,reconstructErrVector=None):
       concatReconstructionError.append( (np.concatenate((cdata,reconstructErrVector[i]),axis=1)))
   return concatReconstructionError
 
-def applyNorm2(data=None):
+def applyNorm1(data=None):
     from TuningTools.coreDef import npCurrent
     if isinstance(data, (tuple, list,)):
       norms = []
