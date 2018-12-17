@@ -1146,6 +1146,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 
       if sort == 0:
         np.savez_compressed('/scratch/22061a/caducovas/run/reconstruction_files/recEnergy_'+model_name+'_'+str(layer),iEnergy=beforenorm,rEnergy=unnorm_reconstruct)
+        np.savez_compressed('/scratch/22061a/caducovas/run/reconstruction_files/Normed_RecEnergy_'+model_name+'_'+str(layer),iEnergy=afternorm,rEnergy=reconstruct[layer])
       unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
       beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
 
