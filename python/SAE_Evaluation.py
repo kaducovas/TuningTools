@@ -2380,7 +2380,7 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
 
       # reconstruct_val_Data = np.concatenate( reconstruct[layer], axis=0 )
       # afternorm_val_Data = np.concatenate( afternorm, axis=0 )
-  
+
       # if Normed:
         # input_val_Data=afternorm_val_Data
         # reconstruct_val_Data=reconstruct_val_Data
@@ -2540,7 +2540,7 @@ def make_representation_hist(norm1Par=None,code=None,model_name=None,layer=None,
 
       # reconstruct_val_Data = np.concatenate( reconstruct[layer], axis=0 )
       # afternorm_val_Data = np.concatenate( afternorm, axis=0 )
-  
+
       # if Normed:
         # input_val_Data=afternorm_val_Data
         # reconstruct_val_Data=reconstruct_val_Data
@@ -2620,7 +2620,7 @@ def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_n
 
       # reconstruct_val_Data = np.concatenate( reconstruct[layer], axis=0 )
       # afternorm_val_Data = np.concatenate( afternorm, axis=0 )
-  
+
       # if Normed:
         # input_val_Data=afternorm_val_Data
         # reconstruct_val_Data=reconstruct_val_Data
@@ -2635,8 +2635,8 @@ def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_n
         # normalizacao='no'
 
     ###All Classes
-    b=reconstructErrVector[layer][0] ###signal
-    r=reconstructErrVector[layer][1] ###background
+    b=reconstructErrVector[0] ###signal
+    r=reconstructErrVector[1] ###background
 
     diroutAllclasses = dirout+model_name+'/'+time+'/ReconstructionError/'
     if not os.path.exists(diroutAllclasses):
