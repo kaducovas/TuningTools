@@ -2335,6 +2335,7 @@ def plot_reconstruction_error(trnReconError=None,valReconError=None,model_name=N
     ax1.set_ylabel('Reconstruction Error',fontsize= 20)
     ax1.tick_params(labelsize= 15)
     ax1.legend(loc='best', fontsize='xx-large')
+    ax1.set_yscale('log')
 
     ax2.plot(np.arange(valReconError[0].shape[1]), np.mean(valReconError[0], axis=0),marker='<',color='crimson', label='Signal')
     ax2.plot(np.arange(valReconError[1].shape[1]), np.mean(valReconError[1], axis=0),marker='>', color='deepskyblue', label='Background')
@@ -2343,15 +2344,16 @@ def plot_reconstruction_error(trnReconError=None,valReconError=None,model_name=N
     ax2.set_ylabel('Reconstruction Error',fontsize= 20)
     ax2.tick_params(labelsize= 15)
     ax2.legend(loc='best', fontsize='xx-large')
+    ax2.set_yscale('log')
 
     for i in [7, 71, 79, 87, 91, 95]:
         ax1.axvline(i, color='gray', linestyle='--', linewidth=.8)
         ax2.axvline(i, color='gray', linestyle='--', linewidth=.8)
     #log_scale=False
     #if log_scale:
-    #  y_position = #.8*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+    y_position = .8*np.max([np.mean(valReconError[0], axis=0), np.mean(valReconError[1], axis=0)]) + 1e3
     #else:
-    y_position = 0.8*np.max([np.mean(valReconError[0], axis=0), np.mean(valReconError[1], axis=0)])
+    #y_position = 0.8*np.max([np.mean(valReconError[0], axis=0), np.mean(valReconError[1], axis=0)])
 
     for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
                       (76,y_position,r'EM2'),(80,y_position,r'EM3'),
@@ -2528,11 +2530,12 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   ax[0,1].set_title(r'Reconstruction Error',fontsize= 20)
   ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
   ax[0,1].set_ylabel('Reconstruction Error', fontsize='xx-large')
+  ax[0,1].set_yscale('log')
   #ax[0,0].ylim(ymax=1)
-  if log_scale:
-    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
-  else:
-    y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
+  #if log_scale:
+  y_position = .9*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  #else:
+  #  y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
 
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
@@ -2880,8 +2883,8 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
 
         plt.hist(b[:,rings], bins=bins_list, alpha=.5, color='b', label='Input Energy')
         plt.hist(r[:,rings], bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
-        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
-        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        #plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        #plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
         plt.title(r'Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
         plt.xlabel('Energy [MeV]', fontsize=20)
         plt.tick_params(labelsize = 15)
@@ -2917,8 +2920,8 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
 
         plt.hist(inputVector, bins=bins_list, alpha=.5, color='b', label='Input Energy')
         plt.hist(reconstructVector, bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
-        plt.axvline(np.max(inputVector), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
-        plt.axvline(np.max(reconstructVector), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        #plt.axvline(np.max(inputVector), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        #plt.axvline(np.max(reconstructVector), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
         plt.title(segment+' distribution - '+model_name+' - '+str(layer),fontsize=25)
         plt.xlabel('Energy [MeV]', fontsize=20)
         plt.tick_params(labelsize = 15)
@@ -3251,8 +3254,8 @@ def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_n
 
             plt.hist(np.log(b[:,rings]), bins=bins_list, alpha=.5, color='b', label='Signal Reconstruction Error')
             plt.hist(np.log(r[:,rings]), bins=bins_list, alpha=.5, color='r', label='Background Reconstruction Error')
-            plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Reconstruction Error')
-            plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Reconstruction Error')
+            #plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Reconstruction Error')
+            #plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Reconstruction Error')
             plt.title(r'Rings number: '+str(rings+1)+' Reconstruction Error - '+model_name+' - '+str(layer),fontsize=25)
             plt.xlabel('Reconstruction Error (10^)', fontsize=20)
             plt.tick_params(labelsize = 15)
