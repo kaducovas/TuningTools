@@ -1909,22 +1909,23 @@ class TuningJob(Logger):
                 png_f = open(png_file,'rb')
                 bot.sendPhoto('@ringer_tuning',png_f)
 
+          ###REPLOT
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+            # for layer in reconstruct.keys():
+              # png_files=plot_measures_2d(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              # for png_file in png_files:
+                # png_f = open(png_file,'rb')
+                # bot.sendPhoto('@ringer_tuning',png_f)
 
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_measures_2d(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_representation_2d(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+            # for layer in reconstruct.keys():
+              # png_files=plot_representation_2d(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              # for png_file in png_files:
+                # png_f = open(png_file,'rb')
+                # bot.sendPhoto('@ringer_tuning',png_f)
+          ###REPLOT
 
           # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           # #if('AE' in str(ppChain.shortName())):
@@ -1942,14 +1943,14 @@ class TuningJob(Logger):
               # png_f = open(png_file,'rb')
               # bot.sendDocument('@ringer_tuning',png_f)
 
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-            #if('AE' in str(ppChain.shortName())):
-            #for layer in reconstruct.keys():
-            png_files=plot_scatter(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendDocument('@ringer_tuning',png_f)
           ###HISTO PLOTS
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+            # #if('AE' in str(ppChain.shortName())):
+            # #for layer in reconstruct.keys():
+            # png_files=plot_scatter(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+            # for png_file in png_files:
+              # png_f = open(png_file,'rb')
+              # bot.sendDocument('@ringer_tuning',png_f)
           # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             # #if('AE' in str(ppChain.shortName())):
             # #for layer in reconstruct.keys()
@@ -1987,8 +1988,8 @@ class TuningJob(Logger):
             #@@dl_png_f = open(dl_png_file,'rb')
             #@@bot.sendPhoto('@ringer_tuning',dl_png_f)
 
+          bot.sendMessage('@ringer_tuning','Finished tuning job!')
       # #Finished all configurations we had to do
-      bot.sendMessage('@ringer_tuning','Finished tuning job!')
       self._info('Finished tuning job!')
 
   # end of __call__ member fcn
