@@ -998,15 +998,15 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Class = 'All' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Class = 'All' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
 
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
 
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
@@ -1128,7 +1128,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   import math
   db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
   #print point.sp_value
-  table = db['reconstruction_metrics4']
+  table = db['reconstruction_metrics5']
   metrics = OrderedDict()
   beforenorm = norm1Par[0]
   normlist = norm1Par[1]
@@ -1207,6 +1207,156 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo'
           metrics[str(anel+1)] = None
+  
+      try:  
+        if measure == 'Normalized_MI':
+          ###TOTAL
+          rr = calc_MI2(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
+          metrics['ETotal'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###PS
+          rr = calc_MI2(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
+          metrics['PS'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM1
+          rr = calc_MI2(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
+          metrics['EM1'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM2
+          rr = calc_MI2(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
+          metrics['EM2'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM3
+          rr = calc_MI2(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
+          metrics['EM3'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM
+          rr = calc_MI2(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
+          metrics['EM'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD1
+          rr = calc_MI2(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
+          metrics['HAD1'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD2
+          rr = calc_MI2(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
+          metrics['HAD2'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD3
+          rr = calc_MI2(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
+          metrics['HAD3'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD
+          rr = calc_MI2(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
+          metrics['HAD'] = np.sqrt(1. - np.exp(-2 * rr))
+        elif measure == 'MI':
+          ###TOTAL
+          metrics['ETotal'] = calc_MI2(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
+          ###PS
+          metrics['PS'] = calc_MI2(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = calc_MI2(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = calc_MI2(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = calc_MI2(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = calc_MI2(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = calc_MI2(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = calc_MI2(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = calc_MI2(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = calc_MI2(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
+        elif measure == 'KLdiv':
+          #TOTAL
+          metrics['ETotal'] = calc_kl(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
+          ###PS
+          metrics['PS'] = calc_kl(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = calc_kl(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = calc_kl(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = calc_kl(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = calc_kl(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = calc_kl(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = calc_kl(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = calc_kl(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = calc_kl(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
+        elif measure == 'chiSquared':
+          ###TOTAL
+          metrics['ETotal'],chi_pvalue = calc_chisquare(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
+          ###PS
+          metrics['PS'],chi_pvalue = calc_chisquare(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'],chi_pvalue = calc_chisquare(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'],chi_pvalue = calc_chisquare(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'],chi_pvalue = calc_chisquare(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'],chi_pvalue = calc_chisquare(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'],chi_pvalue = calc_chisquare(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'],chi_pvalue = calc_chisquare(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'],chi_pvalue = calc_chisquare(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'],chi_pvalue = calc_chisquare(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
+        elif measure == 'Correlation':
+          ###TOTAL
+          metrics['ETotal'],corr_pvalue = scipy.stats.pearsonr(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
+          ###PS
+          metrics['PS'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
+        elif measure == 'MSE':
+          ###TOTAL
+          metrics['ETotal'] = float(mean_squared_error(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1)))
+          ###PS
+          metrics['PS'] = float(mean_squared_error(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1)))
+          ###EM1
+          metrics['EM1'] = float(mean_squared_error(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1)))
+          ###EM2
+          metrics['EM2'] = float(mean_squared_error(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1)))
+          ###EM3
+          metrics['EM3'] = float(mean_squared_error(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1)))
+          ###EM
+          metrics['EM'] = float(mean_squared_error(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1)))
+          ###HAD1
+          metrics['HAD1'] = float(mean_squared_error(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1)))
+          ###HAD2
+          metrics['HAD2'] = float(mean_squared_error(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1)))
+          ###HAD3
+          metrics['HAD3'] = float(mean_squared_error(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1)))
+          ###HAD
+          metrics['HAD'] = float(mean_squared_error(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1)))
+      except:
+        metrics['ETotal'] = None
+        metrics['PS'] = None
+        metrics['EM1'] = None
+        metrics['EM2'] = None
+        metrics['EM3'] = None
+        metrics['EM'] = None
+        metrics['HAD1'] = None
+        metrics['HAD2'] = None
+        metrics['HAD3'] = None
+        metrics['HAD'] = None  
+  
       table.insert(metrics)
 
       metrics = OrderedDict()
@@ -1251,6 +1401,156 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
+  
+      try:  
+        if measure == 'Normalized_MI':
+          ###TOTAL
+          rr = calc_MI2(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
+          metrics['ETotal'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###PS
+          rr = calc_MI2(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
+          metrics['PS'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM1
+          rr = calc_MI2(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
+          metrics['EM1'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM2
+          rr = calc_MI2(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
+          metrics['EM2'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM3
+          rr = calc_MI2(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
+          metrics['EM3'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM
+          rr = calc_MI2(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
+          metrics['EM'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD1
+          rr = calc_MI2(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
+          metrics['HAD1'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD2
+          rr = calc_MI2(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
+          metrics['HAD2'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD3
+          rr = calc_MI2(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
+          metrics['HAD3'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD
+          rr = calc_MI2(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
+          metrics['HAD'] = np.sqrt(1. - np.exp(-2 * rr))
+        elif measure == 'MI':
+          ###TOTAL
+          metrics['ETotal'] = calc_MI2(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
+          ###PS
+          metrics['PS'] = calc_MI2(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = calc_MI2(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = calc_MI2(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = calc_MI2(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = calc_MI2(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = calc_MI2(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = calc_MI2(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = calc_MI2(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = calc_MI2(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
+        elif measure == 'KLdiv':
+          #TOTAL
+          metrics['ETotal'] = calc_kl(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
+          ###PS
+          metrics['PS'] = calc_kl(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = calc_kl(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = calc_kl(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = calc_kl(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = calc_kl(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = calc_kl(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = calc_kl(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = calc_kl(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = calc_kl(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
+        elif measure == 'chiSquared':
+          ###TOTAL
+          metrics['ETotal'],chi_pvalue = calc_chisquare(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
+          ###PS
+          metrics['PS'],chi_pvalue = calc_chisquare(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'],chi_pvalue = calc_chisquare(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'],chi_pvalue = calc_chisquare(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'],chi_pvalue = calc_chisquare(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'],chi_pvalue = calc_chisquare(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'],chi_pvalue = calc_chisquare(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'],chi_pvalue = calc_chisquare(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'],chi_pvalue = calc_chisquare(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'],chi_pvalue = calc_chisquare(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
+        elif measure == 'Correlation':
+          ###TOTAL
+          metrics['ETotal'],corr_pvalue = scipy.stats.pearsonr(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
+          ###PS
+          metrics['PS'],corr_pvalue = scipy.stats.pearsonr(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'],corr_pvalue = scipy.stats.pearsonr(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'],corr_pvalue = scipy.stats.pearsonr(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'],corr_pvalue = scipy.stats.pearsonr(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'],corr_pvalue = scipy.stats.pearsonr(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'],corr_pvalue = scipy.stats.pearsonr(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'],corr_pvalue = scipy.stats.pearsonr(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'],corr_pvalue = scipy.stats.pearsonr(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'],corr_pvalue = scipy.stats.pearsonr(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
+        elif measure == 'MSE':
+          ###TOTAL
+          metrics['ETotal'] = float(mean_squared_error(input[0].sum(axis=1),reconstructed[0].sum(axis=1)))
+          ###PS
+          metrics['PS'] = float(mean_squared_error(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1)))
+          ###EM1
+          metrics['EM1'] = float(mean_squared_error(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1)))
+          ###EM2
+          metrics['EM2'] = float(mean_squared_error(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1)))
+          ###EM3
+          metrics['EM3'] = float(mean_squared_error(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1)))
+          ###EM
+          metrics['EM'] = float(mean_squared_error(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1)))
+          ###HAD1
+          metrics['HAD1'] = float(mean_squared_error(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1)))
+          ###HAD2
+          metrics['HAD2'] = float(mean_squared_error(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1)))
+          ###HAD3
+          metrics['HAD3'] = float(mean_squared_error(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1)))
+          ###HAD
+          metrics['HAD'] = float(mean_squared_error(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1)))
+      except:
+        metrics['ETotal'] = None
+        metrics['PS'] = None
+        metrics['EM1'] = None
+        metrics['EM2'] = None
+        metrics['EM3'] = None
+        metrics['EM'] = None
+        metrics['HAD1'] = None
+        metrics['HAD2'] = None
+        metrics['HAD3'] = None
+        metrics['HAD'] = None  
+
       table.insert(metrics)
 
       metrics = OrderedDict()
@@ -1293,6 +1593,155 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
+  
+      try:  
+        if measure == 'Normalized_MI':
+          ###TOTAL
+          rr = calc_MI2(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
+          metrics['ETotal'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###PS
+          rr = calc_MI2(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
+          metrics['PS'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM1
+          rr = calc_MI2(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
+          metrics['EM1'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM2
+          rr = calc_MI2(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
+          metrics['EM2'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM3
+          rr = calc_MI2(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
+          metrics['EM3'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###EM
+          rr = calc_MI2(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
+          metrics['EM'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD1
+          rr = calc_MI2(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
+          metrics['HAD1'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD2
+          rr = calc_MI2(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
+          metrics['HAD2'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD3
+          rr = calc_MI2(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
+          metrics['HAD3'] = np.sqrt(1. - np.exp(-2 * rr))
+          ###HAD
+          rr = calc_MI2(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
+          metrics['HAD'] = np.sqrt(1. - np.exp(-2 * rr))
+        elif measure == 'MI':
+          ###TOTAL
+          metrics['ETotal'] = calc_MI2(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
+          ###PS
+          metrics['PS'] = calc_MI2(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = calc_MI2(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = calc_MI2(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = calc_MI2(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = calc_MI2(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = calc_MI2(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = calc_MI2(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = calc_MI2(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = calc_MI2(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
+        elif measure == 'KLdiv':
+          #TOTAL
+          metrics['ETotal'] = calc_kl(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
+          ###PS
+          metrics['PS'] = calc_kl(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = calc_kl(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = calc_kl(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = calc_kl(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = calc_kl(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = calc_kl(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = calc_kl(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = calc_kl(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = calc_kl(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
+        elif measure == 'chiSquared':
+          ###TOTAL
+          metrics['ETotal'],chi_pvalue = calc_chisquare(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
+          ###PS
+          metrics['PS'],chi_pvalue = calc_chisquare(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'],chi_pvalue = calc_chisquare(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'],chi_pvalue = calc_chisquare(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'],chi_pvalue = calc_chisquare(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'],chi_pvalue = calc_chisquare(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'],chi_pvalue = calc_chisquare(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'],chi_pvalue = calc_chisquare(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'],chi_pvalue = calc_chisquare(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'],chi_pvalue = calc_chisquare(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
+        elif measure == 'Correlation':
+          ###TOTAL
+          metrics['ETotal'],corr_pvalue = scipy.stats.pearsonr(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
+          ###PS
+          metrics['PS'],corr_pvalue = scipy.stats.pearsonr(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'],corr_pvalue = scipy.stats.pearsonr(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'],corr_pvalue = scipy.stats.pearsonr(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'],corr_pvalue = scipy.stats.pearsonr(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'],corr_pvalue = scipy.stats.pearsonr(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'],corr_pvalue = scipy.stats.pearsonr(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'],corr_pvalue = scipy.stats.pearsonr(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'],corr_pvalue = scipy.stats.pearsonr(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'],corr_pvalue = scipy.stats.pearsonr(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
+        elif measure == 'MSE':
+          ###TOTAL
+          metrics['ETotal'] = float(mean_squared_error(input[1].sum(axis=1),reconstructed[1].sum(axis=1)))
+          ###PS
+          metrics['PS'] = float(mean_squared_error(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1)))
+          ###EM1
+          metrics['EM1'] = float(mean_squared_error(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1)))
+          ###EM2
+          metrics['EM2'] = float(mean_squared_error(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1)))
+          ###EM3
+          metrics['EM3'] = float(mean_squared_error(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1)))
+          ###EM
+          metrics['EM'] = float(mean_squared_error(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1)))
+          ###HAD1
+          metrics['HAD1'] = float(mean_squared_error(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1)))
+          ###HAD2
+          metrics['HAD2'] = float(mean_squared_error(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1)))
+          ###HAD3
+          metrics['HAD3'] = float(mean_squared_error(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1)))
+          ###HAD
+          metrics['HAD'] = float(mean_squared_error(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1)))
+      except:
+        metrics['ETotal'] = None
+        metrics['PS'] = None
+        metrics['EM1'] = None
+        metrics['EM2'] = None
+        metrics['EM3'] = None
+        metrics['EM'] = None
+        metrics['HAD1'] = None
+        metrics['HAD2'] = None
+        metrics['HAD3'] = None
+        metrics['HAD'] = None 
 
       table.insert(metrics)
   return metrics
@@ -1562,10 +2011,10 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             #print i,cdata.shape
             unnorm_reconstruct.append( cdata * normlist[i])
 
-    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfSignal.fillna(value=nan, inplace=True)
-    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfBkg.fillna(value=nan, inplace=True)
     sgn=dfSignal.values.astype(np.float32)
@@ -1650,10 +2099,10 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
             #print i,cdata.shape
             unnorm_reconstruct.append( cdata * normlist[i])
 
-    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfSignal.fillna(value=nan, inplace=True)
-    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfBkg.fillna(value=nan, inplace=True)
     sgn=dfSignal.values.astype(np.float32)
@@ -1958,13 +2407,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
@@ -1972,13 +2421,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   sgn_NMI=dfSignal.values.astype(np.float32)
   bkg_NMI=dfBkg.values.astype(np.float32)
 
-  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # dfAll.fillna(value=nan, inplace=True)
-  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # #dfSignal.fillna(value=nan, inplace=True)
-  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # #dfBkg.fillna(value=nan, inplace=True)
 
@@ -1986,39 +2435,39 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   # sgn_MI=dfSignal.values.astype(np.float32)
   # bkg_MI=dfBkg.values.astype(np.float32)
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
   allClasses_Corr=dfAll.values.astype(np.float32)
   sgn_Corr=dfSignal.values.astype(np.float32)
   bkg_Corr=dfBkg.values.astype(np.float32)
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
   allClasses_KL=dfAll.values.astype(np.float32)
   sgn_KL=dfSignal.values.astype(np.float32)
   bkg_KL=dfBkg.values.astype(np.float32)
 
-  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # dfAll.fillna(value=nan, inplace=True)
-  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # #dfSignal.fillna(value=nan, inplace=True)
-  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
   # allClasses_Chi=dfAll.values.astype(np.float32)
@@ -2026,13 +2475,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   # bkg_Chi=dfBkg.values.astype(np.float32)
 
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics4 where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics5 where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
   allClasses_MSE=dfAll.values.astype(np.float32)
@@ -2423,8 +2872,14 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
             ax.add_artist(at)
         except:
             print "Error on ring: "+str(rings+1)
-        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
-        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
+
+        max_value = max(max(b[:,rings]),max(r[:,rings]))
+        min_value = min(min(b[:,rings]),min(r[:,rings]))
+        bins = min( len(np.histogram(b[:,rings],'fd')[0]), len(np.histogram(r[:,rings],'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(b[:,rings], bins=bins_list, alpha=.5, color='b', label='Input Energy')
+        plt.hist(r[:,rings], bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
         plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
         plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
         plt.title(r'Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
@@ -2433,6 +2888,43 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
         plt.legend(loc='best', fontsize='medium')
         #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
         plt.savefig(diroutAllclasses+'/'+'hist_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings+1))
+        plt.clf()
+        plt.close()
+
+    for segment, inputVector,reconstructVector in [('ETotal',b.sum(axis=1),r.sum(axis=1)),('PS',b[:,0:7,].sum(axis=1),r[:,0:7,].sum(axis=1)),('EM1',b[:,8:71,].sum(axis=1),r[:,8:71,].sum(axis=1)),('EM2',b[:,72:79,].sum(axis=1),r[:,72:79,].sum(axis=1)),('EM3',b[:,80:87,].sum(axis=1),r[:,80:87,].sum(axis=1)),('EM',b[:,0:87,].sum(axis=1),r[:,0:87,].sum(axis=1)),('HAD1',b[:,88:91,].sum(axis=1),r[:,88:91,].sum(axis=1)),('HAD2',b[:,92:95,].sum(axis=1),r[:,92:95,].sum(axis=1)),('HAD3',b[:,96:99,].sum(axis=1),r[:,96:99,].sum(axis=1)),('HAD',b[:,88:99,].sum(axis=1),r[:,88:99,].sum(axis=1))]:
+        fig, ax = plt.subplots(figsize=(16,10))
+        try:
+            rr = calc_MI2(inputVector,reconstructVector)
+            mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+            kl_score = round(calc_kl(inputVector,reconstructVector),4)
+            #chi_score,chi_pvalue =calc_chisquare(inputVector,reconstructVector)
+            mse_score = mean_squared_error(inputVector,reconstructVector)
+            corr_score,corr_pvalue= scipy.stats.pearsonr(inputVector,reconstructVector)
+            at = AnchoredText('Input \nMean: '+str(round(inputVector.mean(),2))+"\nStd: "+str(round(inputVector.std(),2))+"\nSkw: "+str(round(skew(inputVector),2))+"\nKur: "+str(round(kurtosis(inputVector),2))+"\n\nReconstructed \nMean: "+str(round(reconstructVector.mean(),2))+"\nStd: "+str(round(reconstructVector.std(),2))+"\nSkw: "+str(round(skew(reconstructVector),2))+"\nKur: "+str(round(kurtosis(reconstructVector),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
+            #at = AnchoredText('Input \nMean: '+str(round(inputVector.mean(),2))+"\nStd: "+str(round(inputVector.std(),2))+"\nSkw: "+str(round(skew(inputVector),2))+"\nKur: "+str(round(kurtosis(inputVector),2))+"\n\nReconstructed \nMean: "+str(round(reconstructVector.mean(),2))+"\nStd: "+str(round(reconstructVector.std(),2))+"\nSkw: "+str(round(skew(reconstructVector),2))+"\nKur: "+str(round(kurtosis(reconstructVector),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            prop=dict(size=12), frameon=True,
+            loc='center right',
+            )
+            at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+            ax.add_artist(at)
+        except:
+            print "Error on ring: "+str(rings+1)
+
+        max_value = max(max(inputVector),max(reconstructVector))
+        min_value = min(min(inputVector),min(reconstructVector))
+        bins = min( len(np.histogram(inputVector,'fd')[0]), len(np.histogram(reconstructVector,'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(inputVector, bins=bins_list, alpha=.5, color='b', label='Input Energy')
+        plt.hist(reconstructVector, bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
+        plt.axvline(np.max(inputVector), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        plt.axvline(np.max(reconstructVector), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        plt.title(segment+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        plt.xlabel('Energy [MeV]', fontsize=20)
+        plt.tick_params(labelsize = 15)
+        plt.legend(loc='best', fontsize='medium')
+        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+        plt.savefig(diroutAllclasses+'/'+'hist_et{}_eta{}_'+segment+'.png'.format(etBinIdx, etaBinIdx))
         plt.clf()
         plt.close()
 
@@ -2463,8 +2955,13 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
         except:
             print "Error on ring: "+str(rings+1)
 
-        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
-        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
+        max_value = max(max(b[:,rings]),max(r[:,rings]))
+        min_value = min(min(b[:,rings]),min(r[:,rings]))
+        bins = min( len(np.histogram(b[:,rings],'fd')[0]), len(np.histogram(r[:,rings],'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(b[:,rings], bins=bins_list, alpha=.5, color='b', label='Input Energy')
+        plt.hist(r[:,rings], bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
         plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
         plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
         plt.title(r'Signal - Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
@@ -2473,6 +2970,43 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
         plt.legend(loc='best', fontsize='medium')
         #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
         plt.savefig(diroutSignal+'/'+'hist_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings+1))
+        plt.clf()
+        plt.close()
+
+    for segment, inputVector,reconstructVector in [('ETotal',b.sum(axis=1),r.sum(axis=1)),('PS',b[:,0:7,].sum(axis=1),r[:,0:7,].sum(axis=1)),('EM1',b[:,8:71,].sum(axis=1),r[:,8:71,].sum(axis=1)),('EM2',b[:,72:79,].sum(axis=1),r[:,72:79,].sum(axis=1)),('EM3',b[:,80:87,].sum(axis=1),r[:,80:87,].sum(axis=1)),('EM',b[:,0:87,].sum(axis=1),r[:,0:87,].sum(axis=1)),('HAD1',b[:,88:91,].sum(axis=1),r[:,88:91,].sum(axis=1)),('HAD2',b[:,92:95,].sum(axis=1),r[:,92:95,].sum(axis=1)),('HAD3',b[:,96:99,].sum(axis=1),r[:,96:99,].sum(axis=1)),('HAD',b[:,88:99,].sum(axis=1),r[:,88:99,].sum(axis=1))]:
+        fig, ax = plt.subplots(figsize=(16,10))
+        try:
+            rr = calc_MI2(inputVector,reconstructVector)
+            mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+            kl_score = round(calc_kl(inputVector,reconstructVector),4)
+            #chi_score,chi_pvalue =calc_chisquare(inputVector,reconstructVector)
+            mse_score = mean_squared_error(inputVector,reconstructVector)
+            corr_score,corr_pvalue= scipy.stats.pearsonr(inputVector,reconstructVector)
+            at = AnchoredText('Input \nMean: '+str(round(inputVector.mean(),2))+"\nStd: "+str(round(inputVector.std(),2))+"\nSkw: "+str(round(skew(inputVector),2))+"\nKur: "+str(round(kurtosis(inputVector),2))+"\n\nReconstructed \nMean: "+str(round(reconstructVector.mean(),2))+"\nStd: "+str(round(reconstructVector.std(),2))+"\nSkw: "+str(round(skew(reconstructVector),2))+"\nKur: "+str(round(kurtosis(reconstructVector),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
+            #at = AnchoredText('Input \nMean: '+str(round(inputVector.mean(),2))+"\nStd: "+str(round(inputVector.std(),2))+"\nSkw: "+str(round(skew(inputVector),2))+"\nKur: "+str(round(kurtosis(inputVector),2))+"\n\nReconstructed \nMean: "+str(round(reconstructVector.mean(),2))+"\nStd: "+str(round(reconstructVector.std(),2))+"\nSkw: "+str(round(skew(reconstructVector),2))+"\nKur: "+str(round(kurtosis(reconstructVector),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            prop=dict(size=12), frameon=True,
+            loc='center right',
+            )
+            at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+            ax.add_artist(at)
+        except:
+            print "Error on ring: "+str(rings+1)
+
+        max_value = max(max(inputVector),max(reconstructVector))
+        min_value = min(min(inputVector),min(reconstructVector))
+        bins = min( len(np.histogram(inputVector,'fd')[0]), len(np.histogram(reconstructVector,'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(inputVector, bins=bins_list, alpha=.5, color='b', label='Input Energy')
+        plt.hist(reconstructVector, bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
+        plt.axvline(np.max(inputVector), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        plt.axvline(np.max(reconstructVector), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        plt.title(r'Signal - '+segment+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        plt.xlabel('Energy [MeV]', fontsize=20)
+        plt.tick_params(labelsize = 15)
+        plt.legend(loc='best', fontsize='medium')
+        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+        plt.savefig(diroutSignal+'/'+'hist_et{}_eta{}_'+segment+'.png'.format(etBinIdx, etaBinIdx))
         plt.clf()
         plt.close()
 
@@ -2503,8 +3037,13 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
         except:
             print "Error on ring: "+str(rings+1)
 
-        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Input Energy')
-        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Reconstructed Energy')
+        max_value = max(max(b[:,rings]),max(r[:,rings]))
+        min_value = min(min(b[:,rings]),min(r[:,rings]))
+        bins = min( len(np.histogram(b[:,rings],'fd')[0]), len(np.histogram(r[:,rings],'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(b[:,rings], bins=bins_list, alpha=.5, color='b', label='Input Energy')
+        plt.hist(r[:,rings], bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
         plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
         plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
         plt.title(r'Background - Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
@@ -2513,6 +3052,43 @@ def make_ring_hist(norm1Par=None,reconstruct=None,model_name=None,layer=None,tim
         plt.legend(loc='best', fontsize='medium')
         #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
         plt.savefig(diroutBackground+'/'+'hist_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings+1))
+        plt.clf()
+        plt.close()
+
+    for segment, inputVector,reconstructVector in [('ETotal',b.sum(axis=1),r.sum(axis=1)),('PS',b[:,0:7,].sum(axis=1),r[:,0:7,].sum(axis=1)),('EM1',b[:,8:71,].sum(axis=1),r[:,8:71,].sum(axis=1)),('EM2',b[:,72:79,].sum(axis=1),r[:,72:79,].sum(axis=1)),('EM3',b[:,80:87,].sum(axis=1),r[:,80:87,].sum(axis=1)),('EM',b[:,0:87,].sum(axis=1),r[:,0:87,].sum(axis=1)),('HAD1',b[:,88:91,].sum(axis=1),r[:,88:91,].sum(axis=1)),('HAD2',b[:,92:95,].sum(axis=1),r[:,92:95,].sum(axis=1)),('HAD3',b[:,96:99,].sum(axis=1),r[:,96:99,].sum(axis=1)),('HAD',b[:,88:99,].sum(axis=1),r[:,88:99,].sum(axis=1))]:
+        fig, ax = plt.subplots(figsize=(16,10))
+        try:
+            rr = calc_MI2(inputVector,reconstructVector)
+            mi_score = 100*round(np.sqrt(1. - np.exp(-2 * rr)),4)
+            kl_score = round(calc_kl(inputVector,reconstructVector),4)
+            #chi_score,chi_pvalue =calc_chisquare(inputVector,reconstructVector)
+            mse_score = mean_squared_error(inputVector,reconstructVector)
+            corr_score,corr_pvalue= scipy.stats.pearsonr(inputVector,reconstructVector)
+            at = AnchoredText('Input \nMean: '+str(round(inputVector.mean(),2))+"\nStd: "+str(round(inputVector.std(),2))+"\nSkw: "+str(round(skew(inputVector),2))+"\nKur: "+str(round(kurtosis(inputVector),2))+"\n\nReconstructed \nMean: "+str(round(reconstructVector.mean(),2))+"\nStd: "+str(round(reconstructVector.std(),2))+"\nSkw: "+str(round(skew(reconstructVector),2))+"\nKur: "+str(round(kurtosis(reconstructVector),2))+"\n\nNormalized_MI: "+str(mi_score)+"\nMI: "+str(round(rr,4))+"\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score)+"\nReconstruction Error: "+str(round(mse_score,4)),
+            #at = AnchoredText('Input \nMean: '+str(round(inputVector.mean(),2))+"\nStd: "+str(round(inputVector.std(),2))+"\nSkw: "+str(round(skew(inputVector),2))+"\nKur: "+str(round(kurtosis(inputVector),2))+"\n\nReconstructed \nMean: "+str(round(reconstructVector.mean(),2))+"\nStd: "+str(round(reconstructVector.std(),2))+"\nSkw: "+str(round(skew(reconstructVector),2))+"\nKur: "+str(round(kurtosis(reconstructVector),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            prop=dict(size=12), frameon=True,
+            loc='center right',
+            )
+            at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+            ax.add_artist(at)
+        except:
+            print "Error on ring: "+str(rings+1)
+
+        max_value = max(max(inputVector),max(reconstructVector))
+        min_value = min(min(inputVector),min(reconstructVector))
+        bins = min( len(np.histogram(inputVector,'fd')[0]), len(np.histogram(reconstructVector,'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(inputVector, bins=bins_list, alpha=.5, color='b', label='Input Energy')
+        plt.hist(reconstructVector, bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
+        plt.axvline(np.max(inputVector), color='b', linestyle='--', linewidth=.8, label='Max Input Energy')
+        plt.axvline(np.max(reconstructVector), color='r', linestyle='--', linewidth=.8, label='Max Reconstructed Energy')
+        plt.title(r'Background - '+segment+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        plt.xlabel('Energy [MeV]', fontsize=20)
+        plt.tick_params(labelsize = 15)
+        plt.legend(loc='best', fontsize='medium')
+        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+        plt.savefig(diroutBackground+'/'+'hist_et{}_eta{}_'+segment+'.png'.format(etBinIdx, etaBinIdx))
         plt.clf()
         plt.close()
 
@@ -2583,8 +3159,14 @@ def make_representation_hist(norm1Par=None,code=None,model_name=None,layer=None,
             ax.add_artist(at)
         except:
             print "Error on ring: "+str(rings+1)
-        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Signal Energy')
-        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Background Energy')
+
+        max_value = max(max(b[:,rings]),max(r[:,rings]))
+        min_value = min(min(b[:,rings]),min(r[:,rings]))
+        bins = min( len(np.histogram(b[:,rings],'fd')[0]), len(np.histogram(r[:,rings],'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(b[:,rings], bins=bins_list, alpha=.5, color='b', label='Signal Energy')
+        plt.hist(r[:,rings], bins=bins_list, alpha=.5, color='r', label='Background Energy')
         plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Energy')
         plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Energy')
         plt.title(r'Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
@@ -2663,12 +3245,19 @@ def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_n
             ax.add_artist(at)
         except:
             print "Error on ring: "+str(rings+1)
-        plt.hist(b[:,rings], bins='sqrt', alpha=.5, color='b', label='Signal')
-        plt.hist(r[:,rings], bins='sqrt', alpha=.5, color='r', label='Background')
-        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Energy')
-        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Energy')
+
+
+        max_value = max(max(np.log(b[:,rings])),max(np.log(r[:,rings])))
+        min_value = min(min(np.log(b[:,rings])),min(np.log(r[:,rings])))
+        bins = min( len(np.histogram(np.log(b[:,rings]),'fd')[0]), len(np.histogram(np.log(r[:,rings]),'fd')[0]))
+        bins_list = np.linspace(min_value, max_value, num=bins)
+
+        plt.hist(np.log(b[:,rings]), bins=bins_list, alpha=.5, color='b', label='Signal Reconstruction Error')
+        plt.hist(np.log(r[:,rings]), bins=bins_list, alpha=.5, color='r', label='Background Reconstruction Error')
+        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Reconstruction Error')
+        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Reconstruction Error')
         plt.title(r'Rings number: '+str(rings+1)+' Reconstruction Error - '+model_name+' - '+str(layer),fontsize=25)
-        plt.xlabel('Reconstruction Error', fontsize=20)
+        plt.xlabel('Reconstruction Error (10^)', fontsize=20)
         plt.tick_params(labelsize = 15)
         plt.legend(loc='best', fontsize='medium')
         #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
