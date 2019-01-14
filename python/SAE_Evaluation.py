@@ -3243,26 +3243,25 @@ def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_n
             )
             at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
             ax.add_artist(at)
+
+            max_value = max(max(np.log(b[:,rings])),max(np.log(r[:,rings])))
+            min_value = min(min(np.log(b[:,rings])),min(np.log(r[:,rings])))
+            bins = min( len(np.histogram(np.log(b[:,rings]),'fd')[0]), len(np.histogram(np.log(r[:,rings]),'fd')[0]))
+            bins_list = np.linspace(min_value, max_value, num=bins)
+
+            plt.hist(np.log(b[:,rings]), bins=bins_list, alpha=.5, color='b', label='Signal Reconstruction Error')
+            plt.hist(np.log(r[:,rings]), bins=bins_list, alpha=.5, color='r', label='Background Reconstruction Error')
+            plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Reconstruction Error')
+            plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Reconstruction Error')
+            plt.title(r'Rings number: '+str(rings+1)+' Reconstruction Error - '+model_name+' - '+str(layer),fontsize=25)
+            plt.xlabel('Reconstruction Error (10^)', fontsize=20)
+            plt.tick_params(labelsize = 15)
+            plt.legend(loc='best', fontsize='medium')
+            #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
+            plt.savefig(diroutAllclasses+'/'+'reconstructionError_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings+1))
+            plt.clf()
+            plt.close()
         except:
             print "Error on ring: "+str(rings+1)
-
-
-        max_value = max(max(np.log(b[:,rings])),max(np.log(r[:,rings])))
-        min_value = min(min(np.log(b[:,rings])),min(np.log(r[:,rings])))
-        bins = min( len(np.histogram(np.log(b[:,rings]),'fd')[0]), len(np.histogram(np.log(r[:,rings]),'fd')[0]))
-        bins_list = np.linspace(min_value, max_value, num=bins)
-
-        plt.hist(np.log(b[:,rings]), bins=bins_list, alpha=.5, color='b', label='Signal Reconstruction Error')
-        plt.hist(np.log(r[:,rings]), bins=bins_list, alpha=.5, color='r', label='Background Reconstruction Error')
-        plt.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Reconstruction Error')
-        plt.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Reconstruction Error')
-        plt.title(r'Rings number: '+str(rings+1)+' Reconstruction Error - '+model_name+' - '+str(layer),fontsize=25)
-        plt.xlabel('Reconstruction Error (10^)', fontsize=20)
-        plt.tick_params(labelsize = 15)
-        plt.legend(loc='best', fontsize='medium')
-        #plt.savefig(save_path_pdf+'/'+'hist_et{}_eta{}_ring{}.pdf'.format(iet, ieta, iring))
-        plt.savefig(diroutAllclasses+'/'+'reconstructionError_et{}_eta{}_ring{}.png'.format(etBinIdx, etaBinIdx, rings+1))
-        plt.clf()
-        plt.close()
 
     return None
