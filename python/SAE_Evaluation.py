@@ -1207,8 +1207,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo'
           metrics[str(anel+1)] = None
-  
-      try:  
+
+      try:
         if measure == 'Normalized_MI':
           ###TOTAL
           rr = calc_MI2(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
@@ -1355,8 +1355,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         metrics['HAD1'] = None
         metrics['HAD2'] = None
         metrics['HAD3'] = None
-        metrics['HAD'] = None  
-  
+        metrics['HAD'] = None
+
       table.insert(metrics)
 
       metrics = OrderedDict()
@@ -1401,8 +1401,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
-  
-      try:  
+
+      try:
         if measure == 'Normalized_MI':
           ###TOTAL
           rr = calc_MI2(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
@@ -1549,7 +1549,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         metrics['HAD1'] = None
         metrics['HAD2'] = None
         metrics['HAD3'] = None
-        metrics['HAD'] = None  
+        metrics['HAD'] = None
 
       table.insert(metrics)
 
@@ -1593,8 +1593,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
-  
-      try:  
+
+      try:
         if measure == 'Normalized_MI':
           ###TOTAL
           rr = calc_MI2(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
@@ -1741,7 +1741,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         metrics['HAD1'] = None
         metrics['HAD2'] = None
         metrics['HAD3'] = None
-        metrics['HAD'] = None 
+        metrics['HAD'] = None
 
       table.insert(metrics)
   return metrics
@@ -2533,7 +2533,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   ax[0,1].set_yscale('log')
   #ax[0,0].ylim(ymax=1)
   #if log_scale:
-  y_position = .9*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)]) + 1e3
   #else:
   #  y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
 
