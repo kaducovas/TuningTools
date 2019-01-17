@@ -31,6 +31,7 @@ import matplotlib.patches as mpatches
 from mpl_toolkits.axes_grid.axes_grid import AxesGrid
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
 import telepot
+from grid_strategy import *
 bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
 
 def calc_MI2(x, y):
@@ -1823,12 +1824,19 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                     #print i,j,rings
                     #ax2 = axs[i,j].twinx()
                     try:
-                        sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='crimson')
-                        sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='deepskyblue')
-                        nbins = len(np.histogram(b[:,rings],'fd')[0])
-                        axs[i,j].hist(b[:,rings], bins=nbins, normed=True,color='crimson',histtype='stepfilled')
-                        nbins = len(np.histogram(r[:,rings],'fd')[0])
-                        axs[i,j].hist(r[:,rings], bins=nbins, normed=True,color='deepskyblue')
+                        max_value = max(max(b[:,rings]),max(r[:,rings]))
+                        min_value = min(min(b[:,rings]),min(r[:,rings]))
+                        bins = min( len(np.histogram(b[:,rings],'fd')[0]), len(np.histogram(r[:,rings],'fd')[0]))
+                        bins_list = np.linspace(min_value, max_value, num=bins)
+
+                        axs[i,j].hist(b[:,rings], bins=bins_list, alpha=.5, color='b', label='Input Energy')
+                        axs[i,j].hist(r[:,rings], bins=bins_list, alpha=.5, color='r', label='Reconstructed Energy')
+                        ###sb.kdeplot(b[:,rings],label="Input Energy",ax=axs[i,j],color='crimson')
+                        ###sb.kdeplot(r[:,rings],label="Reconstructed Energy",ax=axs[i,j],color='deepskyblue')
+                        ###nbins = len(np.histogram(b[:,rings],'fd')[0])
+                        ###axs[i,j].hist(b[:,rings], bins=nbins, normed=True,color='crimson',histtype='stepfilled')
+                        ###nbins = len(np.histogram(r[:,rings],'fd')[0])
+                        ###axs[i,j].hist(r[:,rings], bins=nbins, normed=True,color='deepskyblue')
                         #axs[i,j].grid()
                         #axs[i,j].set_title('Ring '+str(rings)+' - '+model_name)
                         axs[i,j].get_yaxis().set_ticks([])
@@ -1854,6 +1862,65 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
         plt.clf()
         plt.close()
         png_files.append(dirout+'/pdf_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    return png_files
+
+def plot_pdfs_representation(norm1Par=None,code=None,layer=None,model_name=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=False, dirout=None):
+    from sklearn.metrics import mean_squared_error
+    import matplotlib.pyplot as plt
+    # beforenorm = norm1Par[0]
+    # normlist = norm1Par[1]
+    # afternorm = norm1Par[2]
+    png_files=[]
+
+    ###All Classes
+    b=code[layer][0] ###signal
+    r=code[layer][1] ###background
+
+    diroutAllclasses = dirout+model_name+'_'+time+'/Representation/'
+    if not os.path.exists(diroutAllclasses):
+        print 'Creating output folder AllClasses...'
+        os.makedirs(diroutAllclasses)
+    plt.clf()
+
+
+#    for rings in range(b.shape[1]):
+    fig = plt.figure(figsize=(60, 40))
+
+    grid_arrangement = GridStrategy.get_grid(40)
+    ax_specs = get_gridspec(grid_arrangement)
+    rings=0
+    for i, spec in enumerate(ax_specs):
+        ax = fig.add_subplot(plt.Subplot(fig, spec))
+
+        try:
+            at = AnchoredText('Signal \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nBackground \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2)),
+            #at = AnchoredText('Input \nMean: '+str(round(b[:,rings].mean(),2))+"\nStd: "+str(round(b[:,rings].std(),2))+"\nSkw: "+str(round(skew(b[:,rings]),2))+"\nKur: "+str(round(kurtosis(b[:,rings]),2))+"\n\nReconstructed \nMean: "+str(round(r[:,rings].mean(),2))+"\nStd: "+str(round(r[:,rings].std(),2))+"\nSkw: "+str(round(skew(r[:,rings]),2))+"\nKur: "+str(round(kurtosis(r[:,rings]),2))+"\n\nCorrelation: "+str(100*round(corr_score,4))+"\nKL Div: "+str(kl_score),
+            prop=dict(size=12), frameon=True,
+            loc='center right',
+            )
+            at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+            ax.add_artist(at)
+            max_value = max(max(b[:,rings]),max(r[:,rings]))
+            min_value = min(min(b[:,rings]),min(r[:,rings]))
+            bins = min( len(np.histogram(b[:,rings],'fd')[0]), len(np.histogram(r[:,rings],'fd')[0]))
+            bins_list = np.linspace(min_value, max_value, num=bins)
+
+            ax.hist(b[:,rings], bins=bins_list, alpha=.5, color='b', label='Signal Energy')
+            ax.hist(r[:,rings], bins=bins_list, alpha=.5, color='r', label='Background Energy')
+        except:
+            print "Error on ring: "+str(rings+1)
+
+        #ax.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Energy')
+        #ax.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Energy')
+        ax.set_title(r'Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        ax.set_xlabel('Energy [MeV]', fontsize=20)
+        plt.set_tick_params(labelsize = 15)
+        ax.set_legend(loc='best', fontsize='medium')
+        plt.suptitle('Representation - '+model_name+' - '+str(layer), fontsize=24)
+        plt.savefig(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
+        plt.clf()
+        plt.close()
+        png_files.append(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
 def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
@@ -3268,3 +3335,5 @@ def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_n
             print "Error on ring: "+str(rings+1)
 
     return None
+
+
