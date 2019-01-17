@@ -1876,10 +1876,10 @@ def plot_pdfs_representation(norm1Par=None,code=None,layer=None,model_name=None,
     b=code[layer][0] ###signal
     r=code[layer][1] ###background
 
-    diroutAllclasses = dirout+model_name+'_'+time+'/Representation/'
-    if not os.path.exists(diroutAllclasses):
-        print 'Creating output folder AllClasses...'
-        os.makedirs(diroutAllclasses)
+    #diroutAllclasses = dirout+model_name+'_'+time+'/Representation/'
+    #if not os.path.exists(diroutAllclasses):
+    #    print 'Creating output folder AllClasses...'
+    #    os.makedirs(diroutAllclasses)
     plt.clf()
 
 
@@ -1916,11 +1916,11 @@ def plot_pdfs_representation(norm1Par=None,code=None,layer=None,model_name=None,
         ax.set_xlabel('Energy [MeV]', fontsize=20)
         plt.tick_params(labelsize = 15)
         ax.legend(loc='best', fontsize='medium')
-        plt.suptitle('Representation - '+model_name+' - '+str(layer), fontsize=24)
-        plt.savefig(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
-        plt.clf()
-        plt.close()
-        png_files.append(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png')
+    plt.suptitle('Representation - '+model_name+' - '+str(layer), fontsize=24)
+    plt.savefig(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
+    plt.clf()
+    plt.close()
+    png_files.append(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
 def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
