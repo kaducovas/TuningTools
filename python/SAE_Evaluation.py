@@ -1917,6 +1917,7 @@ def plot_pdfs_representation(norm1Par=None,code=None,layer=None,model_name=None,
         plt.tick_params(labelsize = 15)
         ax.legend(loc='best', fontsize='medium')
         rings+=1
+    plt.tight_layout()
     plt.suptitle('Representation - '+model_name+' - '+str(layer), fontsize=24)
     plt.savefig(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
     plt.clf()
