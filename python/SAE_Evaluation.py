@@ -1912,10 +1912,11 @@ def plot_pdfs_representation(norm1Par=None,code=None,layer=None,model_name=None,
 
         #ax.axvline(np.max(b[:,rings]), color='b', linestyle='--', linewidth=.8, label='Max Signal Energy')
         #ax.axvline(np.max(r[:,rings]), color='r', linestyle='--', linewidth=.8, label='Max Background Energy')
-        ax.set_title(r'Rings number: '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
+        ax.set_title(r'Code '+str(rings+1)+' distribution - '+model_name+' - '+str(layer),fontsize=25)
         ax.set_xlabel('Energy [MeV]', fontsize=20)
         plt.tick_params(labelsize = 15)
         ax.legend(loc='best', fontsize='medium')
+        rings+=1
     plt.suptitle('Representation - '+model_name+' - '+str(layer), fontsize=24)
     plt.savefig(dirout+'/pdf_representation_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
     plt.clf()
