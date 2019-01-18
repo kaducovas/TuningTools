@@ -2298,7 +2298,7 @@ def plot_input_reconstruction_error(norm1Par=None,reconstruct=None,model_name=No
   #print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
   #print np.mean(sgn,axis=0),np.std(sgn,axis=0)
   #print np.mean(bkg,axis=0),np.std(bkg,axis=0)
-
+  ax2.set_yscale('log')
   ax2.set_xlabel('#Rings', fontsize= 20)
   ax2.set_ylabel('Energy [MeV]',fontsize= 20)
   ax2.tick_params(labelsize= 15)
@@ -2310,10 +2310,10 @@ def plot_input_reconstruction_error(norm1Par=None,reconstruct=None,model_name=No
 
   plt.title(r'Reconstruction Error - '+model_name+' - '+str(layer), fontsize=24)
 
-  if log_scale:
-    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
-  else:
-    y_position = 0 #*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+  #if log_scale:
+  y_position = 0 #*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  #else:
+  #  y_position = 0 #*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
 
   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
