@@ -1895,13 +1895,14 @@ class TuningJob(Logger):
                 # png_f = open(png_file,'rb')
                 # bot.sendPhoto('@ringer_tuning',png_f)
 
-          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          # #if('AE' in str(ppChain.shortName())):
-            # for layer in reconstruct.keys():
-              # png_files=plot_input_reconstruction_delta(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              # for png_file in png_files:
-                # png_f = open(png_file,'rb')
-                # bot.sendPhoto('@ringer_tuning',png_f)
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #if('AE' in str(ppChain.shortName())):
+            for layer in reconstruct.keys():
+              png_files=plot_input_reconstruction_error(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              #png_files=plot_input_reconstruction_delta(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              for png_file in png_files:
+                png_f = open(png_file,'rb')
+                bot.sendPhoto('@ringer_tuning',png_f)
 
           # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           # #if('AE' in str(ppChain.shortName())):

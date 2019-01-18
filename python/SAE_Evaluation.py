@@ -2230,6 +2230,104 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     png_files.append(dirout+'/energy_prof_'+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
+def plot_input_reconstruction_error(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
+  import sqlite3
+  import pandas as pd
+  from numpy import nan
+  #%matplotlib inline
+  import matplotlib.pyplot as plt
+  png_files=[]
+
+
+  plt.style.use('ggplot')
+  
+  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')  
+  # # Et and Eta indices
+  # et_index  = [0, 1, 2,3]
+  # etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+
+  # eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+  # etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+  beforenorm = norm1Par[0]
+  normlist = norm1Par[1]
+  afternorm = norm1Par[2]
+
+  if isinstance(reconstruct[layer], (tuple, list,)):
+      unnorm_reconstruct = []
+      for i, cdata in enumerate(reconstruct[layer]):
+          #print i,cdata.shape
+          unnorm_reconstruct.append( cdata * normlist[i])
+      unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
+      beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
+
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics6 where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='yes' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+  dfAll.fillna(value=nan, inplace=True)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics6 where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='yes' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+  #dfSignal.fillna(value=nan, inplace=True)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics6 where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='yes' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+  allClasses_MSE=dfAll.values.astype(np.float32)
+  sgn_MSE=dfSignal.values.astype(np.float32)
+  bkg_MSE=dfBkg.values.astype(np.float32)
+
+  #et_index  = [1,2]
+  #etRange = ['[20, 30]']
+
+  #eta_index = [1,2]
+  #etaRange = ['[0.6, 0.8]']
+
+  #for iet, etrange in zip(et_index, etRange):
+  #  for ieta, etarange in zip(eta_index, etaRange):
+  ###iet =  etBinIdx
+  ###etrange = etRange[etBinIdx]
+  ###ieta = etaBinIdx
+  ###etarange = etaRange[etaBinIdx]
+      #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+      #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+
+
+  fig, ax = plt.subplots(figsize=(16,10))
+  ax.errorbar(np.arange(beforenorm_val_Data.shape[1]), np.mean(beforenorm_val_Data, axis=0),yerr=np.std(beforenorm_val_Data, axis=0), fmt='D-', color='crimson', label='Mean Profile')
+  ax.errorbar(np.arange(unnorm_reconstruct_val_Data.shape[1]), np.mean(unnorm_reconstruct_val_Data, axis=0),yerr=np.std(unnorm_reconstruct_val_Data, axis=0), fmt='^-', color='deepskyblue', label='Mean Reconstructed Profile')
+  ax2 = ax.twinx()
+  ax2.errorbar(np.arange(beforenorm_val_Data.shape[1]), np.mean(allClasses_MSE, axis=0),yerr=np.std(allClasses_MSE, axis=0), fmt='go-',color='green')
+  #ax2.plot(np.arange(beforenorm_val_Data.shape[1]), allClasses_MSE, marker='<', color='green')
+  ax2.set_ylabel('Reconstruction Error', fontsize='xx-large')
+  #print np.mean(allClasses,axis=0),np.std(allClasses,axis=0)
+  #print np.mean(sgn,axis=0),np.std(sgn,axis=0)
+  #print np.mean(bkg,axis=0),np.std(bkg,axis=0)
+
+  ax2.set_xlabel('#Rings', fontsize= 20)
+  ax2.set_ylabel('Energy [MeV]',fontsize= 20)
+  ax2.tick_params(labelsize= 15)
+  ax.legend(loc='best', fontsize='xx-large')
+
+  #plt.legend(['All','Signal','Background'], loc='best', fontsize='xx-large')
+  for i in [7, 71, 79, 87, 91, 95]:
+    plt.axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+  plt.title(r'Reconstruction Error - '+model_name+' - '+str(layer), fontsize=24)
+
+  if log_scale:
+    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+  else:
+    y_position = 0 #*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)])
+
+  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+    plt.text(x,y,text, fontsize=15, rotation=90)
+
+  #plt.show()
+  plt.savefig(dirout+'/recError_energy_'+str(layer)+'_'+model_name+'_'+time+'.png')
+  png_files.append(dirout+'/recError_energy_'+str(layer)+'_'+model_name+'_'+time+'.png')
+  plt.clf()
+  plt.close()
+  return png_files
+
 def plot_input_reconstruction_delta(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
   import sqlite3
   import pandas as pd
