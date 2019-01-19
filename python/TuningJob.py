@@ -1963,8 +1963,8 @@ class TuningJob(Logger):
               # # png_f = open(png_file,'rb')
               # # bot.sendDocument('@ringer_tuning',png_f)
           if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-            if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys()
+            #if('AE' in str(ppChain.shortName())):
+            #for layer in reconstruct.keys()
             make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
             bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
             print 'Finished Plotting RIngs Histogram Input X Reconstruction'
