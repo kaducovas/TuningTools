@@ -1912,23 +1912,23 @@ class TuningJob(Logger):
                 # png_f = open(png_file,'rb')
                 # bot.sendPhoto('@ringer_tuning',png_f)
 
-          # # ##REPLOT
-          # # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          # # #if('AE' in str(ppChain.shortName())):
-            # # for layer in reconstruct.keys():
-              # # png_files=plot_measures_2d(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              # # for png_file in png_files:
-                # # png_f = open(png_file,'rb')
-                # # bot.sendPhoto('@ringer_tuning',png_f)
+          ##REPLOT
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #if('AE' in str(ppChain.shortName())):
+            for layer in reconstruct.keys():
+              png_files=plot_measures_2d(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              for png_file in png_files:
+                png_f = open(png_file,'rb')
+                bot.sendPhoto('@ringer_tuning',png_f)
 
-          # # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          # # #if('AE' in str(ppChain.shortName())):
-            # # for layer in reconstruct.keys():
-              # # png_files=plot_representation_2d(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              # # for png_file in png_files:
-                # # png_f = open(png_file,'rb')
-                # # bot.sendPhoto('@ringer_tuning',png_f)
-          # # ##REPLOT
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #if('AE' in str(ppChain.shortName())):
+            for layer in reconstruct.keys():
+              png_files=plot_representation_2d(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+              for png_file in png_files:
+                png_f = open(png_file,'rb')
+                bot.sendPhoto('@ringer_tuning',png_f)
+          ##REPLOT
 
          ## if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
          ## #if('AE' in str(ppChain.shortName())):
@@ -1962,27 +1962,27 @@ class TuningJob(Logger):
             for png_file in png_files:
               png_f = open(png_file,'rb')
               bot.sendDocument('@ringer_tuning',png_f)
-         # #if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-         # #  #if('AE' in str(ppChain.shortName())):
-         # #  #for layer in reconstruct.keys()
-         # #  make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
-         # #  bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
-         # #  print 'Finished Plotting RIngs Histogram Input X Reconstruction'
+         if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #if('AE' in str(ppChain.shortName())):
+          #for layer in reconstruct.keys()
+          make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
+          bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
+          print 'Finished Plotting RIngs Histogram Input X Reconstruction'
 
-          # # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-            # # #if('AE' in str(ppChain.shortName())):
-            # # #for layer in reconstruct.keys()
-            # # make_representation_hist(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
-            # # #bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
-            # # print 'Finished Plotting Code Histogram Signal X Background'
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+            #if('AE' in str(ppChain.shortName())):
+            #for layer in reconstruct.keys()
+            make_representation_hist(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
+            #bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
+            print 'Finished Plotting Code Histogram Signal X Background'
 
-          # # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-            # # #if('AE' in str(ppChain.shortName())):
-            # # #for layer in reconstruct.keys()
-            # # make_ReconstructionErro_hist(norm1Par=norm1Par,reconstructErrVector=valReconError,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
-            # # #bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
-            # # print 'Finished Plotting Code Reconstruction Error Signal X Background'
-          # # ##UNCOMMENT AFTER FIRST ROUND
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+            #if('AE' in str(ppChain.shortName())):
+            #for layer in reconstruct.keys()
+            make_ReconstructionErro_hist(norm1Par=norm1Par,reconstructErrVector=valReconError,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
+            #bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
+            print 'Finished Plotting Code Reconstruction Error Signal X Background'
+          ##UNCOMMENT AFTER FIRST ROUND
 
           # #dl_png_files=plot_classifier_training(work_path+'files/'+tuning_folder_name+'/models/',work_path+'files/'+tuning_folder_name+'/models/')
 
