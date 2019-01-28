@@ -1520,8 +1520,8 @@ class TuningJob(Logger):
           if f_tuning and coreConf() == 2:
             trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
             hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
-          hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
-          np.savez_compressed(work_path+'weights/'+tuning_folder_name+'_sort_'+str(sort),weights=layers_weights)
+          #@hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
+          #@np.savez_compressed(work_path+'weights/'+tuning_folder_name+'_sort_'+str(sort),weights=layers_weights)
           norm1Par = ppChain.getNorm1Parameters()
 
 
