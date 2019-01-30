@@ -1803,6 +1803,73 @@ class PCA( PrepObj ):
   #    ret = self._pca.inverse_transform(cdata)
   #  return ret
 
+class RemoveRing( PrepObj ):
+  """
+    Remove one Ring preprocessing
+  """
+  def __init__(self, d = {}, **kw):
+    d.update( kw ); del kw
+    PrepObj.__init__( self, d )
+    self.RingRemoved = d.pop('remove' , None)
+
+    checkForUnusedVars(d, self._warning )
+
+    del d
+
+  def takeParams(self, trnData):
+    import copy
+    data = copy.deepcopy(trnData)
+    #val_Data = copy.deepcopy(valData)
+
+    # if isinstance(data, (tuple, list,)):
+      # data = np.concatenate( data )
+    # #self._pca.fit(data)
+    # print 'WTF', self.variance().shape
+    # #self._info('PCA are aplied (%d of energy). Using only %d components of %d',
+    # #                  self.energy, self.ncomponents(), data.shape[1])
+    # #return trnData
+    return self._apply(trnData)
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+    return "RemoveRing"+str(self.RingRemoved)
+
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return "RemoveRing"+str(self.RingRemoved)
+
+  def _apply(self, data):
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      for cdata in data:
+        # FIXME Test this!
+        if npCurrent.isfortran:
+          print cdata.shape #,self._pca.transform(cdata.T).shape
+          cdata = np.delete(cdata,int(self.RingRemoved)-1,axis=1)
+          ret.append( cdata )
+        else:
+          cdata = np.delete(cdata,int(self.RingRemoved)-1,axis=1)
+          ret.append( cdata )
+    else:
+      data = np.delete(data,int(self.RingRemoved)-1,axis=1)
+      ret = data
+    print len(ret),ret[0].shape,ret[1].shape
+    return ret
+
+  #def _undo(self, data):
+  #  if isinstance(data, (tuple, list,)):
+  #    ret = []
+  #    for i, cdata in enumerate(data):
+  #      ret.append( self._pca.inverse_transform(cdata) )
+  #  else:
+  #    ret = self._pca.inverse_transform(cdata)
+  #  return ret
+
+
 
 class KernelPCA( PrepObj ):
   """
