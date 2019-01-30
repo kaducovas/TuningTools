@@ -114,7 +114,7 @@ elif clusterManagerConf() in (ClusterManager.PBS, ClusterManager.LSF,):
                               , pbs__combine_stdout_sterr = EnumStringOptionRetrieve( option = '-j', type=PBSOutputMerging, value=PBSOutputMerging.oe )
                               , pbs__walltime = SubOptionRetrieve( option = '-l'
                                                                  , suboption='walltime'
-                                                                 , value = ( ':'.join(['2','00','00']) ) )
+                                                                 , value = ( ':'.join(['00','20','00']) ) )
                               )
   elif clusterManagerConf() is ClusterManager.LSF:
     clusterParser = lsfParser
