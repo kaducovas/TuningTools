@@ -1542,7 +1542,7 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
           if(sort == 0):
-            time.sleep(60)
+            time.sleep(20)
 
           if 'PCA' in str(ppChain.shortName()):
             if 'NLPCA' in str(ppChain.shortName()):
