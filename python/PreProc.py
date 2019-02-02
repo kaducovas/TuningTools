@@ -1869,6 +1869,91 @@ class RemoveRing( PrepObj ):
   #    ret = self._pca.inverse_transform(cdata)
   #  return ret
 
+class RemoveCalSection( PrepObj ):
+  """
+    Remove one Ring preprocessing
+  """
+  def __init__(self, d = {}, **kw):
+    d.update( kw ); del kw
+    PrepObj.__init__( self, d )
+    self.SectionRemoved = d.pop('remove' , None)
+    self._listOfrings = []
+
+    if self.SectionRemoved == "PS":
+      self._listOfrings = [0,1,2,3,4,5,6,7]
+    elif self.SectionRemoved == "EM1":
+      self._listOfrings = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71]
+    elif self.SectionRemoved == "EM2":
+      self._listOfrings = [72,73,74,75,76,77,78,79]
+    elif self.SectionRemoved == "EM3":
+      self._listOfrings = [80,81,82,83,84,85,86,87] 
+    elif self.SectionRemoved == "EM":
+      self._listOfrings = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87]
+    elif self.SectionRemoved == "HAD1":
+      self._listOfrings = [88,89,90,91]
+    elif self.SectionRemoved == "HAD2":
+      self._listOfrings = [92,93,94,95]
+    elif self.SectionRemoved == "HAD3":
+      self._listOfrings = [96,97,98,99]
+    elif self.SectionRemoved == "HAD":
+      self._listOfringss = [88,89,90,91,92,93,94,95,96,97,98,99]
+
+    checkForUnusedVars(d, self._warning )
+
+    del d
+
+  def takeParams(self, trnData):
+    import copy
+    data = copy.deepcopy(trnData)
+    #val_Data = copy.deepcopy(valData)
+
+    # if isinstance(data, (tuple, list,)):
+      # data = np.concatenate( data )
+    # #self._pca.fit(data)
+    # print 'WTF', self.variance().shape
+    # #self._info('PCA are aplied (%d of energy). Using only %d components of %d',
+    # #                  self.energy, self.ncomponents(), data.shape[1])
+    # #return trnData
+    return self._apply(trnData)
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+    return "RemoveCalSection-"+self.SectionRemoved
+
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return "RemoveCalSection-"+self.SectionRemoved
+
+  def _apply(self, data):
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      for cdata in data:
+        # FIXME Test this!
+        if npCurrent.isfortran:
+          print cdata.shape #,self._pca.transform(cdata.T).shape
+          cdata = np.delete(cdata,self._listOfrings,axis=1)
+          ret.append( cdata )
+        else:
+          cdata = np.delete(cdata,self._listOfrings,axis=1)
+          ret.append( cdata )
+    else:
+      data = np.delete(data,self._listOfrings,axis=1)
+      ret = data
+    print len(ret),ret[0].shape,ret[1].shape
+    return ret
+
+  #def _undo(self, data):
+  #  if isinstance(data, (tuple, list,)):
+  #    ret = []
+  #    for i, cdata in enumerate(data):
+  #      ret.append( self._pca.inverse_transform(cdata) )
+  #  else:
+  #    ret = self._pca.inverse_transform(cdata)
+  #  return ret
 
 
 class KernelPCA( PrepObj ):
