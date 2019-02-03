@@ -892,7 +892,7 @@ class StackedAutoEncoder( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=10,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
@@ -953,7 +953,7 @@ class StackedAutoEncoder( PrepObj ):
   #def params(self):
   #  return self.SAE(), self.trn_params(),self.trn_desc(), self.weights()
 
-  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder,layerNumber):
 
   ###trainlayer
 
@@ -1059,7 +1059,8 @@ class StackedAutoEncoder( PrepObj ):
                               save_path = results_path,
                               prefix_str=self._caltype,
                               aetype=self._aetype,
-                              dataEncoded=self._dataEncoded
+                              dataEncoded=self._dataEncoded,
+                              layerNumber=layerNumber
                               )
 
     self._SAE = SAE
@@ -1079,7 +1080,7 @@ class StackedAutoEncoder( PrepObj ):
     self._trn_params = model.get_config()
     #self._info(self._SAE)
 
-    return self._apply(trnData)
+    return self._apply(trnData,layerNumber)
 
 
 
@@ -1143,7 +1144,7 @@ class StackedAutoEncoder( PrepObj ):
       encodetypename='Bkg'
     return (encodetypename+aetypename+sname+"_%d" % self._hidden_neurons[0])
 
-  def _apply(self, data):
+  def _apply(self, data,layerNumber):
     #self._info(pp.shortName())
     #self._info(self._etBinIdx)
     #self._info(self._etaBinIdx)
@@ -1273,7 +1274,7 @@ class LSTMAutoEncoder( PrepObj ):
     # self._weights = ''
 
 
-  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder,layerNumber):
 
   ###trainlayer
 
@@ -1416,7 +1417,7 @@ class LSTMAutoEncoder( PrepObj ):
     # self._trn_params = model.get_config()
     # #self._info(self._SAE)
 
-    return self._apply(trnData)
+    return self._apply(trnData,layerNumber)
 
 
 
@@ -1433,7 +1434,7 @@ class LSTMAutoEncoder( PrepObj ):
     """
     return (self._model_shortname+"_AE_%d" % self._hidden_neurons)
 
-  def _apply(self, data):
+  def _apply(self, data,layerNumber):
     from RingerCore import retrieve_kw
     from audeep.backend.training.base import BaseFeatureLearningWrapper
     from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
@@ -2350,11 +2351,16 @@ class PreProcChain ( Logger ):
     if not self:
       self._warning("No pre-processing available in this chain.")
       return
+    self._layerNumber=0
     for pp in self:
       self._info(pp.shortName())
-      if 'AE' in str(pp.shortName()) or 'NLPCA' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
+      if 'NLPCA' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
         trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder)
         valData = pp(valData, False)
+      elif 'AE' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
+        self._layerNumber+=1
+        trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder,self._layerNumber)
+        valData = pp._apply(valData, self._layerNumber)
       else:
         trnData = pp.takeParams(trnData)
         pp._trn_norm1 = trnData

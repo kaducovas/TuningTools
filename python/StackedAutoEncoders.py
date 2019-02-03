@@ -37,7 +37,7 @@ import keras.backend as K
 #num_process = multiprocessing.cpu_count()
 
 class StackedAutoEncoders:
-    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla',dataEncoded='all', CVO=None,
+    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla',dataEncoded='all',layerNumber=layerNumber, CVO=None,
                  noveltyDetection=False, inovelty = 0):
         self.trn_params       = params
         self.development_flag = development_flag
@@ -50,6 +50,7 @@ class StackedAutoEncoders:
         self.analysis_str     = 'StackedAutoEncoder'
         self._aetype = aetype
         self._dataEncoded = dataEncoded
+        self._layerNumber = layerNumber
 
         # Distinguish between a SAE for Novelty Detection and SAE for 'simple' Classification
         if noveltyDetection:
@@ -130,9 +131,9 @@ class StackedAutoEncoders:
                                                                     self.params_str,
                                                                     neurons_str)
             if not self.development_flag:
-                file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx)
+                file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
             else:
-                file_name = '%s_sort_%i_etbin_%i_etabin_%i_model_dev.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx)
+                file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model_dev.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
 
             # Check if previous layer model was trained
             if not os.path.exists(file_name):
@@ -163,9 +164,9 @@ class StackedAutoEncoders:
                                                                         self.params_str,
                                                                         neurons_str)
                 if not self.development_flag:
-                    file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx)
+                    file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx,self._layerNumber)
                 else:
-                    file_name = '%s_sort_%i_etbin_%i_etabin_%i_model_dev.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx)
+                    file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model_dev.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx,self._layerNumber)
 
                 # Check if previous layer model was trained
                 if not os.path.exists(file_name):
@@ -214,7 +215,7 @@ class StackedAutoEncoders:
                                                            self.prefix_str, self.n_folds,
                                                            self.params_str, neurons_str)
         if not self.development_flag:
-            file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx)
+            file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx,self._layerNumber)
             #file_name = '%s_fold_%i_model.h5'%(model_str,ifold)
             #print file_name
             if os.path.exists(file_name):
@@ -249,15 +250,15 @@ class StackedAutoEncoders:
                 if self.trn_params.params['verbose']:
                     print 'File %s exists'%(file_name)
                 # load model
-                file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx)
+                file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
                 #file_name  = '%s_fold_%i_model.h5'%(model_str,ifold)
                 #classifier = load_model(file_name, custom_objects={'loss': usedloss}) ###self.lossFunction})
                 classifier = load_model(file_name, custom_objects=custom_obj)
                 #classifier = load_model(file_name, custom_objects={'%s'%self.trn_params.params['loss']: self.lossFunction})
-                file_name  = '%s_sort_%i_etbin_%i_etabin_%i_trn_desc.jbl'%(model_str,sort,etBinIdx, etaBinIdx)
+                file_name  = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_trn_desc.jbl'%(model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
                 trn_desc   = joblib.load(file_name)
 
-                file_name_prefix = '%s_sort_%i_etbin_%i_etabin_%i'%(model_str,sort,etBinIdx, etaBinIdx)
+                file_name_prefix = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i'%(model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
                 with open(self.save_path+tuning_folder,'a+') as t_file:
                     t_file.write(file_name_prefix+ "\n")
                 t_file.close()
@@ -290,7 +291,7 @@ class StackedAutoEncoders:
         print 'Number of SAE training inits: '+str(self.n_inits)
         for i_init in range(self.n_inits):
             #print 'Number of SAE training inits: '+ str(self.n_inits)
-            print 'Layer: %i - Neuron: %i - Fold %i of %i Folds -  Init %i of %i Inits'%(layer,
+            print 'Layer: %i - Neuron: %i - Fold %i of %i Folds -  Init %i of %i Inits'%(self._layerNumber,
                                                                                          hidden_neurons[layer-1],
                                                                                          ifold+1,
                                                                                          self.n_folds,
@@ -326,7 +327,7 @@ class StackedAutoEncoders:
                                                                             self.params_str,
                                                                             neurons_str)
                     if not self.development_flag:
-                        file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx)
+                        file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx,self._layerNumber)
                         #file_name = '%s_fold_%i_model.h5'%(previous_model_str,ifold)
                     else:
                         file_name = '%s_sort_%i_etbin_%i_etabin_%i_model_dev.h5'%(previous_model_str,sort,etBinIdx, etaBinIdx)
@@ -421,14 +422,14 @@ class StackedAutoEncoders:
         model.summary()
         # save model
         if not self.development_flag:
-            file_name = '%s_sort_%i_etbin_%i_etabin_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx)
+            file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_model.h5'%(model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
             #file_name = '%s_fold_%i_model.h5'%(model_str,ifold)
             classifier.save(file_name)
-            file_name = '%s_sort_%i_etbin_%i_etabin_%i_trn_desc.jbl'%(model_str,sort,etBinIdx, etaBinIdx)
+            file_name = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i_trn_desc.jbl'%(model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
             #file_name = '%s_fold_%i_trn_desc.jbl'%(model_str,ifold)
             joblib.dump([trn_desc],file_name,compress=9)
 
-            file_name_prefix = '%s_sort_%i_etbin_%i_etabin_%i'%(model_str,sort,etBinIdx, etaBinIdx)
+            file_name_prefix = '%s_sort_%i_etbin_%i_etabin_%i_layer_%i'%(model_str,sort,etBinIdx, etaBinIdx, self._layerNumber)
             with open(self.save_path+tuning_folder,'a+') as t_file:
                 t_file.write(file_name_prefix+ "\n")
             t_file.close()
