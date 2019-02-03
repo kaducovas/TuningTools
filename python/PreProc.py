@@ -1896,7 +1896,7 @@ class RemoveCalSection( PrepObj ):
     elif self.SectionRemoved == "HAD3":
       self._listOfrings = [96,97,98,99]
     elif self.SectionRemoved == "HAD":
-      self._listOfringss = [88,89,90,91,92,93,94,95,96,97,98,99]
+      self._listOfrings = [88,89,90,91,92,93,94,95,96,97,98,99]
 
     checkForUnusedVars(d, self._warning )
 
