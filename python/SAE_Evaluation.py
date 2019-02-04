@@ -71,6 +71,9 @@ def calc_chisquare(x, y):
 def layer2number(x, y):
   return int(y.split('x')[1]) - int(x.split('x')[1])
 
+def layer2number2(x,y):
+    return int(x[1]) - int(y[1])
+
 def avgNestedLists(nested_vals):
   """
   Averages a 2-D array and returns a 1-D array of all of the columns
@@ -779,9 +782,11 @@ def getReconstruct(fname,data,sort):
   with open(fname) as f:
     content = f.readlines()
   f.close()
-  layers_list =[f.split('/')[-1].split('_')[24] for f in content]
-  layers=sorted(list(set(layers_list)),cmp=layer2number)
-  print layers
+  layers_list =[(f.split('/')[-1].split('_')[24],f.split('/')[-1].split('_')[33]) for f in content]
+  #layers_list =[f.split('/')[-1].split('_')[24] for f in content]
+  layers,layers_numbers=[x for x,y in sorted(list(set(layers_list)),cmp=layer2number2)],[y for x,y in sorted(list(set(layers_list)),cmp=layer2number2)]
+  #layers=sorted(list(set(layers_list)),cmp=layer2number2)
+  print layers,layers_numbers
   #dirin='/home/caducovas/DeepRinger/data/run_layer1/adam_80/'
   #layers = ['100x80','80x60','60x40','40x10']
   #nsorts=10
@@ -801,11 +806,11 @@ def getReconstruct(fname,data,sort):
       print "Sort: "+str(isort)
 
       #Itera sobre os layers para adquirir o encoder e o decoder
-      for layer in layers_list: #Different archtectures (each time one more autoencoder)
+      for iLayer,layer in enumerate(layers_list): #Different archtectures (each time one more autoencoder)
         #print "Reading files of: "+layer
 
         neuron = int(layer.split('x')[1])
-        files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort))]
+        files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort) and f.split('/')[-1].split('_')[33] == layers_numbers[iLayer])]
         ifile=files[0]
         #print ifile
         custom_obj={}
