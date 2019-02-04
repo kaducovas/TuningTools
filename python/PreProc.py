@@ -1495,7 +1495,7 @@ class NLPCA( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,n_nlpcas=30, n_neurons_mapping=50, hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=10,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,n_nlpcas=30, n_neurons_mapping=50, hidden_activation='tanh',output_activation='linear',n_epochs=10,patience=10,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     #self._caltype = retrieve_kw(d,'caltype','allcalo')
