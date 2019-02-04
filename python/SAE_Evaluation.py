@@ -762,6 +762,24 @@ def getPCAReconstruct(data=None,model=None):
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
+def getNLPCAReconstruct(fname,data,sort):
+  reconstruct = OrderedDict()
+  ###NEURON MAPPING, NEURON BOTTLENECK AND SORT, match file and then use K.function
+  neuron = int(layer.split('x')[1])
+  files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort) and f.split('/')[-1].split('_')[33] == layers_numbers[iLayer])]
+  ifile=files[0]
+  get_layer_output = K.function([model_load.layers[0].input],
+                              [model_load.layers[6].output])
+  output=get_layer_output([proj_all_data])[0] 
+  if isinstance(data, (tuple, list,)):
+    ret = []
+    for i, cdata in enumerate(data):
+      ret.append( model.inverse_transform(cdata) )
+  else:
+    ret = model.inverse_transform(cdata)
+  reconstruct[data[0].shape[1]] = ret
+  return reconstruct
+
 def getPCACode(data=None):
   code = OrderedDict()
   code[data[0].shape[1]] = data
@@ -886,9 +904,11 @@ def getCode(fname,norm1Par,sort):
   with open(fname) as f:
     content = f.readlines()
   f.close()
-  layers_list =[f.split('/')[-1].split('_')[24] for f in content]
-  layers=sorted(list(set(layers_list)),cmp=layer2number)
-  print layers
+  layers_list =[(f.split('/')[-1].split('_')[24],f.split('/')[-1].split('_')[33]) for f in content]
+  #layers_list =[f.split('/')[-1].split('_')[24] for f in content]
+  layers,layers_numbers=[x for x,y in sorted(list(set(layers_list)),cmp=layer2number2)],[y for x,y in sorted(list(set(layers_list)),cmp=layer2number2)]
+  #layers=sorted(list(set(layers_list)),cmp=layer2number2)
+  print layers,layers_numbers
   #dirin='/home/caducovas/DeepRinger/data/run_layer1/adam_80/'
   #layers = ['100x80','80x60','60x40','40x10']
   #nsorts=10
@@ -908,11 +928,11 @@ def getCode(fname,norm1Par,sort):
       print "Sort: "+str(isort)
 
       #Itera sobre os layers para adquirir o encoder e o decoder
-      for layer in layers_list: #Different archtectures (each time one more autoencoder)
+      for iLayer,layer in enumerate(layers_list): #Different archtectures (each time one more autoencoder)
         #print "Reading files of: "+layer
 
         neuron = int(layer.split('x')[1])
-        files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort))]
+        files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort) and f.split('/')[-1].split('_')[33] == layers_numbers[iLayer])]
         ifile=files[0]
         #print ifile
         custom_obj={}

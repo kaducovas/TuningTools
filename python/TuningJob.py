@@ -1512,7 +1512,7 @@ class TuningJob(Logger):
           print "TA FODA HEIN"
           #self._info('Applying pre-processing chain to remaining sets...')
           print  "Apply ppChain:"
-          time.sleep(2*sort)
+          time.sleep(4*sort)
 
           trnDataN1,valDataN1 = ppChain.getNorm1()
           print "ate aqui foi " #trnDataN1,valDataN1

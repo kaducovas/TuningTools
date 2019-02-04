@@ -169,7 +169,7 @@ class NonLinPCA:
 
             # with a Sequential model
         get_layer_output = K.function([nlpca_model.layers[0].input],
-                              [nlpca_model.layers[2].output])
+                              [nlpca_model.layers[3].output])
         data_proj_nlpca = get_layer_output([proj_all_data])[0]
         return data_proj_nlpca
 
