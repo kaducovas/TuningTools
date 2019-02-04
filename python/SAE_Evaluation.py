@@ -764,23 +764,30 @@ def getPCAReconstruct(data=None,model=None):
 
 def getNLPCAReconstruct(fname,data,sort):
   reconstruct = OrderedDict()
-  ###NEURON MAPPING, NEURON BOTTLENECK AND SORT, match file and then use K.function
-  neuron = int(layer.split('x')[1])
-  files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort) and f.split('/')[-1].split('_')[33] == layers_numbers[iLayer])]
+  with open(fname) as f:
+    content = f.readlines()
+  f.close()
+  #bottleneck = int(layer.split('x')[1])
+  files = [f for f in content if f.split('_')[9] == str(sort)]
   ifile=files[0]
+  model_load = load_model('/scratch/22061a/caducovas/run/nlpca_preproc/output_files/'+ifile.replace('\n','')+'_model.h5')
   get_layer_output = K.function([model_load.layers[0].input],
-                              [model_load.layers[6].output])
-  output=get_layer_output([proj_all_data])[0] 
+                              [model_load.layers[7].output])
   if isinstance(data, (tuple, list,)):
     ret = []
     for i, cdata in enumerate(data):
-      ret.append( model.inverse_transform(cdata) )
+      ret.append( get_layer_output([cdata])[0] )
   else:
-    ret = model.inverse_transform(cdata)
+    ret = get_layer_output([data])[0]
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
 def getPCACode(data=None):
+  code = OrderedDict()
+  code[data[0].shape[1]] = data
+  return code
+
+def getNLPCACode(data=None):
   code = OrderedDict()
   code[data[0].shape[1]] = data
   return code

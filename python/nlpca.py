@@ -47,7 +47,7 @@ class NonLinPCA:
         train_info['n_epochs'] = n_epochs
         train_info['batch_size'] = batch_size
 
-        file_name = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i_model.h5'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
+        file_name = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
 
         train_info_name = self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
         classifiers_name = self.save_path+'/classifiers_files'+'/'+file_name+'_classifiers'
@@ -138,7 +138,7 @@ class NonLinPCA:
 
         #choose_date = '2016_09_21_20_56_00'
         proj_all_data = data
-        file_name = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i_model.h5'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
+        file_name = 'inits_%i_bottleneck_%i_mapping_%i_epochs_%i_sort_%i_etbin_%i_etabin_%i'%(n_inits, n_nlpcas, n_neurons_mapping,n_epochs,sort,etBinIdx, etaBinIdx)
         # load train info
         train_info_name = self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
         train_info = joblib.load(train_info_name)
