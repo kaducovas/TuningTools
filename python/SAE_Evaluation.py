@@ -770,7 +770,7 @@ def getNLPCAReconstruct(fname,data,sort):
   #bottleneck = int(layer.split('x')[1])
   files = [f for f in content if f.split('_')[9] == str(sort)]
   ifile=files[0]
-  model_load = load_model('/scratch/22061a/caducovas/run/nlpca_preproc/output_files/'+ifile.replace('\n','')+'_model.h5')
+  model_load = load_model('/scratch/22061a/caducovas/run/nlpca_preproc/output_files/'+ifile.replace('\n','')+'.h5')
   get_layer_output = K.function([model_load.layers[0].input],
                               [model_load.layers[7].output])
   if isinstance(data, (tuple, list,)):
@@ -2272,8 +2272,8 @@ def plot_input_reconstruction_error(norm1Par=None,reconstruct=None,model_name=No
 
 
   plt.style.use('ggplot')
-  
-  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')  
+
+  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
   # # Et and Eta indices
   # et_index  = [0, 1, 2,3]
   # etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
