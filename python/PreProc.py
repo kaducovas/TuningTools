@@ -1499,8 +1499,8 @@ class NLPCA( PrepObj ):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     #self._caltype = retrieve_kw(d,'caltype','allcalo')
-    self._n_nlpcas = retrieve_kw(d,'n_nlpcas',30)
-    self._n_neurons_mapping = retrieve_kw(d,'n_neurons_mapping',50)
+    self._n_nlpcas = retrieve_kw(d,'nlpcs',30)
+    self._n_neurons_mapping = retrieve_kw(d,'nmapping',50)
     #self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
     #self._dataEncoded = retrieve_kw(d,'dataEncoded','all') #all, signal, background
     PrepObj.__init__( self, d )
