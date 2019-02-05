@@ -51,7 +51,7 @@ class NonLinPCA:
 
         train_info_name = self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
         classifiers_name = self.save_path+'/classifiers_files'+'/'+file_name+'_classifiers'
-        nlpcas_file_name = self.save_path+'/output_files'+'/'+file_name+'_nlpcas'
+        nlpcas_file_name = self.save_path+'/output_files'+'/'+file_name
 
 
         # CVO = cross_validation.StratifiedKFold(all_trgt, train_info['n_folds'])
@@ -143,7 +143,7 @@ class NonLinPCA:
         train_info_name = self.save_path+'/train_info_files'+'/'+file_name+'_train_info.jbl'
         train_info = joblib.load(train_info_name)
         train_info = train_info[0]
-        nlpcas_file_name = self.save_path+'/output_files'+'/'+file_name+'_nlpcas'
+        nlpcas_file_name = self.save_path+'/output_files'+'/'+file_name
 
         classifiers = {}
         results = {}
