@@ -762,7 +762,7 @@ def getPCAReconstruct(data=None,model=None):
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
-def getNLPCAReconstruct(fname,data,sort):
+def getNLPCAReconstruct(fname,data,sort,layer):
   reconstruct = OrderedDict()
   with open(fname) as f:
     content = f.readlines()
@@ -779,7 +779,7 @@ def getNLPCAReconstruct(fname,data,sort):
       ret.append( get_layer_output([cdata])[0] )
   else:
     ret = get_layer_output([data])[0]
-  reconstruct[data[0].shape[1]] = ret
+  reconstruct[layer] = ret
   return reconstruct
 
 def getPCACode(data=None):

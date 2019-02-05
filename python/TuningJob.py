@@ -1546,7 +1546,7 @@ class TuningJob(Logger):
 
           if 'PCA' in str(ppChain.shortName()):
             if 'NLPCA' in str(ppChain.shortName()):
-              reconstruct = getNLPCAReconstruct(work_path+'nlpca_preproc/'+tuning_folder_name,valDataN1,sort)
+              reconstruct = getNLPCAReconstruct(work_path+'nlpca_preproc/'+tuning_folder_name,valDataN1,sort,valData[0].shape[1])
               target=None
               code= getNLPCACode(data=valData)
             else:
