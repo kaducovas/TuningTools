@@ -493,15 +493,15 @@ class Norm1(PrepObj):
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
-        cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
+        cnorm = np.abs( cdata.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
-                              oidx=cdata.shape[npCurrent.odim] ) )
+                              oidx=cdata.shape[npCurrent.odim] ) ) )
         cnorm[cnorm==0] = 1
         norms.append( cnorm )
     else:
-      norms = data.sum(axis=npCurrent.pdim).reshape(
+      norms = np.abs( data.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
-                              oidx=data.shape[npCurrent.odim] ) )
+                              oidx=data.shape[npCurrent.odim] ) ) )
       norms[norms==0] = 1
     #self._norms = norms
     return norms
@@ -916,6 +916,7 @@ class StackedAutoEncoder( PrepObj ):
     self._trn_params = ''
     self._trn_desc = ''
     self._weights = ''
+
 
     #self._mean = np.array( [], dtype=npCurrent.dtype )
     #self._invRMS  = np.array( [], dtype=npCurrent.dtype )
@@ -1757,6 +1758,8 @@ class PCA( PrepObj ):
 
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data )
+    #self._meanVector = np.mean(data.T, axis=1)
+    data -= np.mean(data.T, axis=1)
     self._pca.fit(data)
     print 'WTF', self.variance().shape
     self._info('PCA are aplied (%d of energy). Using only %d components of %d',
@@ -1780,6 +1783,8 @@ class PCA( PrepObj ):
     if isinstance(data, (tuple, list,)):
       ret = []
       for cdata in data:
+        self._meanVector = np.mean(data.T, axis=1)
+        cdata -= self._meanVector
         # FIXME Test this!
         if npCurrent.isfortran:
           print cdata.shape #,self._pca.transform(cdata.T).shape
@@ -2464,7 +2469,7 @@ class PreProcChain ( Logger ):
     """
     for pp in self:
       if 'PCA' in str(pp.shortName()):
-        return pp._pca
+        return pp._pca,pp._meanVector
 
   def getHiddenLayer(self):
     """
@@ -2538,4 +2543,3 @@ class PreProcCollection( object ):
   _acceptedTypes = type(None),
 # The PreProcCollection can hold a collection of itself besides PreProcChains:
 PreProcCollection._acceptedTypes = PreProcChain, PreProcCollection
-

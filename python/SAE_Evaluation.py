@@ -751,14 +751,14 @@ def getLSTMReconstruct(norm1Par,sort,model_name=None):
   reconstruct[bottleneck]=predict
   return reconstruct,target
 
-def getPCAReconstruct(data=None,model=None):
+def getPCAReconstruct(data=None,model=None, means=None):
   reconstruct = OrderedDict()
   if isinstance(data, (tuple, list,)):
     ret = []
     for i, cdata in enumerate(data):
-      ret.append( model.inverse_transform(cdata) )
+      ret.append( model.inverse_transform(cdata) + means )
   else:
-    ret = model.inverse_transform(cdata)
+    ret = model.inverse_transform(cdata)+ means
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
@@ -3467,5 +3467,3 @@ def make_ReconstructionErro_hist(norm1Par=None,reconstructErrVector=None,model_n
             print "Error on ring: "+str(rings+1)
 
     return None
-
-

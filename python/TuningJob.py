@@ -1550,8 +1550,8 @@ class TuningJob(Logger):
               target=None
               code= getNLPCACode(data=valData)
             else:
-              pcamodel= ppChain.getPCAModel()
-              reconstruct = getPCAReconstruct(data=valData,model=pcamodel)
+              pcamodel,pcaMeansVector= ppChain.getPCAModel()
+              reconstruct = getPCAReconstruct(data=valData,model=pcamodel, means=pcaMeansVector)
               target=None
               code= getPCACode(data=valData)
 
