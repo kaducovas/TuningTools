@@ -37,9 +37,9 @@ bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
 def calc_MI2(x, y):
   max_value = max(max(x),max(y))
   min_value = min(min(x),min(y))
-  bins = min( len(np.histogram(x,'fd')[0]), len(np.histogram(y,'fd')[0]))
+  bins = min( len(np.histogram(x,'fd',density=True)[0]), len(np.histogram(y,'fd',density=True)[0]))
   bins_list = np.linspace(min_value, max_value, num=bins)
-  c_xy,xaaa,yaaa = np.histogram2d(x, y, bins=(bins_list,bins_list))
+  c_xy,xaaa,yaaa = np.histogram2d(x, y, bins=(bins_list,bins_list),density=True)
   mi = mutual_info_score(None, None, contingency=c_xy)
   return mi #,xaaa,yaaa,bins
 
@@ -47,10 +47,10 @@ def calc_kl(x, y):
     from scipy import stats
     max_value = max(max(x),max(y))
     min_value = min(min(x),min(y))
-    bins = min( len(np.histogram(x,'fd')[0]), len(np.histogram(y,'fd')[0]))
+    bins = min( len(np.histogram(x,'fd',density=True)[0]), len(np.histogram(y,'fd',density=True)[0]))
     bins_list = np.linspace(min_value, max_value, num=bins)
-    p,phist_bins=np.histogram(x,bins_list)
-    q,qhist_bins=np.histogram(y,bins_list)
+    p,phist_bins=np.histogram(x,bins_list,density=True)
+    q,qhist_bins=np.histogram(y,bins_list,density=True)
     #print(len(p),len(q))
     kl = stats.entropy(pk=p+0.00001, qk=q+0.00001)
     return kl
