@@ -1783,7 +1783,7 @@ class PCA( PrepObj ):
     if isinstance(data, (tuple, list,)):
       ret = []
       for cdata in data:
-        self._meanVector = np.mean(data.T, axis=1)
+        self._meanVector = np.mean(cdata.T, axis=1)
         cdata -= self._meanVector
         # FIXME Test this!
         if npCurrent.isfortran:
