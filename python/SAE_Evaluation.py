@@ -37,9 +37,9 @@ bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
 def calc_MI2(x, y):
   max_value = max(max(x),max(y))
   min_value = min(min(x),min(y))
-  bins = min( len(np.histogram(x,'fd',density=True)[0]), len(np.histogram(y,'fd',density=True)[0]))
+  bins = min( len(np.histogram(x,'fd')[0]), len(np.histogram(y,'fd')[0]))
   bins_list = np.linspace(min_value, max_value, num=bins)
-  c_xy,xaaa,yaaa = np.histogram2d(x, y, bins=(bins_list,bins_list),density=True)
+  c_xy,xaaa,yaaa = np.histogram2d(x, y, bins=(bins_list,bins_list))
   mi = mutual_info_score(None, None, contingency=c_xy)
   return mi #,xaaa,yaaa,bins
 
