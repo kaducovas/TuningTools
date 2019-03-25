@@ -890,9 +890,10 @@ def getPCAReconstruct(data=None,model=None, means=None):
   if isinstance(data, (tuple, list,)):
     ret = []
     for i, cdata in enumerate(data):
-      ret.append( model.inverse_transform(cdata) + means )
+      print i,cdata.shape
+      ret.append( model.inverse_transform(cdata)+ means )
   else:
-    ret = model.inverse_transform(cdata)+ means
+    ret = model.inverse_transform(cdata) + means
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
@@ -1311,9 +1312,9 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         #print i,cdata.shape
         unnorm_reconstruct.append( cdata * normlist[i])
 
-      if sort == 0:
-        np.savez_compressed('/scratch/22061a/caducovas/run/reconstruction_files/recEnergy_'+model_name+'_'+str(layer),iEnergy=beforenorm,rEnergy=unnorm_reconstruct)
-        np.savez_compressed('/scratch/22061a/caducovas/run/reconstruction_files/Normed_RecEnergy_'+model_name+'_'+str(layer),iEnergy=afternorm,rEnergy=reconstruct[layer])
+      ###if sort == 0:
+      ###  np.savez_compressed('/scratch/22061a/caducovas/run/reconstruction_files/recEnergy_'+model_name+'_'+str(layer),iEnergy=beforenorm,rEnergy=unnorm_reconstruct)
+      ###  np.savez_compressed('/scratch/22061a/caducovas/run/reconstruction_files/Normed_RecEnergy_'+model_name+'_'+str(layer),iEnergy=afternorm,rEnergy=reconstruct[layer])
       unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
       beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
 

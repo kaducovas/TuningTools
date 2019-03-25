@@ -1758,10 +1758,10 @@ class PCA( PrepObj ):
 
     if isinstance(data, (tuple, list,)):
       data = np.concatenate( data )
-    #self._meanVector = np.mean(data.T, axis=1)
-    data -= np.mean(data.T, axis=1)
+    self._meanVector = np.mean(data.T, axis=1)
+    #data -= self._meanVector #np.mean(data.T, axis=1)
     self._pca.fit(data)
-    print 'WTF', self.variance().shape
+    print 'PCA WTF', self.variance().shape, 'IS PCA REMOVING MEAN? ', np.array_equal(self._pca.mean_,np.mean(data.T,axis=1))
     self._info('PCA are aplied (%d of energy). Using only %d components of %d',
                       self.energy, self.ncomponents(), data.shape[1])
     #return trnData
@@ -1783,8 +1783,10 @@ class PCA( PrepObj ):
     if isinstance(data, (tuple, list,)):
       ret = []
       for cdata in data:
-        self._meanVector = np.mean(cdata.T, axis=1)
-        cdata -= self._meanVector
+        #self._meanVector = np.mean(cdata.T, axis=1)
+        #self._meanVector2 = np.mean(cdata.T, axis=1)
+        #cdata -= self._meanVector2
+        #self._meanVector
         # FIXME Test this!
         if npCurrent.isfortran:
           print cdata.shape #,self._pca.transform(cdata.T).shape

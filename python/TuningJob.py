@@ -1202,7 +1202,7 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[53],aetype='contractive')] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level), StackedAutoEncoder(level=self.level,hidden_neurons=[30],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1515,9 +1515,10 @@ class TuningJob(Logger):
           time.sleep(4*sort)
 
           trnDataN1,valDataN1 = ppChain.getNorm1()
-          print "ate aqui foi " #trnDataN1,valDataN1
+          print "ate aqui foi. CoreConf ==  "+str(coreConf()) #trnDataN1,valDataN1
           f_tuning=True
           if f_tuning and coreConf() == 2:
+            print 'Warning: trData and valData receiving output of normalization again, regardless of Dimensionality reduction'
             trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
             hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           #@hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
@@ -1541,8 +1542,8 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_signal_sort'+str(sort),trnData[0])
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
-          if(sort == 0):
-            time.sleep(360)
+          ###if(sort == 0):
+          ###  time.sleep(360)
 
           if 'PCA' in str(ppChain.shortName()):
             if 'NLPCA' in str(ppChain.shortName()):
@@ -1589,7 +1590,7 @@ class TuningJob(Logger):
                 hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
 
-          if 'PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()):
+          if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
             print 'RECONS',reconstruct.keys()
             time.sleep(int(20*int(sort)))
             #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
@@ -1667,6 +1668,7 @@ class TuningJob(Logger):
                 mname=""
                 if coreConf() == 2:
                   #keras
+                  print 'Deepff will be execute using keras and the original inputs after normalization. Is that what you expect???'
                   if f_tuning:
                     tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                   else:
@@ -1812,7 +1814,7 @@ class TuningJob(Logger):
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 3):
           print "SORTEEEE: "+str(sort)
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
@@ -1954,13 +1956,13 @@ class TuningJob(Logger):
           #     png_f = open(png_file,'rb')
           #     bot.sendDocument('@ringer_tuning',png_f)
           #
-          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          # #if('AE' in str(ppChain.shortName())):
-          #   #for layer in reconstruct.keys():
-          #   png_files=plot_pdfs_representation(norm1Par=norm1Par,code=code,layer=layer,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
-          #   for png_file in png_files:
-          #     png_f = open(png_file,'rb')
-          #     bot.sendDocument('@ringer_tuning',png_f)
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+           #if('AE' in str(ppChain.shortName())):
+             #for layer in reconstruct.keys():
+            png_files=plot_pdfs_representation(norm1Par=norm1Par,code=code,layer=layer,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendDocument('@ringer_tuning',png_f)
 
           # # ##HISTO PLOTS
           if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
@@ -1971,19 +1973,19 @@ class TuningJob(Logger):
               png_f = open(png_file,'rb')
               bot.sendDocument('@ringer_tuning',png_f)
 
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          ###if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys()
-            make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
-            bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
-            print 'Finished Plotting RIngs Histogram Input X Reconstruction'
+            ###make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
+            ###bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
+            ###print 'Finished Plotting RIngs Histogram Input X Reconstruction'
 
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          ###if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys()
-            make_representation_hist(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
+            ###make_representation_hist(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
             #bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
-            print 'Finished Plotting Code Histogram Signal X Background'
+            ###print 'Finished Plotting Code Histogram Signal X Background'
 
           # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           #   #if('AE' in str(ppChain.shortName())):
