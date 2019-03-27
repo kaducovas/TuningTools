@@ -1419,7 +1419,7 @@ class TuningJob(Logger):
                 trnData[i], valData[i], tstData[i] = crossValid( patterns[i], sort  )
           del patterns # Keep only one data representation
 
-          work_path='/scratch/22061a/caducovas/run/'
+          work_path= '/eos/user/c/ccovasco/run/' #'/scratch/22061a/caducovas/run/'
 
           #bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
           #bot.sendMessage('@ringer_tuning',ppChain.shortName()+'Started Sort: '+str(sort))
@@ -1709,8 +1709,8 @@ class TuningJob(Logger):
                 em2comb='N1-EMAE_60-EMAE_40-EMAE_20_20180614054100'
                 had2comb='N1-HADAE_10-HADAE_8-HADAE_6_20180614041713'
 
-                empath='/scratch/22061a/caducovas/run/files/'+em2comb+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
-                hadpath='/scratch/22061a/caducovas/run/files/'+had2comb+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
+                empath=workpath+'/files/'+em2comb+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
+                hadpath=workpath+'/files/'+had2comb+'/models/model_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
 
                 tuningWrapper.concatff([nInputs,neuron,1],empath,hadpath)
                 start_model=datetime.now()
