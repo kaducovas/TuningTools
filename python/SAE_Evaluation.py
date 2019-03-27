@@ -563,7 +563,7 @@ def print_metrics(metricsDict):
 def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,points=None,fine_tuning=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
   import dataset
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new2.db')
   #print point.sp_value
   tabela = db['classifiers7']
   print "QNT DE PONTOS",len(points)
@@ -720,7 +720,7 @@ def createClassifierTable(model_name,script_time,Point):
   print Point
   x = PrettyTable()
   x.field_names = ["KPI", "Train", "Validation"]
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new2.db')
   #table = db['classifier']
 
   #query = 'select model,time,phase, avg(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples,avg(threshold) as threshold,  avg(sp) || "+-" || stdev(sp) as sp, avg(pd) || "+-" || stdev(pd) as pd, avg(pf) || "+-" || stdev(pf) as pf, avg(accuracy) || "+-" || stdev(accuracy) as accuracy, avg(f1) || "+-" || stdev(f1) as f1, avg(auc) || "+-" || stdev(auc) as auc,  avg(precision) || "+-" || stdev(precision) as precision, avg(recall) || "+-" || stdev(recall) as recall from classifier group by model,time,phase'
@@ -750,7 +750,7 @@ def create_simple_table(model_name,script_time):
   #from SAE_Evaluation import *
   from prettytable import PrettyTable
   import sqlite3
-  cnx=sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+  cnx=sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new2.db')
   #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers7 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
   df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers7 where id in (select id from (select max(sp) as maxsp,id from classifiers7 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
   df['Point'] = df['Point'].apply(lambda x: x.split('_')[-1])
@@ -1143,7 +1143,7 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   png_files=[]
 
   plt.style.use('ggplot')
-  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new2.db')
   # Et and Eta indices
   et_index  = [0, 1, 2,3]
   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
@@ -1294,7 +1294,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   from sklearn.metrics import mean_squared_error
   import dataset
   import math
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new.db')
+  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new2.db')
   #print point.sp_value
   table = db['reconstruction_metrics7']
   metrics = OrderedDict()
@@ -2228,7 +2228,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     #%matplotlib inline
     import matplotlib.pyplot as plt
     plt.style.use('ggplot')
-    cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+    cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new2.db')
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -2316,7 +2316,7 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     #%matplotlib inline
     import matplotlib.pyplot as plt
     plt.style.use('ggplot')
-    cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+    cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new2.db')
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -2408,7 +2408,7 @@ def plot_input_reconstruction_error(norm1Par=None,reconstruct=None,model_name=No
 
   plt.style.use('ggplot')
 
-  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new2.db')
   # # Et and Eta indices
   # et_index  = [0, 1, 2,3]
   # etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
@@ -2719,7 +2719,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
     normalizacao='no'
 
   plt.style.use('ggplot')
-  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new.db')
+  cnx = sqlite3.connect('/scratch/22061a/caducovas/run/ringer_new2.db')
   # Et and Eta indices
   et_index  = [0, 1, 2,3]
   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
