@@ -1419,7 +1419,7 @@ class TuningJob(Logger):
                 trnData[i], valData[i], tstData[i] = crossValid( patterns[i], sort  )
           del patterns # Keep only one data representation
 
-          work_path= '/eos/user/c/ccovasco/run/' #'/scratch/22061a/caducovas/run/'
+          work_path= '/home/caducovas/run/' #'/scratch/22061a/caducovas/run/'
 
           #bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
           #bot.sendMessage('@ringer_tuning',ppChain.shortName()+'Started Sort: '+str(sort))

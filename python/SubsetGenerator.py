@@ -143,10 +143,10 @@ class SubsetGeneratorArchieve( Logger ):
     return save( self.getData(), self._filePath, compress = compress )
 
   def __enter__(self):
-    
+
     subsetColInfo   = load( self._filePath )
     # Open crossValidPreprocFile:
-    try: 
+    try:
       if isinstance(subsetColInfo, dict):
         if subsetColInfo['type'] != 'SubsetGeneratorCollectionFile':
           self._fatal(("Input subsetCol file is not from SubsetGeneratorCollectionFile type."))
@@ -161,7 +161,7 @@ class SubsetGeneratorArchieve( Logger ):
           "\n\t %s") % (self._filePath, e))
 
     return self._subsetCol
-    
+
   def __exit__(self, exc_type, exc_value, traceback):
     # Remove bound
     self._subsetCol=None
@@ -225,7 +225,7 @@ class SubsetGeneratorPatterns ( Logger ):
       if not s.getBin() is None:
         return True
     return False
-  
+
   def setDependentPatterns( self, dpatterns ):
     self._dependentPatterns = dpatterns
 
@@ -234,7 +234,7 @@ class SubsetGeneratorPatterns ( Logger ):
 
   def _treatSubset( self, subsets ):
     # case 1: If cluster with zero events, we need to remove this from the list
-    # case 2: If cluster with events minus than boxes, we need to split this into other clusters 
+    # case 2: If cluster with events minus than boxes, we need to split this into other clusters
     subsetList = []
     remainderSubsetList = []
     for cluster in subsets:
@@ -303,7 +303,7 @@ def fixSubsetCol( var, nSorts = 1, nEta = 1, nEt = 1, level = None ):
     correctly represented by a LoopingBoundsCollection instance.
   """
   tree_types = (SubsetGeneratorCollection, SubsetGeneratorPatterns, list, tuple )
-  try: 
+  try:
     # Retrieve collection maximum depth
     _, _, _, _, depth = traverse(var, tree_types = tree_types).next()
   except GeneratorExit:
@@ -350,16 +350,16 @@ class Cluster( Subset ):
         matrix   : projection apply on the centroids.
     """
     d.update( kw ); del kw
-    Subset.__init__(self,d) 
+    Subset.__init__(self,d)
 
     self._code_book = d.pop('code_book', [])
     self._w         = d.pop('w'  , 1   )
-    checkForUnusedVars(d, self._warning )  
+    checkForUnusedVars(d, self._warning )
     del d
     # Some protections before start
     if type(self._code_book) is list:
       self._code_book = npCurrent.array(self._code_book)
-    # If weigth factor is an integer, transform to an array of factors with the 
+    # If weigth factor is an integer, transform to an array of factors with the
     # same size of the centroids
     if type(self._w) is int:
       self._w = npCurrent.int_array([self._w for i in range(self._code_book.shape[0])])
@@ -374,7 +374,7 @@ class Cluster( Subset ):
 
   def __call__(self, data):
     return self._apply(data)
-  
+
   def _apply(self,data):
     """
     This function is slower than the C version but works for
@@ -412,10 +412,10 @@ class Cluster( Subset ):
     cpattern=[]
     for target in range(self._code_book.shape[0]):
       cpattern.append(data[np.where(code==target)[0],:])
-    
+
     # Resize the cluster
     for i, c in enumerate(cpattern):
-      cpattern[i] = np.repeat(cpattern[i],self._w[i],axis=0)  
+      cpattern[i] = np.repeat(cpattern[i],self._w[i],axis=0)
       self._info('Cluster %d and factor %d with %d events and %d features',\
                         i,self._w[i],cpattern[i].shape[0],cpattern[i].shape[1])
     return cpattern
@@ -435,12 +435,12 @@ class GMMCluster( Cluster ):
                    e.g: the cluster was found 100 events and the w factor is 2. In the end we
                    will duplicate the events into the cluster to 200.
         matrix   : projection apply on the centroids.
-        sigma    : variance param of the gaussian, this algorithm will calculate the likelihood 
+        sigma    : variance param of the gaussian, this algorithm will calculate the likelihood
                    value using: lh[i] = np.exp(np.power((data-centroid[i])/sigma[i],2))
     """
     d.update( kw ); del kw
     self._sigma = d.pop('sigma' , npCurrent.array([])   )
-    Cluster.__init__(self, d) 
+    Cluster.__init__(self, d)
     del d
 
     # Checking the sigma type
@@ -487,15 +487,15 @@ class GMMCluster( Cluster ):
 
     del tdata
     gc.collect()
-    
+
     # Join all clusters into a list of clusters
     cpattern=[]
     for target in range(self._code_book.shape[0]):
       cpattern.append(data[np.where(code==target)[0],:])
-    
+
     # Resize the cluster
     for i, c in enumerate(cpattern):
-      cpattern[i] = np.repeat(cpattern[i],self._w[i],axis=0)  
+      cpattern[i] = np.repeat(cpattern[i],self._w[i],axis=0)
       self._info('Cluster %d and factor %d with %d events and %d features',\
                         i,self._w[i],cpattern[i].shape[0],cpattern[i].shape[1])
     return cpattern
@@ -520,17 +520,17 @@ class SomCluster( Subset ):
         p_cluster: cluster target for each neuron map
     """
     d.update( kw ); del kw
-    Subset.__init__(self,d) 
+    Subset.__init__(self,d)
 
     self._code_book = d.pop('code_book', [])
     self._p_cluster = d.pop('p_cluster', [])
     self._w         = d.pop('w'  , 1   )
-    checkForUnusedVars(d, self._warning )  
+    checkForUnusedVars(d, self._warning )
     del d
     # Some protections before start
     if type(self._code_book) is list:
       self._code_book = npCurrent.array(self._code_book)
-    # If weigth factor is an integer, transform to an array of factors with the 
+    # If weigth factor is an integer, transform to an array of factors with the
     # same size of the centroids
     if type(self._w) is int:
       self._w = npCurrent.int_array([self._w for i in range(self._code_book.shape[0])] )
@@ -545,7 +545,7 @@ class SomCluster( Subset ):
 
   def __call__(self, data):
     return self._apply(data)
-  
+
   def _apply(self,data):
     """
     This function is slower than the C version but works for
@@ -574,13 +574,13 @@ class SomCluster( Subset ):
                        "number of features (eg columns)""" %
                        (self._code_book.shape[1], d))
 
-    bmus = tensor_frobenius_argmin(tdata,self._code_book,10000,self._logger)    
+    bmus = tensor_frobenius_argmin(tdata,self._code_book,10000,self._logger)
     code = np.zeros(bmus.shape)
-    # Fix matlab index 
+    # Fix matlab index
     self._p_cluster = self._p_cluster-1
     for n in range(bmus.shape[0]):
       code[n] = self._p_cluster[bmus[n]]
-    
+
     # Release memory
     del tdata
     gc.collect()
@@ -588,12 +588,10 @@ class SomCluster( Subset ):
     cpattern=[]
     for target in range(max(self._p_cluster)+1):
       cpattern.append(data[np.where(code==target)[0],:])
-    
+
     # Resize the cluster
     for i, c in enumerate(cpattern):
-      cpattern[i] = np.repeat(cpattern[i],self._w[i],axis=0)  
+      cpattern[i] = np.repeat(cpattern[i],self._w[i],axis=0)
       self._info('Cluster %d and factor %d with %d events and %d features',
                         i,self._w[i],cpattern[i].shape[0],cpattern[i].shape[1])
     return cpattern
-
-

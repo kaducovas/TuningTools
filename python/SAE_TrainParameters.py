@@ -120,4 +120,3 @@ class NeuralClassificationTrnParams(TrnParams):
         return param_str
 
 # novelty detection
-
