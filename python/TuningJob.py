@@ -1542,8 +1542,8 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_signal_sort'+str(sort),trnData[0])
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
-          ###if(sort == 0):
-          ###  time.sleep(360)
+          if(sort == 0):
+            time.sleep(160)
 
           if 'PCA' in str(ppChain.shortName()):
             if 'NLPCA' in str(ppChain.shortName()):
@@ -1814,7 +1814,7 @@ class TuningJob(Logger):
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 3):
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           print "SORTEEEE: "+str(sort)
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
