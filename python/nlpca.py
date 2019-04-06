@@ -3,7 +3,7 @@
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adam
 import keras.callbacks as callbacks
 from keras.utils import np_utils
 from keras.layers import Merge
@@ -95,8 +95,11 @@ class NonLinPCA:
                       decay=train_info['learning_decay'],
                       momentum=train_info['momentum'],
                       nesterov=train_info['nesterov'])
+
+            adamOpt = Adam(lr=0.001,beta_1=0.9,beta_2=0.999,epsilon=1e-08)
+
             model.compile(loss='mean_squared_error',
-                          optimizer=sgd,
+                          optimizer=adam,
                           metrics=['mean_squared_error'])
 
             earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
