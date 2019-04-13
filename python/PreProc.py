@@ -490,37 +490,37 @@ class Norm1(PrepObj):
     """
       Calculate pre-processing parameters.
     """
-    if isinstance(data, (tuple, list,)):
-      norms = []
-      for cdata in data:
-        cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
-            npCurrent.access( pidx=1,
-                              oidx=cdata.shape[npCurrent.odim] ) )
-        cnorm[cnorm==0] = 1
-        norms.append( cnorm )
-    else:
-      norms = data.sum(axis=npCurrent.pdim).reshape(
-            npCurrent.access( pidx=1,
-                              oidx=data.shape[npCurrent.odim] ) )
-      norms[norms==0] = 1
-    #self._norms = norms
-    return norms
-
     # if isinstance(data, (tuple, list,)):
     #   norms = []
     #   for cdata in data:
-    #     cnorm = np.abs( cdata.sum(axis=npCurrent.pdim).reshape(
+    #     cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
     #         npCurrent.access( pidx=1,
-    #                           oidx=cdata.shape[npCurrent.odim] ) ) )
+    #                           oidx=cdata.shape[npCurrent.odim] ) )
     #     cnorm[cnorm==0] = 1
     #     norms.append( cnorm )
     # else:
-    #   norms = np.abs( data.sum(axis=npCurrent.pdim).reshape(
+    #   norms = data.sum(axis=npCurrent.pdim).reshape(
     #         npCurrent.access( pidx=1,
-    #                           oidx=data.shape[npCurrent.odim] ) ) )
+    #                           oidx=data.shape[npCurrent.odim] ) )
     #   norms[norms==0] = 1
     # #self._norms = norms
     # return norms
+
+    if isinstance(data, (tuple, list,)):
+      norms = []
+      for cdata in data:
+        cnorm = np.abs( cdata.sum(axis=npCurrent.pdim).reshape(
+            npCurrent.access( pidx=1,
+                              oidx=cdata.shape[npCurrent.odim] ) ) )
+        cnorm[cnorm==0] = 1
+        norms.append( cnorm )
+    else:
+      norms = np.abs( data.sum(axis=npCurrent.pdim).reshape(
+            npCurrent.access( pidx=1,
+                              oidx=data.shape[npCurrent.odim] ) ) )
+      norms[norms==0] = 1
+    #self._norms = norms
+    return norms
 
   def __str__(self):
     """
