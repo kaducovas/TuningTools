@@ -23,6 +23,7 @@ from prettytable import PrettyTable
 from datetime import datetime
 from SAE_Evaluation import *
 import time
+#import keras
 
 class TunedDiscrArchieveRDS( LoggerRawDictStreamer ):
   """
@@ -1202,7 +1203,8 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level), StackedAutoEncoder(level=self.level,hidden_neurons=[30],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+      #PCA(level = self.level, energy = 21)] ))
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level), PCA(level = self.level, energy = 21)] ))  #NLPCA(level = self.level, nlpcs=21, nmapping=51)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[21],aetype='vanilla')] )) #NLPCA(level = self.level, nlpcs=50, nmapping=81)] )) # #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1516,7 +1518,7 @@ class TuningJob(Logger):
 
           trnDataN1,valDataN1 = ppChain.getNorm1()
           print "ate aqui foi. CoreConf ==  "+str(coreConf()) #trnDataN1,valDataN1
-          f_tuning=True
+          f_tuning=False
           if f_tuning and coreConf() == 2:
             print 'Warning: trData and valData receiving output of normalization again, regardless of Dimensionality reduction'
             trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
@@ -1538,10 +1540,17 @@ class TuningJob(Logger):
           #os.makedirs(work_path+'newwav/fold_'+str(sort+1)+'/background')
           #for amostra in range(valData[1].shape[0]):
           #  wavfile.write(work_path+'newwav/fold_'+str(sort+1)+'/background/'+str(amostra)+'.wav',fs,valData[1][amostra,:])
-          #trn_all=np.concatenate( trnData, axis=npCurrent.odim)
+          trn_all=np.concatenate( trnData, axis=npCurrent.odim)
+          val_all=np.concatenate( valData, axis=npCurrent.odim)
           #np.savez_compressed(work_path+'Train_signal_sort'+str(sort),trnData[0])
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
-          #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
+          np.savez_compressed(work_path+'Train_sort'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),trn_all)
+          np.savez_compressed(work_path+'files/'+tuning_folder_name+'/results/Val_sort'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),val_all)
+          valTarget = []
+          valTarget.append(np.array([1]*valData[0].shape[0]))
+          valTarget.append(np.array([-1]*valData[1].shape[0]))
+          val_all_target = np.concatenate( valTarget, axis=npCurrent.odim)
+          np.savez_compressed(work_path+'files/'+tuning_folder_name+'/results/val_all_target'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx),val_all_target)
           ###if(sort == 0):
           ###  time.sleep(360)
 
@@ -1669,12 +1678,13 @@ class TuningJob(Logger):
                 if coreConf() == 2:
                   #keras
                   print 'Deepff will be execute using keras and the original inputs after normalization. Is that what you expect???'
+                  tb_name = ppChain.shortName()+'_HL_'+str(neuron)+'_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
                   if f_tuning:
                     tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                   else:
                     tuningWrapper.deepff2([nInputs, neuron,1])
                   #tuningWrapper.newff([nInputs, neuron,1])
-                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep()
+                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep(work_path+'files/'+tuning_folder_name,tb_name)
                   #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
                 else:
                   tuningWrapper.newff([nInputs, neuron,1])
@@ -1842,11 +1852,11 @@ class TuningJob(Logger):
               png_f = open(png_file,'rb')
               bot.sendPhoto('@ringer_tuning',png_f)
 
-          if('NLPCA' in str(ppChain.shortName())):
-            png_files=plot_NLPCA_training(work_path+'nlpca_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendPhoto('@ringer_tuning',png_f)
+          # if('NLPCA' in str(ppChain.shortName())):
+          #   png_files=plot_NLPCA_training(work_path+'nlpca_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          #   for png_file in png_files:
+          #     png_f = open(png_file,'rb')
+          #     bot.sendPhoto('@ringer_tuning',png_f)
 
           if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
             png_files=plot_reconstruction_error(trnReconError=trnReconError,valReconError=valReconError,model_name=ppChain.shortName(),layer=reconstruct.keys()[-1],time=startTime,dirout=work_path+'files/'+tuning_folder_name+'/')
@@ -1968,17 +1978,28 @@ class TuningJob(Logger):
           if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys():
-            png_files=plot_scatter(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+            png_files=plot_scatter(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,normed=True,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
             for png_file in png_files:
               png_f = open(png_file,'rb')
               bot.sendDocument('@ringer_tuning',png_f)
 
-          ###if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+            #if('AE' in str(ppChain.shortName())):
+            #for layer in reconstruct.keys():
+            png_files=plot_scatter(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,normed=False,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+            for png_file in png_files:
+              png_f = open(png_file,'rb')
+              bot.sendDocument('@ringer_tuning',png_f)
+
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             #if('AE' in str(ppChain.shortName())):
             #for layer in reconstruct.keys()
-            ###make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/scratch/22061a/caducovas/run/plots/')
-            ###bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
-            ###print 'Finished Plotting RIngs Histogram Input X Reconstruction'
+            make_ring_hist(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout='/home/caducovas/run/plots/')
+            try:
+                bot.sendMessage('@ringer_tuning','Finished Plotting Rings Histogram Input X Reconstruction')
+                print 'Finished Plotting RIngs Histogram Input X Reconstruction'
+            except:
+                print 'Finished Plotting RIngs Histogram Input X Reconstruction'
 
           ###if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             #if('AE' in str(ppChain.shortName())):
@@ -2010,7 +2031,8 @@ class TuningJob(Logger):
             # #@@dl_png_f = open(dl_png_file,'rb')
             # #@@bot.sendPhoto('@ringer_tuning',dl_png_f)
 
-          bot.sendMessage('@ringer_tuning','Finished tuning job!')
+          #time.sleep(20)
+          #bot.sendMessage('@ringer_tuning','Finished tuning job!')
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
 

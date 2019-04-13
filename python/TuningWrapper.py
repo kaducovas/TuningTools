@@ -32,7 +32,7 @@ class TuningWrapper(Logger):
                                  )
 
     epochs                     = retrieve_kw( kw, 'epochs',                10000                  )
-    maxFail                    = retrieve_kw( kw, 'maxFail',               50                     )
+    maxFail                    = retrieve_kw( kw, 'maxFail',               30                     )
     self.useTstEfficiencyAsRef = retrieve_kw( kw, 'useTstEfficiencyAsRef', False                  )
     self._merged               = retrieve_kw( kw, 'merged',                False                  )
     self._deep                 = retrieve_kw( kw, 'deep',                  False                  )
@@ -558,25 +558,25 @@ class TuningWrapper(Logger):
       # from keras.layers.core import Dense, Dropout, Activation
       # from keras.layers import Input
       # from keras.activation import tanh
-      
+
       # input1 = Input(shape=(100,))
       # x1 = Dense(100,activation='relu')(input1)
       # x2 = Dense(100,activation='relu')(x1)
       # added = keras.layers.Add()([x2, input1])
-	  
-	  
-	  
-	  
+
+
+
+
       # model = Model(inputs=[input1],outputs=added)
 
-  
-        
- 
- 
-  
-  
-  
-  
+
+
+
+
+
+
+
+
         # last_hl = hidden_neurons[i_hn]
       # model.add( Dense( last_hl
                        # #, input_dim=nodes[0]
@@ -964,7 +964,7 @@ class TuningWrapper(Logger):
     return tunedDiscrList, tuningInfo
   # end of trainC_Exp
 
-  def trainC_Deep( self ):
+  def trainC_Deep( self, fname=None, short_name=None ):
     """
       Train expert feedforward neural network
     """
@@ -994,21 +994,38 @@ class TuningWrapper(Logger):
       #                 'benchmark' : None }
       ##########################################################
       ##APAGAR
+
+      import time
+      import datetime
+      start_run = time.time()
+      import keras
+
+      tbCallBack = keras.callbacks.TensorBoard(log_dir='/home/caducovas/tensorboard/graphs/Discriminator_'+short_name, histogram_freq=10, write_graph=True, write_images=True,write_grads=True,update_freq='epoch')
+
+
       print 'WRAPPER DDMF'
       print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
       print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
       print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
       ########################################################
+
       history = self._model.fit( self._trnData
                                     , self._trnTarget
                                     , epochs          = self.trainOptions['nEpochs']
                                     , batch_size      = self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
+                                    #, callbacks       = [self._earlyStopping, tbCallBack]
                                     , callbacks       = [self._earlyStopping]
                                     , verbose         = 2
                                     , validation_data = ( self._valData , self._valTarget )
                                     , shuffle         = self.trainOptions['shuffle']
                                     )
+
+      end_run = time.time()
+      print 'Model '+short_name+' took '+ str(datetime.timedelta(seconds=(end_run - start_run))) +' to finish.'
+
+      (self._model.save(
+              '%s.h5'%(fname+'/models/'+short_name)))
 
       rawDictTempl = { 'discriminator': None,
                        'benchmark': None }
@@ -1052,6 +1069,7 @@ class TuningWrapper(Logger):
           if self._tstData: tstRoc( tstOutput, self._tstTarget )
           #tstRoc( tstOutput, self._tstTarget )
           else: tstRoc( valOutput, self._valTarget )
+          np.savez_compressed(fname+'/results/val_all_target_official'+short_name,self._valTarget)
           # Add rocs to output information
           # TODO Change this to raw object
           tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
@@ -1460,5 +1478,3 @@ class TuningWrapper(Logger):
       patterns.append( data[ npCurrent.access( pidx=':', oidx=np.where(target==classTarget)[0]) ] )
       self._debug('Separated pattern %d shape is %r', idx, patterns[idx].shape)
     return patterns
-
-

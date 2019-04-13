@@ -493,18 +493,34 @@ class Norm1(PrepObj):
     if isinstance(data, (tuple, list,)):
       norms = []
       for cdata in data:
-        cnorm = np.abs( cdata.sum(axis=npCurrent.pdim).reshape(
+        cnorm = cdata.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
-                              oidx=cdata.shape[npCurrent.odim] ) ) )
+                              oidx=cdata.shape[npCurrent.odim] ) )
         cnorm[cnorm==0] = 1
         norms.append( cnorm )
     else:
-      norms = np.abs( data.sum(axis=npCurrent.pdim).reshape(
+      norms = data.sum(axis=npCurrent.pdim).reshape(
             npCurrent.access( pidx=1,
-                              oidx=data.shape[npCurrent.odim] ) ) )
+                              oidx=data.shape[npCurrent.odim] ) )
       norms[norms==0] = 1
     #self._norms = norms
     return norms
+
+    # if isinstance(data, (tuple, list,)):
+    #   norms = []
+    #   for cdata in data:
+    #     cnorm = np.abs( cdata.sum(axis=npCurrent.pdim).reshape(
+    #         npCurrent.access( pidx=1,
+    #                           oidx=cdata.shape[npCurrent.odim] ) ) )
+    #     cnorm[cnorm==0] = 1
+    #     norms.append( cnorm )
+    # else:
+    #   norms = np.abs( data.sum(axis=npCurrent.pdim).reshape(
+    #         npCurrent.access( pidx=1,
+    #                           oidx=data.shape[npCurrent.odim] ) ) )
+    #   norms[norms==0] = 1
+    # #self._norms = norms
+    # return norms
 
   def __str__(self):
     """
@@ -1496,7 +1512,7 @@ class NLPCA( PrepObj ):
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
-  def __init__(self,n_inits=1,n_nlpcas=30, n_neurons_mapping=50, hidden_activation='tanh',output_activation='linear',n_epochs=10,patience=30,batch_size=200,layer=1, d = {}, **kw):
+  def __init__(self,n_inits=1,n_nlpcas=30, n_neurons_mapping=50, hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
     from RingerCore import retrieve_kw
     #self._caltype = retrieve_kw(d,'caltype','allcalo')

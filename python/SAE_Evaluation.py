@@ -262,7 +262,7 @@ def plot_NLPCA_training(fname,dirout):
   files = [f for f in content]
   for file_name in files:
       file = '//home/caducovas/run/nlpca_preproc/output_files/'+file_name #.replace('\n','')+'_train_desc.jbl'
-      job = joblib.load(filename.replace('\n','')+'_trn_desc.jbl')
+      job = joblib.load(file.replace('\n','')+'_train_desc.jbl')
       #file_name = file.split('/')[-1]
       print file,file_name.split('_')[9]
       epochs[int(file_name.split('_')[9])] = job[0][file_name.split('_')[3]]['epochs']
@@ -796,7 +796,7 @@ def plot_Roc(fname,dirout, model_name=""):
   import os
   from RingerCore import load
   from sklearn.metrics import roc_curve, auc
-  history_files=[x for x in os.listdir(fname) if x.endswith(".pic")]
+  history_files=[x for x in os.listdir(fname) if x.endswith(".pic.gz")]
   png_files=[]
 
   fig, axs = plt.subplots(1, 1)
@@ -891,7 +891,7 @@ def getPCAReconstruct(data=None,model=None, means=None):
     ret = []
     for i, cdata in enumerate(data):
       print i,cdata.shape
-      ret.append( model.inverse_transform(cdata)+ means )
+      ret.append( model.inverse_transform(cdata) ) #+ means )
   else:
     ret = model.inverse_transform(cdata) + means
   reconstruct[data[0].shape[1]] = ret
@@ -1371,7 +1371,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
-          print score
+          #print score
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo'
           metrics[str(anel+1)] = None
@@ -2162,7 +2162,7 @@ def plot_pdfs_byclass(norm1Par=None,reconstruct=None,model_name="",time=None,sor
     print len(png_files)
     return png_files
 
-def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None, dirout=None):
+def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,normed=True,phase=None, dirout=None):
     import matplotlib.pyplot as plt
     import seaborn as sb
 
@@ -2170,6 +2170,10 @@ def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=Non
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
     png_files=[]
+    if normed:
+        normalized = '_normed'
+    else:
+        normalized = ''
 
     for layer in reconstruct.keys():
         #print 'LAYER: '+str(layer)
@@ -2181,9 +2185,14 @@ def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=Non
                 #print i,cdata.shape
                 unnorm_reconstruct.append( cdata * normlist[i])
             unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
-            beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
-            r=unnorm_reconstruct_val_Data
-            b=beforenorm_val_Data
+            beforenorm_val_Data = np.concatenate( beforenorm, axis=0)
+            if normed:
+                r=unnorm_reconstruct_val_Data
+                b=beforenorm_val_Data
+            else:
+                r=np.concatenate( reconstruct[layer], axis=0 )
+                b=np.concatenate( afternorm, axis=0)
+
             #np.savez_compressed('//home/caducovas/run/pdfs',iEnergy=b,rEnergy=r)
             fig, axs = plt.subplots(8, 14, figsize=(60, 40))
             rings=0
@@ -2214,11 +2223,11 @@ def plot_scatter(norm1Par=None,reconstruct=None,model_name="",time=None,sort=Non
                     except:
                         print "Deu ruim no anel:"+str(rings+1)
                     rings+=1
-        plt.suptitle('Scatter - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
-        plt.savefig(dirout+'/scatter_'+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
+        plt.suptitle('Scatter - Input X Reconstruction - '+model_name+' - '+str(layer)+normalized, fontsize=24)
+        plt.savefig(dirout+'/scatter_'+normalized+str(layer)+'_'+model_name+'_'+time+'.png',dpi=120)
         plt.clf()
         plt.close()
-        png_files.append(dirout+'/scatter_'+str(layer)+'_'+model_name+'_'+time+'.png')
+        png_files.append(dirout+'/scatter_'+normalized+str(layer)+'_'+model_name+'_'+time+'.png')
     return png_files
 
 def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
