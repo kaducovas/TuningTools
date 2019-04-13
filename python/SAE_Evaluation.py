@@ -891,9 +891,9 @@ def getPCAReconstruct(data=None,model=None, means=None):
     ret = []
     for i, cdata in enumerate(data):
       print i,cdata.shape
-      ret.append( model.inverse_transform(cdata)+ means )
+      ret.append( model.inverse_transform(cdata)) #+ means )
   else:
-    ret = model.inverse_transform(cdata) + means
+    ret = model.inverse_transform(cdata) #+ means
   reconstruct[data[0].shape[1]] = ret
   return reconstruct
 
