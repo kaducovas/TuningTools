@@ -1594,6 +1594,15 @@ class TuningJob(Logger):
             print 'RECONS',reconstruct.keys()
             time.sleep(int(20*int(sort)))
             #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+            print 'Delta Energy'
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=True)
+            print 'Wasserstein'
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Wasserstein',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Wasserstein',Normed=True)
+            print 'kolmogorov-smirnov'
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='kolmogorov-smirnov',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='kolmogorov-smirnov',Normed=True)
             print 'Normalized MI'
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_MI',Normed=False)
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_MI',Normed=True)
@@ -1603,9 +1612,9 @@ class TuningJob(Logger):
             print 'KL Div'
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='KLdiv',Normed=False)
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='KLdiv',Normed=True)
-            print 'ChiSquared'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=True)
+            #print 'ChiSquared'
+            #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=False)
+            #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=True)
             print 'correlation'
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Correlation',Normed=False)
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Correlation',Normed=True)
@@ -1836,11 +1845,11 @@ class TuningJob(Logger):
 
           bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
 
-          if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
-            png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendPhoto('@ringer_tuning',png_f)
+          # if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
+          #   png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
+          #   for png_file in png_files:
+          #     png_f = open(png_file,'rb')
+          #     bot.sendPhoto('@ringer_tuning',png_f)
 
           #if('NLPCA' in str(ppChain.shortName())):
            # png_files=plot_NLPCA_training(work_path+'nlpca_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
@@ -1848,71 +1857,71 @@ class TuningJob(Logger):
              # png_f = open(png_file,'rb')
               #bot.sendPhoto('@ringer_tuning',png_f)
 
-          if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
-            png_files=plot_reconstruction_error(trnReconError=trnReconError,valReconError=valReconError,model_name=ppChain.shortName(),layer=reconstruct.keys()[-1],time=startTime,dirout=work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendPhoto('@ringer_tuning',png_f)
-
-          confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[0])
-          for confMatrix_png_file in confMatrix_png_files:
-            confMatrix_png_f = open(confMatrix_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
-
-
-          roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
-          for roc_png_file in roc_png_files:
-            roc_png_f = open(roc_png_file,'rb')
-            bot.sendPhoto('@ringer_tuning',roc_png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_input_reconstruction(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_input_reconstruction_diff_measures(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False,Normed=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_input_reconstruction_diff_measures(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False,Normed=True, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_input_reconstruction_separed(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_input_reconstruction_separed_noErrbar(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_input_reconstruction_error(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              #png_files=plot_input_reconstruction_delta(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
+          # if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
+          #   png_files=plot_reconstruction_error(trnReconError=trnReconError,valReconError=valReconError,model_name=ppChain.shortName(),layer=reconstruct.keys()[-1],time=startTime,dirout=work_path+'files/'+tuning_folder_name+'/')
+          #   for png_file in png_files:
+          #     png_f = open(png_file,'rb')
+          #     bot.sendPhoto('@ringer_tuning',png_f)
+          #
+          # confMatrix_png_files=send_confusion_matrix(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName(),valTarget,valOutput,tstPoint[0])
+          # for confMatrix_png_file in confMatrix_png_files:
+          #   confMatrix_png_f = open(confMatrix_png_file,'rb')
+          #   bot.sendPhoto('@ringer_tuning',confMatrix_png_f)
+          #
+          #
+          # roc_png_files=plot_Roc(work_path+'files/'+tuning_folder_name,work_path+'files/'+tuning_folder_name,ppChain.shortName())
+          # for roc_png_file in roc_png_files:
+          #   roc_png_f = open(roc_png_file,'rb')
+          #   bot.sendPhoto('@ringer_tuning',roc_png_f)
+          #
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_input_reconstruction(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
+          #
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_input_reconstruction_diff_measures(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False,Normed=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
+          #
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_input_reconstruction_diff_measures(model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False,Normed=True, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
+          #
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_input_reconstruction_separed(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
+          #
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_input_reconstruction_separed_noErrbar(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
+          #
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_input_reconstruction_error(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     #png_files=plot_input_reconstruction_delta(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
 
           # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
           # #if('AE' in str(ppChain.shortName())):
@@ -1922,22 +1931,22 @@ class TuningJob(Logger):
                 # png_f = open(png_file,'rb')
                 # bot.sendPhoto('@ringer_tuning',png_f)
 
-          ##REPLOT
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_measures_2d(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
-
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-          #if('AE' in str(ppChain.shortName())):
-            for layer in reconstruct.keys():
-              png_files=plot_representation_2d(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
-              for png_file in png_files:
-                png_f = open(png_file,'rb')
-                bot.sendPhoto('@ringer_tuning',png_f)
+          # ##REPLOT
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_measures_2d(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
+          #
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          # #if('AE' in str(ppChain.shortName())):
+          #   for layer in reconstruct.keys():
+          #     png_files=plot_representation_2d(norm1Par=norm1Par,code=code,model_name=ppChain.shortName(),layer=layer,time=startTime, etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,log_scale=False, dirout=work_path+'files/'+tuning_folder_name+'/')
+          #     for png_file in png_files:
+          #       png_f = open(png_file,'rb')
+          #       bot.sendPhoto('@ringer_tuning',png_f)
           ##REPLOT
 
           #if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
@@ -1956,22 +1965,22 @@ class TuningJob(Logger):
           #     png_f = open(png_file,'rb')
           #     bot.sendDocument('@ringer_tuning',png_f)
           #
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-           #if('AE' in str(ppChain.shortName())):
-             #for layer in reconstruct.keys():
-            png_files=plot_pdfs_representation(norm1Par=norm1Par,code=code,layer=layer,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendDocument('@ringer_tuning',png_f)
-
-          # # ##HISTO PLOTS
-          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
-            #if('AE' in str(ppChain.shortName())):
-            #for layer in reconstruct.keys():
-            png_files=plot_scatter(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
-            for png_file in png_files:
-              png_f = open(png_file,'rb')
-              bot.sendDocument('@ringer_tuning',png_f)
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #  #if('AE' in str(ppChain.shortName())):
+          #    #for layer in reconstruct.keys():
+          #   png_files=plot_pdfs_representation(norm1Par=norm1Par,code=code,layer=layer,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+          #   for png_file in png_files:
+          #     png_f = open(png_file,'rb')
+          #     bot.sendDocument('@ringer_tuning',png_f)
+          #
+          # # # ##HISTO PLOTS
+          # if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+          #   #if('AE' in str(ppChain.shortName())):
+          #   #for layer in reconstruct.keys():
+          #   png_files=plot_scatter(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation', dirout=work_path+'files/'+tuning_folder_name+'/')
+          #   for png_file in png_files:
+          #     png_f = open(png_file,'rb')
+          #     bot.sendDocument('@ringer_tuning',png_f)
 
           ###if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
             #if('AE' in str(ppChain.shortName())):
