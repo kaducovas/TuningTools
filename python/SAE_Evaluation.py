@@ -1296,7 +1296,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   from scipy.stats import ks_2samp
   import dataset
   import math
-  db = dataset.connect('sqlite://///home/caducovas/run/ringer_new2.db')
+  db = dataset.connect('sqlite://///scratch/22061a/caducovas/run/ringer_new4.db')
   #print point.sp_value
   table = db['reconstruction_metrics10']
   metrics = OrderedDict()
