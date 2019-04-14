@@ -1296,7 +1296,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   from scipy.stats import ks_2samp
   import dataset
   import math
-  db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/ringer_new3.db')
+  db = dataset.connect('sqlite://///home/caducovas/run/ringer_new2.db')
   #print point.sp_value
   table = db['reconstruction_metrics10']
   metrics = OrderedDict()
@@ -1371,18 +1371,22 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           elif measure == 'MSE':
             score= float(mean_squared_error(input_val_Data[:,anel],reconstruct_val_Data[:,anel]))
           elif measure == 'Wasserstein':
-            score= wasserstein_distance(input_val_Data[:,anel]-reconstruct_val_Data[:,anel])
+            score= float(wasserstein_distance(input_val_Data[:,anel],reconstruct_val_Data[:,anel]))
           elif measure == 'kolmogorov-smirnov':
-            score= ks_2samp(input_val_Data[:,anel]-reconstruct_val_Data[:,anel])
+            score, pvalue= ks_2samp(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
           elif measure == 'DeltaEnergy':
-            score= np.average(float(input_val_Data[:,anel]-reconstruct_val_Data[:,anel]), axis=0)
+            score= float(np.average(input_val_Data[:,anel]-reconstruct_val_Data[:,anel], axis=0))
+          elif measure == 'Normalized_DeltaEnergy':
+            score= float(np.average((input_val_Data[:,anel]-reconstruct_val_Data[:,anel])/input_val_Data[:,anel], axis=0))
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = score
-          print score
+          #print score
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo'
           metrics[str(anel+1)] = None
+          #print ks_2samp(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
+
 
       try:
         if measure == 'Normalized_MI':
@@ -1481,25 +1485,35 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'],chi_pvalue = calc_chisquare(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
         elif measure == 'Correlation':
           ###TOTAL
-          metrics['ETotal'],corr_pvalue = scipy.stats.pearsonr(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
+          metrics['ETotal'] = float(score)
           ###PS
-          metrics['PS'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
+          metrics['PS'] = float(score)
           ###EM1
-          metrics['EM1'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
+          metrics['EM1'] = float(score)
           ###EM2
-          metrics['EM2'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
+          metrics['EM2'] = float(score)
           ###EM3
-          metrics['EM3'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
+          metrics['EM3'] = float(score)
           ###EM
-          metrics['EM'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
+          metrics['EM'] = float(score)
           ###HAD1
-          metrics['HAD1'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
+          metrics['HAD1'] = float(score)
           ###HAD2
-          metrics['HAD2'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
+          metrics['HAD2'] = float(score)
           ###HAD3
-          metrics['HAD3'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
+          metrics['HAD3'] = float(score)
           ###HAD
-          metrics['HAD'],corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
+          metrics['HAD'] = float(score)
         elif measure == 'MSE':
           ###TOTAL
           metrics['ETotal'] = float(mean_squared_error(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1)))
@@ -1544,25 +1558,25 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'] = float(wasserstein_distance(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1)))
         elif measure == 'kolmogorov-smirnov':
           ###TOTAL
-          metrics['ETotal'] = float(ks_2samp(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1)))
+          metrics['ETotal'], pvalue = ks_2samp(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
           ###PS
-          metrics['PS'] = float(ks_2samp(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1)))
+          metrics['PS'], pvalue = ks_2samp(input_val_Data[:,0:7,].sum(axis=1),reconstruct_val_Data[:,0:7,].sum(axis=1))
           ###EM1
-          metrics['EM1'] = float(ks_2samp(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1)))
+          metrics['EM1'], pvalue = ks_2samp(input_val_Data[:,8:71,].sum(axis=1),reconstruct_val_Data[:,8:71,].sum(axis=1))
           ###EM2
-          metrics['EM2'] = float(ks_2samp(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1)))
+          metrics['EM2'], pvalue = ks_2samp(input_val_Data[:,72:79,].sum(axis=1),reconstruct_val_Data[:,72:79,].sum(axis=1))
           ###EM3
-          metrics['EM3'] = float(ks_2samp(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1)))
+          metrics['EM3'], pvalue = ks_2samp(input_val_Data[:,80:87,].sum(axis=1),reconstruct_val_Data[:,80:87,].sum(axis=1))
           ###EM
-          metrics['EM'] = float(ks_2samp(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1)))
+          metrics['EM'], pvalue = ks_2samp(input_val_Data[:,0:87,].sum(axis=1),reconstruct_val_Data[:,0:87,].sum(axis=1))
           ###HAD1
-          metrics['HAD1'] = float(ks_2samp(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1)))
+          metrics['HAD1'], pvalue = ks_2samp(input_val_Data[:,88:91,].sum(axis=1),reconstruct_val_Data[:,88:91,].sum(axis=1))
           ###HAD2
-          metrics['HAD2'] = float(ks_2samp(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1)))
+          metrics['HAD2'], pvalue = ks_2samp(input_val_Data[:,92:95,].sum(axis=1),reconstruct_val_Data[:,92:95,].sum(axis=1))
           ###HAD3
-          metrics['HAD3'] = float(ks_2samp(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1)))
+          metrics['HAD3'], pvalue = ks_2samp(input_val_Data[:,96:99,].sum(axis=1),reconstruct_val_Data[:,96:99,].sum(axis=1))
           ###HAD
-          metrics['HAD'] = float(ks_2samp(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1)))
+          metrics['HAD'], pvalue = ks_2samp(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
         elif measure == 'DeltaEnergy':
           ###TOTAL
           metrics['ETotal'] = np.average(float(input_val_Data.sum(axis=1)-reconstruct_val_Data.sum(axis=1)))
@@ -1584,6 +1598,27 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD3'] = np.average(float(input_val_Data[:,96:99,].sum(axis=1)-reconstruct_val_Data[:,96:99,].sum(axis=1)))
           ###HAD
           metrics['HAD'] = np.average(float(input_val_Data[:,88:99,].sum(axis=1)-reconstruct_val_Data[:,88:99,].sum(axis=1)))
+        elif measure == 'Normalized_DeltaEnergy':
+          ###TOTAL
+          metrics['ETotal'] = np.average(float(input_val_Data.sum(axis=1)-reconstruct_val_Data.sum(axis=1))/input_val_Data.sum(axis=1))
+          ###PS
+          metrics['PS'] = np.average(float(input_val_Data[:,0:7,].sum(axis=1)-reconstruct_val_Data[:,0:7,].sum(axis=1))/input_val_Data[:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = np.average(float(input_val_Data[:,8:71,].sum(axis=1)-reconstruct_val_Data[:,8:71,].sum(axis=1))/input_val_Data[:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = np.average(float(input_val_Data[:,72:79,].sum(axis=1)-reconstruct_val_Data[:,72:79,].sum(axis=1))/input_val_Data[:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = np.average(float(input_val_Data[:,80:87,].sum(axis=1)-reconstruct_val_Data[:,80:87,].sum(axis=1))/input_val_Data[:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = np.average(float(input_val_Data[:,0:87,].sum(axis=1)-reconstruct_val_Data[:,0:87,].sum(axis=1))/input_val_Data[:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = np.average(float(input_val_Data[:,88:91,].sum(axis=1)-reconstruct_val_Data[:,88:91,].sum(axis=1))/input_val_Data[:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = np.average(float(input_val_Data[:,92:95,].sum(axis=1)-reconstruct_val_Data[:,92:95,].sum(axis=1))/input_val_Data[:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = np.average(float(input_val_Data[:,96:99,].sum(axis=1)-reconstruct_val_Data[:,96:99,].sum(axis=1))/input_val_Data[:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = np.average(float(input_val_Data[:,88:99,].sum(axis=1)-reconstruct_val_Data[:,88:99,].sum(axis=1))/input_val_Data[:,88:99,].sum(axis=1))
       except:
         metrics['ETotal'] = None
         metrics['PS'] = None
@@ -1635,14 +1670,16 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           elif measure == 'MSE':
             score= float(mean_squared_error(input[0][:,anel],reconstructed[0][:,anel]))
           elif measure == 'Wasserstein':
-            score= wasserstein_distance(input[0][:,anel]-reconstructed[0][:,anel])
+            score= float(wasserstein_distance(input[0][:,anel],reconstructed[0][:,anel]))
           elif measure == 'kolmogorov-smirnov':
-            score= ks_2samp(input[0][:,anel]-reconstructed[0][:,anel])
+            score, p_value= ks_2samp(input[0][:,anel],reconstructed[0][:,anel])
           elif measure == 'DeltaEnergy':
-            score= np.average(float(input[0][:,anel]-reconstructed[0][:,anel]), axis=0)
+            score= float(np.average(input[0][:,anel]-reconstructed[0][:,anel], axis=0))
+          elif measure == 'Normalized_DeltaEnergy':
+            score= float(np.average((input[0][:,anel]-reconstructed[0][:,anel])/input[0][:,anel], axis=0))
           if math.isnan(score):
             score = None
-          metrics[str(anel+1)] = score
+          metrics[str(anel+1)] = float(score)
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
@@ -1744,25 +1781,35 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'],chi_pvalue = calc_chisquare(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
         elif measure == 'Correlation':
           ###TOTAL
-          metrics['ETotal'],corr_pvalue = scipy.stats.pearsonr(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
+          metrics['ETotal'] = float(score)
           ###PS
-          metrics['PS'],corr_pvalue = scipy.stats.pearsonr(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
+          metrics['PS'] = float(score)
           ###EM1
-          metrics['EM1'],corr_pvalue = scipy.stats.pearsonr(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
+          metrics['EM1'] = float(score)
           ###EM2
-          metrics['EM2'],corr_pvalue = scipy.stats.pearsonr(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
+          metrics['EM2'] = float(score)
           ###EM3
-          metrics['EM3'],corr_pvalue = scipy.stats.pearsonr(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
+          metrics['EM3'] = float(score)
           ###EM
-          metrics['EM'],corr_pvalue = scipy.stats.pearsonr(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
+          metrics['EM'] = float(score)
           ###HAD1
-          metrics['HAD1'],corr_pvalue = scipy.stats.pearsonr(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
+          metrics['HAD1'] = float(score)
           ###HAD2
-          metrics['HAD2'],corr_pvalue = scipy.stats.pearsonr(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
+          metrics['HAD2'] = float(score)
           ###HAD3
-          metrics['HAD3'],corr_pvalue = scipy.stats.pearsonr(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
+          metrics['HAD3'] = float(score)
           ###HAD
-          metrics['HAD'],corr_pvalue = scipy.stats.pearsonr(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
+          metrics['HAD'] = float(score)
         elif measure == 'MSE':
           ###TOTAL
           metrics['ETotal'] = float(mean_squared_error(input[0].sum(axis=1),reconstructed[0].sum(axis=1)))
@@ -1807,25 +1854,25 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'] = float(wasserstein_distance(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1)))
         elif measure == 'kolmogorov-smirnov':
           ###TOTAL
-          metrics['ETotal'] = float(ks_2samp(input[0].sum(axis=1),reconstructed[0].sum(axis=1)))
+          metrics['ETotal'], p_value = ks_2samp(input[0].sum(axis=1),reconstructed[0].sum(axis=1))
           ###PS
-          metrics['PS'] = float(ks_2samp(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1)))
+          metrics['PS'], p_value = ks_2samp(input[0][:,0:7,].sum(axis=1),reconstructed[0][:,0:7,].sum(axis=1))
           ###EM1
-          metrics['EM1'] = float(ks_2samp(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1)))
+          metrics['EM1'], p_value = ks_2samp(input[0][:,8:71,].sum(axis=1),reconstructed[0][:,8:71,].sum(axis=1))
           ###EM2
-          metrics['EM2'] = float(ks_2samp(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1)))
+          metrics['EM2'], p_value = ks_2samp(input[0][:,72:79,].sum(axis=1),reconstructed[0][:,72:79,].sum(axis=1))
           ###EM3
-          metrics['EM3'] = float(ks_2samp(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1)))
+          metrics['EM3'], p_value = ks_2samp(input[0][:,80:87,].sum(axis=1),reconstructed[0][:,80:87,].sum(axis=1))
           ###EM
-          metrics['EM'] = float(ks_2samp(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1)))
+          metrics['EM'], p_value = ks_2samp(input[0][:,0:87,].sum(axis=1),reconstructed[0][:,0:87,].sum(axis=1))
           ###HAD1
-          metrics['HAD1'] = float(ks_2samp(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1)))
+          metrics['HAD1'], p_value = ks_2samp(input[0][:,88:91,].sum(axis=1),reconstructed[0][:,88:91,].sum(axis=1))
           ###HAD2
-          metrics['HAD2'] = float(ks_2samp(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1)))
+          metrics['HAD2'], p_value = ks_2samp(input[0][:,92:95,].sum(axis=1),reconstructed[0][:,92:95,].sum(axis=1))
           ###HAD3
-          metrics['HAD3'] = float(ks_2samp(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1)))
+          metrics['HAD3'], p_value = ks_2samp(input[0][:,96:99,].sum(axis=1),reconstructed[0][:,96:99,].sum(axis=1))
           ###HAD
-          metrics['HAD'] = float(ks_2samp(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1)))
+          metrics['HAD'], p_value = ks_2samp(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
         elif measure == 'DeltaEnergy':
           ###TOTAL
           metrics['ETotal'] = np.average(float(input[0].sum(axis=1)-reconstructed[0].sum(axis=1)))
@@ -1847,6 +1894,27 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD3'] = np.average(float(input[0][:,96:99,].sum(axis=1)-reconstructed[0][:,96:99,].sum(axis=1)))
           ###HAD
           metrics['HAD'] = np.average(float(input[0][:,88:99,].sum(axis=1)-reconstructed[0][:,88:99,].sum(axis=1)))
+        elif measure == 'Normalized_DeltaEnergy':
+          ###TOTAL
+          metrics['ETotal'] = np.average(float(input[0].sum(axis=1)-reconstructed[0].sum(axis=1))/input[0].sum(axis=1))
+          ###PS
+          metrics['PS'] = np.average(float(input[0][:,0:7,].sum(axis=1)-reconstructed[0][:,0:7,].sum(axis=1))/input[0][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = np.average(float(input[0][:,8:71,].sum(axis=1)-reconstructed[0][:,8:71,].sum(axis=1))/input[0][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = np.average(float(input[0][:,72:79,].sum(axis=1)-reconstructed[0][:,72:79,].sum(axis=1))/input[0][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = np.average(float(input[0][:,80:87,].sum(axis=1)-reconstructed[0][:,80:87,].sum(axis=1))/input[0][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = np.average(float(input[0][:,0:87,].sum(axis=1)-reconstructed[0][:,0:87,].sum(axis=1))/input[0][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = np.average(float(input[0][:,88:91,].sum(axis=1)-reconstructed[0][:,88:91,].sum(axis=1))/input[0][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = np.average(float(input[0][:,92:95,].sum(axis=1)-reconstructed[0][:,92:95,].sum(axis=1))/input[0][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = np.average(float(input[0][:,96:99,].sum(axis=1)-reconstructed[0][:,96:99,].sum(axis=1))/input[0][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = np.average(float(input[0][:,88:99,].sum(axis=1)-reconstructed[0][:,88:99,].sum(axis=1))/input[0][:,88:99,].sum(axis=1))
       except:
         metrics['ETotal'] = None
         metrics['PS'] = None
@@ -1896,14 +1964,16 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           elif measure == 'MSE':
             score= float(mean_squared_error(input[1][:,anel],reconstructed[1][:,anel]))
           elif measure == 'Wasserstein':
-            score= wasserstein_distance(input[1][:,anel]-reconstructed[1][:,anel])
+            score= float(wasserstein_distance(input[1][:,anel],reconstructed[1][:,anel]))
           elif measure == 'kolmogorov-smirnov':
-            score= ks_2samp(input[1][:,anel]-reconstructed[1][:,anel])
+            score, p_value = ks_2samp(input[1][:,anel],reconstructed[1][:,anel])
           elif measure == 'DeltaEnergy':
-            score= np.average(float(input[1][:,anel]-reconstructed[1][:,anel]), axis=0)
+            score= float(np.average(input[1][:,anel]-reconstructed[1][:,anel], axis=0))
+          elif measure == 'Normalized_DeltaEnergy':
+            score= float(np.average((input[1][:,anel]-reconstructed[1][:,anel])/input[1][:,anel], axis=0))
           if math.isnan(score):
             score = None
-          metrics[str(anel+1)] = score
+          metrics[str(anel+1)] = float(score)
         except:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
@@ -2005,25 +2075,35 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'],chi_pvalue = calc_chisquare(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
         elif measure == 'Correlation':
           ###TOTAL
-          metrics['ETotal'],corr_pvalue = scipy.stats.pearsonr(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
+          metrics['ETotal'] = float(score)
           ###PS
-          metrics['PS'],corr_pvalue = scipy.stats.pearsonr(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
+          metrics['PS'] = float(score)
           ###EM1
-          metrics['EM1'],corr_pvalue = scipy.stats.pearsonr(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
+          metrics['EM1'] = float(score)
           ###EM2
-          metrics['EM2'],corr_pvalue = scipy.stats.pearsonr(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
+          metrics['EM2'] = float(score)
           ###EM3
-          metrics['EM3'],corr_pvalue = scipy.stats.pearsonr(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
+          metrics['EM3'] = float(score)
           ###EM
-          metrics['EM'],corr_pvalue = scipy.stats.pearsonr(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
+          metrics['EM'] = float(score)
           ###HAD1
-          metrics['HAD1'],corr_pvalue = scipy.stats.pearsonr(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
+          metrics['HAD1'] = float(score)
           ###HAD2
-          metrics['HAD2'],corr_pvalue = scipy.stats.pearsonr(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
+          metrics['HAD2'] = float(score)
           ###HAD3
-          metrics['HAD3'],corr_pvalue = scipy.stats.pearsonr(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
+          metrics['HAD3'] = float(score)
           ###HAD
-          metrics['HAD'],corr_pvalue = scipy.stats.pearsonr(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
+          score,corr_pvalue = scipy.stats.pearsonr(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
+          metrics['HAD'] = float(score)
         elif measure == 'MSE':
           ###TOTAL
           metrics['ETotal'] = float(mean_squared_error(input[1].sum(axis=1),reconstructed[1].sum(axis=1)))
@@ -2068,25 +2148,25 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'] = float(wasserstein_distance(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1)))
         elif measure == 'kolmogorov-smirnov':
           ###TOTAL
-          metrics['ETotal'] = float(ks_2samp(input[1].sum(axis=1),reconstructed[1].sum(axis=1)))
+          metrics['ETotal'],p_value = ks_2samp(input[1].sum(axis=1),reconstructed[1].sum(axis=1))
           ###PS
-          metrics['PS'] = float(ks_2samp(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1)))
+          metrics['PS'],p_value = ks_2samp(input[1][:,0:7,].sum(axis=1),reconstructed[1][:,0:7,].sum(axis=1))
           ###EM1
-          metrics['EM1'] = float(ks_2samp(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1)))
+          metrics['EM1'],p_value = ks_2samp(input[1][:,8:71,].sum(axis=1),reconstructed[1][:,8:71,].sum(axis=1))
           ###EM2
-          metrics['EM2'] = float(ks_2samp(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1)))
+          metrics['EM2'],p_value = ks_2samp(input[1][:,72:79,].sum(axis=1),reconstructed[1][:,72:79,].sum(axis=1))
           ###EM3
-          metrics['EM3'] = float(ks_2samp(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1)))
+          metrics['EM3'],p_value = ks_2samp(input[1][:,80:87,].sum(axis=1),reconstructed[1][:,80:87,].sum(axis=1))
           ###EM
-          metrics['EM'] = float(ks_2samp(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1)))
+          metrics['EM'],p_value = ks_2samp(input[1][:,0:87,].sum(axis=1),reconstructed[1][:,0:87,].sum(axis=1))
           ###HAD1
-          metrics['HAD1'] = float(ks_2samp(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1)))
+          metrics['HAD1'],p_value = ks_2samp(input[1][:,88:91,].sum(axis=1),reconstructed[1][:,88:91,].sum(axis=1))
           ###HAD2
-          metrics['HAD2'] = float(ks_2samp(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1)))
+          metrics['HAD2'],p_value = ks_2samp(input[1][:,92:95,].sum(axis=1),reconstructed[1][:,92:95,].sum(axis=1))
           ###HAD3
-          metrics['HAD3'] = float(ks_2samp(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1)))
+          metrics['HAD3'],p_value = ks_2samp(input[1][:,96:99,].sum(axis=1),reconstructed[1][:,96:99,].sum(axis=1))
           ###HAD
-          metrics['HAD'] = float(ks_2samp(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1)))
+          metrics['HAD'],p_value = ks_2samp(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
         elif measure == 'DeltaEnergy':
           ###TOTAL
           metrics['ETotal'] = np.average(float(input[1].sum(axis=1)-reconstructed[1].sum(axis=1)))
@@ -2108,6 +2188,27 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD3'] = np.average(float(input[1][:,96:99,].sum(axis=1)-reconstructed[1][:,96:99,].sum(axis=1)))
           ###HAD
           metrics['HAD'] = np.average(float(input[1][:,88:99,].sum(axis=1)-reconstructed[1][:,88:99,].sum(axis=1)))
+        elif measure == 'Normalized_DeltaEnergy':
+          ###TOTAL
+          metrics['ETotal'] = np.average(float(input[1].sum(axis=1)-reconstructed[1].sum(axis=1))/input[1].sum(axis=1))
+          ###PS
+          metrics['PS'] = np.average(float(input[1][:,0:7,].sum(axis=1)-reconstructed[1][:,0:7,].sum(axis=1))/input[1][:,0:7,].sum(axis=1))
+          ###EM1
+          metrics['EM1'] = np.average(float(input[1][:,8:71,].sum(axis=1)-reconstructed[1][:,8:71,].sum(axis=1))/input[1][:,8:71,].sum(axis=1))
+          ###EM2
+          metrics['EM2'] = np.average(float(input[1][:,72:79,].sum(axis=1)-reconstructed[1][:,72:79,].sum(axis=1))/input[1][:,72:79,].sum(axis=1))
+          ###EM3
+          metrics['EM3'] = np.average(float(input[1][:,80:87,].sum(axis=1)-reconstructed[1][:,80:87,].sum(axis=1))/input[1][:,80:87,].sum(axis=1))
+          ###EM
+          metrics['EM'] = np.average(float(input[1][:,0:87,].sum(axis=1)-reconstructed[1][:,0:87,].sum(axis=1))/input[1][:,0:87,].sum(axis=1))
+          ###HAD1
+          metrics['HAD1'] = np.average(float(input[1][:,88:91,].sum(axis=1)-reconstructed[1][:,88:91,].sum(axis=1))/input[1][:,88:91,].sum(axis=1))
+          ###HAD2
+          metrics['HAD2'] = np.average(float(input[1][:,92:95,].sum(axis=1)-reconstructed[1][:,92:95,].sum(axis=1))/input[1][:,92:95,].sum(axis=1))
+          ###HAD3
+          metrics['HAD3'] = np.average(float(input[1][:,96:99,].sum(axis=1)-reconstructed[1][:,96:99,].sum(axis=1))/input[1][:,96:99,].sum(axis=1))
+          ###HAD
+          metrics['HAD'] = np.average(float(input[1][:,88:99,].sum(axis=1)-reconstructed[1][:,88:99,].sum(axis=1))/input[1][:,88:99,].sum(axis=1))
       except:
         metrics['ETotal'] = None
         metrics['PS'] = None
