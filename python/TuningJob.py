@@ -1592,7 +1592,7 @@ class TuningJob(Logger):
 
           if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
             print 'RECONS',reconstruct.keys()
-            time.sleep(int(20*int(sort)))
+            time.sleep(int(2*int(sort)))
             #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
             print 'Delta Energy'
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=False)
@@ -2025,6 +2025,8 @@ class TuningJob(Logger):
           bot.sendMessage('@ringer_tuning','Finished tuning job!')
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
+      import os
+      os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
 
   # end of __call__ member fcn
 
