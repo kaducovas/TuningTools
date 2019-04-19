@@ -32,7 +32,7 @@ class TuningWrapper(Logger):
                                  )
 
     epochs                     = retrieve_kw( kw, 'epochs',                10000                  )
-    maxFail                    = retrieve_kw( kw, 'maxFail',               50                     )
+    maxFail                    = retrieve_kw( kw, 'maxFail',               5                     )
     self.useTstEfficiencyAsRef = retrieve_kw( kw, 'useTstEfficiencyAsRef', False                  )
     self._merged               = retrieve_kw( kw, 'merged',                False                  )
     self._deep                 = retrieve_kw( kw, 'deep',                  False                  )
@@ -558,25 +558,25 @@ class TuningWrapper(Logger):
       # from keras.layers.core import Dense, Dropout, Activation
       # from keras.layers import Input
       # from keras.activation import tanh
-      
+
       # input1 = Input(shape=(100,))
       # x1 = Dense(100,activation='relu')(input1)
       # x2 = Dense(100,activation='relu')(x1)
       # added = keras.layers.Add()([x2, input1])
-	  
-	  
-	  
-	  
+
+
+
+
       # model = Model(inputs=[input1],outputs=added)
 
-  
-        
- 
- 
-  
-  
-  
-  
+
+
+
+
+
+
+
+
         # last_hl = hidden_neurons[i_hn]
       # model.add( Dense( last_hl
                        # #, input_dim=nodes[0]
@@ -619,17 +619,17 @@ class TuningWrapper(Logger):
       self._fine_tuning= 'no'
       self._info("Using Keras")
       model = Sequential()
-      model.add( Dense( nodes[0]
-                        , input_dim=nodes[0]
-                        , init='identity'
-                        , trainable=False
-                        , name='dense_last_hl' ) )
-      model.add( Activation('linear') )
-      #model.add( Dense( nodes[1]
+      #model.add( Dense( nodes[0]
       #                  , input_dim=nodes[0]
-      #                  , init='uniform'
+      #                  , init='identity'
+      #                  , trainable=False
       #                  , name='dense_last_hl' ) )
-      #model.add( Activation('tanh') )
+      #model.add( Activation('linear') )
+      model.add( Dense( nodes[1]
+                        , input_dim=nodes[0]
+                        , init='uniform'
+                        , name='dense_last_hl' ) )
+      model.add( Activation('tanh') )
       model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
       model.add( Activation('tanh') )
       model.compile( loss=self.trainOptions['costFunction']
@@ -1002,10 +1002,10 @@ class TuningWrapper(Logger):
       history = self._model.fit( self._trnData
                                     , self._trnTarget
                                     , epochs          = self.trainOptions['nEpochs']
-                                    , batch_size      = self.batchSize
+                                    , batch_size      = 56 #self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
                                     , callbacks       = [self._earlyStopping]
-                                    , verbose         = 2
+                                    , verbose         = 1
                                     , validation_data = ( self._valData , self._valTarget )
                                     , shuffle         = self.trainOptions['shuffle']
                                     )

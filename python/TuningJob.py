@@ -1516,7 +1516,7 @@ class TuningJob(Logger):
 
           trnDataN1,valDataN1 = ppChain.getNorm1()
           print "ate aqui foi. CoreConf ==  "+str(coreConf()) #trnDataN1,valDataN1
-          f_tuning=True
+          f_tuning=False
           if f_tuning and coreConf() == 2:
             print 'Warning: trData and valData receiving output of normalization again, regardless of Dimensionality reduction'
             trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
@@ -2025,8 +2025,8 @@ class TuningJob(Logger):
           bot.sendMessage('@ringer_tuning','Finished tuning job!')
       # #Finished all configurations we had to do
       self._info('Finished tuning job!')
-      import os
-      os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
+      #import os
+      #os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
 
   # end of __call__ member fcn
 
