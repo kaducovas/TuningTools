@@ -2048,9 +2048,12 @@ class TuningJob(Logger):
       totalTime=str(dt.timedelta(seconds=(terminou - comecou)))
       print "Tuning took: "+totalTime
 
-      bot.sendMessage('@ringer_tuning','Finished tuning job! Preproc time: '+preprocTime+', Total time: '+totalTime)
-      self._info('Finished tuning job!')
+      if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
+        bot.sendMessage('@ringer_tuning','Finished tuning job! Preproc time: '+preprocTime+', Total time: '+totalTime)
+      else:
+        bot.sendMessage('@ringer_tuning','Finished tuning job! Total time: '+totalTime)
 
+      self._info('Finished tuning job!')
       import os
       os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
 
