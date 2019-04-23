@@ -755,7 +755,7 @@ def create_reconstruction_table(model_name,script_time,normed='no'):
   from prettytable import PrettyTable
   import sqlite3
   from decimal import Decimal
-  cnx=sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+  cnx=sqlite3.connect('//scratch/22061a/caducovas/run/ringerMLlab.db')
   #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
   df = pd.read_sql_query("select measure, ETotal from reconstruction_metrics  where class= 'All' and normed = '"+normed+"' and model = '"+model_name[:-1]+"' and time = '"+script_time+"' order by Measure",cnx)
   #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where id in (select id from (select max(sp) as maxsp,id from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
