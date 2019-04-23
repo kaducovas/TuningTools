@@ -563,11 +563,14 @@ def print_metrics(metricsDict):
     return 0
 
 def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,points=None,fine_tuning=None,report=True):
-  from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
+  from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score, mean_squared_error
   import dataset
-  db = dataset.connect('sqlite://///home/caducovas/run/ringer_new2.db')
+  db = dataset.connect('sqlite://///home/caducovas/run/ringerMLlab.db')
+  print float(mean_squared_error(labels, predictions)),  roc_auc_score(labels, predictions)
+  mse_score = float(mean_squared_error(labels, predictions))
+
   #print point.sp_value
-  tabela = db['classifiers7']
+  tabela = db['classifiers']
   print "QNT DE PONTOS",len(points)
   for refName,point in points:
     data = OrderedDict()
@@ -599,6 +602,7 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
     data['pd'] = float(point.pd_value)
     data['pf'] = float(point.pf_value)
     data['accuracy'] = accuracy_score(labels, predictions, normalize=True)
+    data['MSE'] = mse_score
     data['f1'] = f1_score(labels, predictions)
     data['auc'] = roc_auc_score(labels, predictions)
     data['precision'] = precision_score(labels, predictions)
@@ -722,14 +726,14 @@ def createClassifierTable(model_name,script_time,Point):
   print Point
   x = PrettyTable()
   x.field_names = ["KPI", "Train", "Validation"]
-  db = dataset.connect('sqlite://///home/caducovas/run/ringer_new2.db')
+  db = dataset.connect('sqlite://///home/caducovas/run/ringerMLlab.db')
   #table = db['classifier']
 
   #query = 'select model,time,phase, avg(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples,avg(threshold) as threshold,  avg(sp) || "+-" || stdev(sp) as sp, avg(pd) || "+-" || stdev(pd) as pd, avg(pf) || "+-" || stdev(pf) as pf, avg(accuracy) || "+-" || stdev(accuracy) as accuracy, avg(f1) || "+-" || stdev(f1) as f1, avg(auc) || "+-" || stdev(auc) as auc,  avg(precision) || "+-" || stdev(precision) as precision, avg(recall) || "+-" || stdev(recall) as recall from classifier group by model,time,phase'
 
-  query = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers7 where model = "'+model_name+'" and time = "'+script_time+'" group by point,model,time,phase,fine_tuning'
-  trnquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer)  as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers7 where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifiers7 where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Train" group by sort,time) group by point,model,time,phase,fine_tuning'
-  valquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer) as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers7 where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifiers7 where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Validation" group by sort,time) group by point,model,time,phase,fine_tuning'
+  query = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, avg(signal_samples) as signal_samples,avg(bkg_samples) as bkg_samples,avg(signal_pred_samples) as signal_pred_samples,avg(bkg_pred_samples) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers where model = "'+model_name+'" and time = "'+script_time+'" group by point,model,time,phase,fine_tuning'
+  trnquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer)  as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifiers where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Train" group by sort,time) group by point,model,time,phase,fine_tuning'
+  valquery = 'select point,model,time,phase,fine_tuning, max(elapsed) as elapsed, cast(avg(signal_samples) as integer) as signal_samples,cast(avg(bkg_samples) as integer) as bkg_samples,cast(avg(signal_pred_samples) as integer) as signal_pred_samples,cast(avg(bkg_pred_samples) as integer) as bkg_pred_samples, 100*round(avg(threshold),5) as threshold,  100*round(avg(sp),5) as sp, 100*round(avg(pd),5) as pd, 100*round(avg(pf),5) as pf, 100*round(avg(accuracy),5) as accuracy, 100*round(avg(f1),5) as f1, 100*round(avg(auc),5) as auc, 100*round(avg(precision),5) as precision, 100*round(avg(recall),5) as recall from classifiers where model = "'+model_name+'" and (sort,time,pf) in (select sort,time,min(pf) from classifiers where time = "'+script_time+'" and Point = "'+Point+'" and phase = "Validation" group by sort,time) group by point,model,time,phase,fine_tuning'
 
   result = db.query(trnquery)
   trnresult = db.query(trnquery)
@@ -748,13 +752,13 @@ def createClassifierTable(model_name,script_time,Point):
 
   return x
 
-def create_simple_table(model_name,script_time):
+def create_reconstruction_table(model_name,script_time):
   #from SAE_Evaluation import *
   from prettytable import PrettyTable
   import sqlite3
-  cnx=sqlite3.connect('//home/caducovas/run/ringer_new2.db')
-  #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers7 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
-  df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers7 where id in (select id from (select max(sp) as maxsp,id from classifiers7 where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
+  cnx=sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+  #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
+  df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where id in (select id from (select max(sp) as maxsp,id from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
   df['Point'] = df['Point'].apply(lambda x: x.split('_')[-1])
   a = df.groupby(['Point']).agg({'sp':['mean','std'],'pd':['mean','std'],'pf':['mean','std'],'f1':['mean','std'],'auc':['mean','std'],'precision':['mean','std'],'recall':['mean','std']}).values
   #df_values = np.round(a,2)
@@ -764,6 +768,24 @@ def create_simple_table(model_name,script_time):
   x.add_row(["Pd", str(round(a[0][12],2))+' '+str(round(a[0][13],2)),str(round(a[0][6],2))+' '+str(round(a[0][7],2)),str(round(a[0][10],2))+' '+str(round(a[0][11],2)),str(round(a[0][0],2))+' '+str(round(a[0][1],2)),str(round(a[0][2],2))+' '+str(round(a[0][3],2)),str(round(a[0][8],2))+' '+str(round(a[0][9],2)),str(round(a[0][4],2))+' '+str(round(a[0][5],2))])
   x.add_row(["Pf", str(round(a[1][12],2))+' '+str(round(a[1][13],2)),str(round(a[1][6],2))+' '+str(round(a[1][7],2)),str(round(a[1][10],2))+' '+str(round(a[1][11],2)),str(round(a[1][0],2))+' '+str(round(a[1][1],2)),str(round(a[1][2],2))+' '+str(round(a[1][3],2)),str(round(a[1][8],2))+' '+str(round(a[1][9],2)),str(round(a[1][4],2))+' '+str(round(a[1][5],2))])
   x.add_row(["SP", str(round(a[2][12],2))+' '+str(round(a[2][13],2)),str(round(a[2][6],2))+' '+str(round(a[2][7],2)),str(round(a[2][10],2))+' '+str(round(a[2][11],2)),str(round(a[2][0],2))+' '+str(round(a[2][1],2)),str(round(a[2][2],2))+' '+str(round(a[2][3],2)),str(round(a[2][8],2))+' '+str(round(a[2][9],2)),str(round(a[2][4],2))+' '+str(round(a[2][5],2))])
+  return x
+
+def create_simple_table(model_name,script_time):
+  #from SAE_Evaluation import *
+  from prettytable import PrettyTable
+  import sqlite3
+  cnx=sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+  #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
+  df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, round(mse,4) as mse, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where id in (select id from (select max(sp) as maxsp,id from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
+  df['Point'] = df['Point'].apply(lambda x: x.split('_')[-1])
+  a = df.groupby(['Point']).agg({'sp':['mean','std'],'pd':['mean','std'],'pf':['mean','std'],'mse':['mean','std'],'f1':['mean','std'],'auc':['mean','std'],'precision':['mean','std'],'recall':['mean','std']}).values
+  #df_values = np.round(a,2)
+  x = PrettyTable()
+
+  x.field_names = ["Criteria", "Pd", "SP", "Fa","MSE", "F1","AUC","Precision","Recall"]
+  x.add_row(["SP", str(round(a[2][6],2))+' '+str(round(a[2][7],2)),str(round(a[2][12],2))+' '+str(round(a[2][13],2)),str(round(a[2][4],2))+' '+str(round(a[2][5],2)),str(round(a[2][10],4))+' '+str(round(a[2][11],4)),str(round(a[2][0],2))+' '+str(round(a[2][1],2)),str(round(a[2][2],2))+' '+str(round(a[2][3],2)),str(round(a[2][14],2))+' '+str(round(a[2][15],2)),str(round(a[2][8],2))+' '+str(round(a[2][9],2))])
+  x.add_row(["Pd", str(round(a[0][6],2))+' '+str(round(a[0][7],2)),str(round(a[0][12],2))+' '+str(round(a[0][13],2)),str(round(a[0][4],2))+' '+str(round(a[0][5],2)),str(round(a[0][10],4))+' '+str(round(a[0][11],4)),str(round(a[0][0],2))+' '+str(round(a[0][1],2)),str(round(a[0][2],2))+' '+str(round(a[0][3],2)),str(round(a[0][14],2))+' '+str(round(a[0][15],2)),str(round(a[0][8],2))+' '+str(round(a[0][9],2))])
+  x.add_row(["Pf", str(round(a[1][6],2))+' '+str(round(a[1][7],2)),str(round(a[1][12],2))+' '+str(round(a[1][13],2)),str(round(a[1][4],2))+' '+str(round(a[1][5],2)),str(round(a[1][10],4))+' '+str(round(a[1][11],4)),str(round(a[1][0],2))+' '+str(round(a[1][1],2)),str(round(a[1][2],2))+' '+str(round(a[1][3],2)),str(round(a[1][14],2))+' '+str(round(a[1][15],2)),str(round(a[1][8],2))+' '+str(round(a[1][9],2))])
 
   ###fname = work_path+"files/"+tuning_folder_name+"/tuningMonitoring_et_2_eta_0.tex"
   ###with open(fname) as f:
@@ -1145,7 +1167,7 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
   png_files=[]
 
   plt.style.use('ggplot')
-  cnx = sqlite3.connect('//home/caducovas/run/ringer_new2.db')
+  cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
   # Et and Eta indices
   et_index  = [0, 1, 2,3]
   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
@@ -1168,15 +1190,15 @@ def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=Non
       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Class = 'All' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'All' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
 
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
 
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no'  and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
@@ -1290,6 +1312,134 @@ def send_confusion_matrix(fname,dirout,model,y_test,y_pred,points):
   png_files.append(dirout+'/confusion_matrix_'+fname.split('/')[-1]+'.png')
   return png_files
 
+def feature_relevance_mse(fname,dirout,tb_name,valdata,model,y_test,y_pred,points):
+  # refName,point = points
+  # print refName
+  # print point.thres_value
+  # #print 'Pd:',point.pd,' SP:',point.sp,' Pf:',point.pf
+  # y_pred[y_pred >= point.thres_value] = 1
+  # y_pred[y_pred < point.thres_value] = -1
+  png_files = []
+  # class_names=['Background','Signal']
+  # # Compute confusion matrix
+  # cnf_matrix = confusion_matrix(y_test, y_pred)
+  # np.set_printoptions(precision=2)
+  # # Plot non-normalized confusion matrix
+  # #fig,axs = plt.subplots(1,2)
+  # plt.figure(figsize=(9,6))
+  # plt.subplot(1,2,1)
+  # plot_confusion_matrix(cnf_matrix, classes=class_names,
+  #             title='Confusion matrix')
+  # # Plot normalized confusion matrix
+  # plt.subplot(1,2,2)
+  # plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
+  #             title='Normalized confusion matrix')
+  model = load_model(fname+'/models/'+tb_name+'.h5')
+  #valdata = np.load(fname+'results/Val_sort0_et_1_eta_1.npz')
+  relevance_mse =[]
+  import copy
+  #data = copy.deepcopy(trnData)
+  #print valdata
+  for i in range(valdata.shape[1]):
+      val = copy.deepcopy(valdata)
+      #print i, val.shape[0],np.mean(val[:,i])
+      val[:,i] = [np.mean(val[:,i])]*val.shape[0]
+      valOutput = model.predict(valdata)
+      valOutputModified = model.predict(val)
+      r_mse = float(np.sum((valOutput - valOutputModified) ** 2))/float(val.shape[0])
+      relevance_mse.append(r_mse)
+      #print np.sum((valOutput - valOutputModified) ** 2)
+
+  fig, ax = plt.subplots(figsize=(16,10))
+  plt.xticks(np.arange(len(relevance_mse)),rotation='vertical',fontsize = 9)
+  plt.bar(np.arange(len(relevance_mse)),relevance_mse)
+  #plt.tight_layout()
+  plt.margins(0)
+  plt.grid()
+  ax.set_title(r'Feature Contribution to Model Reconstruction Error',fontsize= 20)
+  ax.set_xlabel('Feature', fontsize='xx-large')
+  ax.set_ylabel(r'1/N sum_j(O(x_j) - O(x_j | x_j,i =x_medio))**2', fontsize='xx-large')
+
+  #if valdata
+  #ax[0,0].set_yscale('log')
+  # for i in [7, 71, 79, 87, 91, 95]:
+  #     ax.axvline(i, color='blue', linestyle='--', linewidth=.8)
+  # y_position = .9 *np.max([np.max(relevance_mse, axis=0)])
+  # for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),(76,y_position,r'EM2'),(80,y_position,r'EM3'),(88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+  #     ax.text(x,y,text, fontsize=15, rotation=90)
+
+  plt.savefig(dirout+'/feature_relevance_mse_'+fname.split('/')[-1]+'.png')
+  plt.clf()
+  plt.close()
+  png_files.append(dirout+'/feature_relevance_mse_'+fname.split('/')[-1]+'.png')
+  return png_files
+
+def feature_relevance_sp(fname,dirout,tb_name,valdata,model,y_test,y_pred,points):
+    # refName,point = points
+    # print refName
+    # print point.thres_value
+    # #print 'Pd:',point.pd,' SP:',point.sp,' Pf:',point.pf
+    # y_pred[y_pred >= point.thres_value] = 1
+    # y_pred[y_pred < point.thres_value] = -1
+    png_files = []
+
+    model = load_model(fname+'/models/'+tb_name+'.h5')
+     #valdata = np.load(fname+'results/Val_sort0_et_1_eta_1.npz')
+
+    from sklearn.metrics import roc_curve
+
+    relevance_sp =[]
+    import copy
+    #data = copy.deepcopy(trnData)
+    #print valdata
+    for i in range(valdata.shape[1]):
+        val = copy.deepcopy(valdata)
+        #print i, val.shape[0],np.mean(val[:,i])
+        val[:,i] = [np.mean(val[:,i])]*val.shape[0]
+        valOutput = model.predict(valdata)
+        pfs,pds,thresholds = roc_curve(y_test,valOutput, pos_label=1, drop_intermediate=True)
+        pds = pds
+        bps = 1. - pfs
+        sps = np.sqrt( ( pds  + bps )*.5 * np.sqrt( pds * bps ) )
+        idxSP = np.argmax(sps)
+        sp=sps[idxSP]
+
+        valOutputModified = model.predict(val)
+        pfs,pds,thresholds = roc_curve(y_test,valOutputModified, pos_label=1, drop_intermediate=True)
+        pds = pds
+        bps = 1. - pfs
+        sps_Modified = np.sqrt( ( pds  + bps )*.5 * np.sqrt( pds * bps ) )
+        idxSP_Modified = np.argmax(sps_Modified)
+        sp_Modified=sps_Modified[idxSP_Modified]
+
+        r_sp = sp - sp_Modified
+        r_sp = 100*round(r_sp,4)
+        relevance_sp.append(r_sp)
+
+    fig, ax = plt.subplots(figsize=(16,10))
+    plt.xticks(np.arange(len(relevance_sp)),rotation='vertical',fontsize = 9)
+    plt.bar(np.arange(len(relevance_sp)),relevance_sp)
+    #plt.tight_layout()
+    plt.margins(0)
+    plt.grid()
+    ax.set_title(r'Feature Contribution to SP',fontsize= 20)
+    ax.set_xlabel('Feature', fontsize='xx-large')
+    ax.set_ylabel(r'SP(x_j) - SP(x_j | x_j,i =x_medio)', fontsize='xx-large')
+
+      #if valdata
+      #ax[0,0].set_yscale('log')
+      # for i in [7, 71, 79, 87, 91, 95]:
+      #     ax.axvline(i, color='blue', linestyle='--', linewidth=.8)
+      # y_position = .9 *np.max([np.max(relevance_mse, axis=0)])
+      # for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),(76,y_position,r'EM2'),(80,y_position,r'EM3'),(88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+      #     ax.text(x,y,text, fontsize=15, rotation=90)
+
+    plt.savefig(dirout+'/feature_relevance_sp_'+fname.split('/')[-1]+'.png')
+    plt.clf()
+    plt.close()
+    png_files.append(dirout+'/feature_relevance_sp_'+fname.split('/')[-1]+'.png')
+    return png_files
+
 def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,lstm_target=None,measure='Normalized_MI',Normed=False):
   #from SAE_Evaluation import *
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score
@@ -1298,9 +1448,9 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   from scipy.stats import ks_2samp
   import dataset
   import math
-  db = dataset.connect('sqlite://///home/caducovas/run/ringer_new2.db')
+  db = dataset.connect('sqlite://///home/caducovas/run/ringerMLlab.db')
   #print point.sp_value
-  table = db['reconstruction_metrics10']
+  table = db['reconstruction_metrics']
   metrics = OrderedDict()
   beforenorm = norm1Par[0]
   normlist = norm1Par[1]
@@ -1391,6 +1541,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
 
 
       try:
+      #for qqq in range(1):
         if measure == 'Normalized_MI':
           ###TOTAL
           rr = calc_MI2(input_val_Data.sum(axis=1),reconstruct_val_Data.sum(axis=1))
@@ -1581,46 +1732,46 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'], pvalue = ks_2samp(input_val_Data[:,88:99,].sum(axis=1),reconstruct_val_Data[:,88:99,].sum(axis=1))
         elif measure == 'DeltaEnergy':
           ###TOTAL
-          metrics['ETotal'] = np.average(float(input_val_Data.sum(axis=1)-reconstruct_val_Data.sum(axis=1)))
+          metrics['ETotal'] = float(np.average(input_val_Data.sum(axis=1)-reconstruct_val_Data.sum(axis=1)))
           ###PS
-          metrics['PS'] = np.average(float(input_val_Data[:,0:7,].sum(axis=1)-reconstruct_val_Data[:,0:7,].sum(axis=1)))
+          metrics['PS'] = float(np.average(input_val_Data[:,0:7,].sum(axis=1)-reconstruct_val_Data[:,0:7,].sum(axis=1)))
           ###EM1
-          metrics['EM1'] = np.average(float(input_val_Data[:,8:71,].sum(axis=1)-reconstruct_val_Data[:,8:71,].sum(axis=1)))
+          metrics['EM1'] = float(np.average(input_val_Data[:,8:71,].sum(axis=1)-reconstruct_val_Data[:,8:71,].sum(axis=1)))
           ###EM2
-          metrics['EM2'] = np.average(float(input_val_Data[:,72:79,].sum(axis=1)-reconstruct_val_Data[:,72:79,].sum(axis=1)))
+          metrics['EM2'] = float(np.average(input_val_Data[:,72:79,].sum(axis=1)-reconstruct_val_Data[:,72:79,].sum(axis=1)))
           ###EM3
-          metrics['EM3'] = np.average(float(input_val_Data[:,80:87,].sum(axis=1)-reconstruct_val_Data[:,80:87,].sum(axis=1)))
+          metrics['EM3'] = float(np.average(input_val_Data[:,80:87,].sum(axis=1)-reconstruct_val_Data[:,80:87,].sum(axis=1)))
           ###EM
-          metrics['EM'] = np.average(float(input_val_Data[:,0:87,].sum(axis=1)-reconstruct_val_Data[:,0:87,].sum(axis=1)))
+          metrics['EM'] = float(np.average(input_val_Data[:,0:87,].sum(axis=1)-reconstruct_val_Data[:,0:87,].sum(axis=1)))
           ###HAD1
-          metrics['HAD1'] = np.average(float(input_val_Data[:,88:91,].sum(axis=1)-reconstruct_val_Data[:,88:91,].sum(axis=1)))
+          metrics['HAD1'] = float(np.average(input_val_Data[:,88:91,].sum(axis=1)-reconstruct_val_Data[:,88:91,].sum(axis=1)))
           ###HAD2
-          metrics['HAD2'] = np.average(float(input_val_Data[:,92:95,].sum(axis=1)-reconstruct_val_Data[:,92:95,].sum(axis=1)))
+          metrics['HAD2'] = float(np.average(input_val_Data[:,92:95,].sum(axis=1)-reconstruct_val_Data[:,92:95,].sum(axis=1)))
           ###HAD3
-          metrics['HAD3'] = np.average(float(input_val_Data[:,96:99,].sum(axis=1)-reconstruct_val_Data[:,96:99,].sum(axis=1)))
+          metrics['HAD3'] = float(np.average(input_val_Data[:,96:99,].sum(axis=1)-reconstruct_val_Data[:,96:99,].sum(axis=1)))
           ###HAD
-          metrics['HAD'] = np.average(float(input_val_Data[:,88:99,].sum(axis=1)-reconstruct_val_Data[:,88:99,].sum(axis=1)))
+          metrics['HAD'] = float(np.average(input_val_Data[:,88:99,].sum(axis=1)-reconstruct_val_Data[:,88:99,].sum(axis=1)))
         elif measure == 'Normalized_DeltaEnergy':
           ###TOTAL
-          metrics['ETotal'] = np.average(float(input_val_Data.sum(axis=1)-reconstruct_val_Data.sum(axis=1))/input_val_Data.sum(axis=1))
+          metrics['ETotal'] = float(np.average(input_val_Data.sum(axis=1)-reconstruct_val_Data.sum(axis=1)/input_val_Data.sum(axis=1)))
           ###PS
-          metrics['PS'] = np.average(float(input_val_Data[:,0:7,].sum(axis=1)-reconstruct_val_Data[:,0:7,].sum(axis=1))/input_val_Data[:,0:7,].sum(axis=1))
+          metrics['PS'] = float(np.average(input_val_Data[:,0:7,].sum(axis=1)-reconstruct_val_Data[:,0:7,].sum(axis=1)/input_val_Data[:,0:7,].sum(axis=1)))
           ###EM1
-          metrics['EM1'] = np.average(float(input_val_Data[:,8:71,].sum(axis=1)-reconstruct_val_Data[:,8:71,].sum(axis=1))/input_val_Data[:,8:71,].sum(axis=1))
+          metrics['EM1'] = float(np.average(input_val_Data[:,8:71,].sum(axis=1)-reconstruct_val_Data[:,8:71,].sum(axis=1)/input_val_Data[:,8:71,].sum(axis=1)))
           ###EM2
-          metrics['EM2'] = np.average(float(input_val_Data[:,72:79,].sum(axis=1)-reconstruct_val_Data[:,72:79,].sum(axis=1))/input_val_Data[:,72:79,].sum(axis=1))
+          metrics['EM2'] = float(np.average(input_val_Data[:,72:79,].sum(axis=1)-reconstruct_val_Data[:,72:79,].sum(axis=1)/input_val_Data[:,72:79,].sum(axis=1)))
           ###EM3
-          metrics['EM3'] = np.average(float(input_val_Data[:,80:87,].sum(axis=1)-reconstruct_val_Data[:,80:87,].sum(axis=1))/input_val_Data[:,80:87,].sum(axis=1))
+          metrics['EM3'] = float(np.average(input_val_Data[:,80:87,].sum(axis=1)-reconstruct_val_Data[:,80:87,].sum(axis=1)/input_val_Data[:,80:87,].sum(axis=1)))
           ###EM
-          metrics['EM'] = np.average(float(input_val_Data[:,0:87,].sum(axis=1)-reconstruct_val_Data[:,0:87,].sum(axis=1))/input_val_Data[:,0:87,].sum(axis=1))
+          metrics['EM'] = float(np.average(input_val_Data[:,0:87,].sum(axis=1)-reconstruct_val_Data[:,0:87,].sum(axis=1)/input_val_Data[:,0:87,].sum(axis=1)))
           ###HAD1
-          metrics['HAD1'] = np.average(float(input_val_Data[:,88:91,].sum(axis=1)-reconstruct_val_Data[:,88:91,].sum(axis=1))/input_val_Data[:,88:91,].sum(axis=1))
+          metrics['HAD1'] = float(np.average(input_val_Data[:,88:91,].sum(axis=1)-reconstruct_val_Data[:,88:91,].sum(axis=1)/input_val_Data[:,88:91,].sum(axis=1)))
           ###HAD2
-          metrics['HAD2'] = np.average(float(input_val_Data[:,92:95,].sum(axis=1)-reconstruct_val_Data[:,92:95,].sum(axis=1))/input_val_Data[:,92:95,].sum(axis=1))
+          metrics['HAD2'] = float(np.average(input_val_Data[:,92:95,].sum(axis=1)-reconstruct_val_Data[:,92:95,].sum(axis=1)/input_val_Data[:,92:95,].sum(axis=1)))
           ###HAD3
-          metrics['HAD3'] = np.average(float(input_val_Data[:,96:99,].sum(axis=1)-reconstruct_val_Data[:,96:99,].sum(axis=1))/input_val_Data[:,96:99,].sum(axis=1))
+          metrics['HAD3'] = float(np.average(input_val_Data[:,96:99,].sum(axis=1)-reconstruct_val_Data[:,96:99,].sum(axis=1)/input_val_Data[:,96:99,].sum(axis=1)))
           ###HAD
-          metrics['HAD'] = np.average(float(input_val_Data[:,88:99,].sum(axis=1)-reconstruct_val_Data[:,88:99,].sum(axis=1))/input_val_Data[:,88:99,].sum(axis=1))
+          metrics['HAD'] = float(np.average(input_val_Data[:,88:99,].sum(axis=1)-reconstruct_val_Data[:,88:99,].sum(axis=1)/input_val_Data[:,88:99,].sum(axis=1)))
       except:
         metrics['ETotal'] = None
         metrics['PS'] = None
@@ -1877,46 +2028,46 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'], p_value = ks_2samp(input[0][:,88:99,].sum(axis=1),reconstructed[0][:,88:99,].sum(axis=1))
         elif measure == 'DeltaEnergy':
           ###TOTAL
-          metrics['ETotal'] = np.average(float(input[0].sum(axis=1)-reconstructed[0].sum(axis=1)))
+          metrics['ETotal'] = float(np.average(input[0].sum(axis=1)-reconstructed[0].sum(axis=1)))
           ###PS
-          metrics['PS'] = np.average(float(input[0][:,0:7,].sum(axis=1)-reconstructed[0][:,0:7,].sum(axis=1)))
+          metrics['PS'] = float(np.average(input[0][:,0:7,].sum(axis=1)-reconstructed[0][:,0:7,].sum(axis=1)))
           ###EM1
-          metrics['EM1'] = np.average(float(input[0][:,8:71,].sum(axis=1)-reconstructed[0][:,8:71,].sum(axis=1)))
+          metrics['EM1'] = float(np.average(input[0][:,8:71,].sum(axis=1)-reconstructed[0][:,8:71,].sum(axis=1)))
           ###EM2
-          metrics['EM2'] = np.average(float(input[0][:,72:79,].sum(axis=1)-reconstructed[0][:,72:79,].sum(axis=1)))
+          metrics['EM2'] = float(np.average(input[0][:,72:79,].sum(axis=1)-reconstructed[0][:,72:79,].sum(axis=1)))
           ###EM3
-          metrics['EM3'] = np.average(float(input[0][:,80:87,].sum(axis=1)-reconstructed[0][:,80:87,].sum(axis=1)))
+          metrics['EM3'] = float(np.average(input[0][:,80:87,].sum(axis=1)-reconstructed[0][:,80:87,].sum(axis=1)))
           ###EM
-          metrics['EM'] = np.average(float(input[0][:,0:87,].sum(axis=1)-reconstructed[0][:,0:87,].sum(axis=1)))
+          metrics['EM'] = float(np.average(input[0][:,0:87,].sum(axis=1)-reconstructed[0][:,0:87,].sum(axis=1)))
           ###HAD1
-          metrics['HAD1'] = np.average(float(input[0][:,88:91,].sum(axis=1)-reconstructed[0][:,88:91,].sum(axis=1)))
+          metrics['HAD1'] = float(np.average(input[0][:,88:91,].sum(axis=1)-reconstructed[0][:,88:91,].sum(axis=1)))
           ###HAD2
-          metrics['HAD2'] = np.average(float(input[0][:,92:95,].sum(axis=1)-reconstructed[0][:,92:95,].sum(axis=1)))
+          metrics['HAD2'] = float(np.average(input[0][:,92:95,].sum(axis=1)-reconstructed[0][:,92:95,].sum(axis=1)))
           ###HAD3
-          metrics['HAD3'] = np.average(float(input[0][:,96:99,].sum(axis=1)-reconstructed[0][:,96:99,].sum(axis=1)))
+          metrics['HAD3'] = float(np.average(input[0][:,96:99,].sum(axis=1)-reconstructed[0][:,96:99,].sum(axis=1)))
           ###HAD
-          metrics['HAD'] = np.average(float(input[0][:,88:99,].sum(axis=1)-reconstructed[0][:,88:99,].sum(axis=1)))
+          metrics['HAD'] = float(np.average(input[0][:,88:99,].sum(axis=1)-reconstructed[0][:,88:99,].sum(axis=1)))
         elif measure == 'Normalized_DeltaEnergy':
           ###TOTAL
-          metrics['ETotal'] = np.average(float(input[0].sum(axis=1)-reconstructed[0].sum(axis=1))/input[0].sum(axis=1))
+          metrics['ETotal'] = float(np.average(input[0].sum(axis=1)-reconstructed[0].sum(axis=1)/input[0].sum(axis=1)))
           ###PS
-          metrics['PS'] = np.average(float(input[0][:,0:7,].sum(axis=1)-reconstructed[0][:,0:7,].sum(axis=1))/input[0][:,0:7,].sum(axis=1))
+          metrics['PS'] = float(np.average(input[0][:,0:7,].sum(axis=1)-reconstructed[0][:,0:7,].sum(axis=1)/input[0][:,0:7,].sum(axis=1)))
           ###EM1
-          metrics['EM1'] = np.average(float(input[0][:,8:71,].sum(axis=1)-reconstructed[0][:,8:71,].sum(axis=1))/input[0][:,8:71,].sum(axis=1))
+          metrics['EM1'] = float(np.average(input[0][:,8:71,].sum(axis=1)-reconstructed[0][:,8:71,].sum(axis=1)/input[0][:,8:71,].sum(axis=1)))
           ###EM2
-          metrics['EM2'] = np.average(float(input[0][:,72:79,].sum(axis=1)-reconstructed[0][:,72:79,].sum(axis=1))/input[0][:,72:79,].sum(axis=1))
+          metrics['EM2'] = float(np.average(input[0][:,72:79,].sum(axis=1)-reconstructed[0][:,72:79,].sum(axis=1)/input[0][:,72:79,].sum(axis=1)))
           ###EM3
-          metrics['EM3'] = np.average(float(input[0][:,80:87,].sum(axis=1)-reconstructed[0][:,80:87,].sum(axis=1))/input[0][:,80:87,].sum(axis=1))
+          metrics['EM3'] = float(np.average(input[0][:,80:87,].sum(axis=1)-reconstructed[0][:,80:87,].sum(axis=1)/input[0][:,80:87,].sum(axis=1)))
           ###EM
-          metrics['EM'] = np.average(float(input[0][:,0:87,].sum(axis=1)-reconstructed[0][:,0:87,].sum(axis=1))/input[0][:,0:87,].sum(axis=1))
+          metrics['EM'] = float(np.average(input[0][:,0:87,].sum(axis=1)-reconstructed[0][:,0:87,].sum(axis=1)/input[0][:,0:87,].sum(axis=1)))
           ###HAD1
-          metrics['HAD1'] = np.average(float(input[0][:,88:91,].sum(axis=1)-reconstructed[0][:,88:91,].sum(axis=1))/input[0][:,88:91,].sum(axis=1))
+          metrics['HAD1'] = float(np.average(input[0][:,88:91,].sum(axis=1)-reconstructed[0][:,88:91,].sum(axis=1)/input[0][:,88:91,].sum(axis=1)))
           ###HAD2
-          metrics['HAD2'] = np.average(float(input[0][:,92:95,].sum(axis=1)-reconstructed[0][:,92:95,].sum(axis=1))/input[0][:,92:95,].sum(axis=1))
+          metrics['HAD2'] = float(np.average(input[0][:,92:95,].sum(axis=1)-reconstructed[0][:,92:95,].sum(axis=1)/input[0][:,92:95,].sum(axis=1)))
           ###HAD3
-          metrics['HAD3'] = np.average(float(input[0][:,96:99,].sum(axis=1)-reconstructed[0][:,96:99,].sum(axis=1))/input[0][:,96:99,].sum(axis=1))
+          metrics['HAD3'] = float(np.average(input[0][:,96:99,].sum(axis=1)-reconstructed[0][:,96:99,].sum(axis=1)/input[0][:,96:99,].sum(axis=1)))
           ###HAD
-          metrics['HAD'] = np.average(float(input[0][:,88:99,].sum(axis=1)-reconstructed[0][:,88:99,].sum(axis=1))/input[0][:,88:99,].sum(axis=1))
+          metrics['HAD'] = float(np.average(input[0][:,88:99,].sum(axis=1)-reconstructed[0][:,88:99,].sum(axis=1)/input[0][:,88:99,].sum(axis=1)))
       except:
         metrics['ETotal'] = None
         metrics['PS'] = None
@@ -2171,46 +2322,46 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD'],p_value = ks_2samp(input[1][:,88:99,].sum(axis=1),reconstructed[1][:,88:99,].sum(axis=1))
         elif measure == 'DeltaEnergy':
           ###TOTAL
-          metrics['ETotal'] = np.average(float(input[1].sum(axis=1)-reconstructed[1].sum(axis=1)))
+          metrics['ETotal'] = float(np.average(input[1].sum(axis=1)-reconstructed[1].sum(axis=1)))
           ###PS
-          metrics['PS'] = np.average(float(input[1][:,0:7,].sum(axis=1)-reconstructed[1][:,0:7,].sum(axis=1)))
+          metrics['PS'] = float(np.average(input[1][:,0:7,].sum(axis=1)-reconstructed[1][:,0:7,].sum(axis=1)))
           ###EM1
-          metrics['EM1'] = np.average(float(input[1][:,8:71,].sum(axis=1)-reconstructed[1][:,8:71,].sum(axis=1)))
+          metrics['EM1'] = float(np.average(input[1][:,8:71,].sum(axis=1)-reconstructed[1][:,8:71,].sum(axis=1)))
           ###EM2
-          metrics['EM2'] = np.average(float(input[1][:,72:79,].sum(axis=1)-reconstructed[1][:,72:79,].sum(axis=1)))
+          metrics['EM2'] = float(np.average(input[1][:,72:79,].sum(axis=1)-reconstructed[1][:,72:79,].sum(axis=1)))
           ###EM3
-          metrics['EM3'] = np.average(float(input[1][:,80:87,].sum(axis=1)-reconstructed[1][:,80:87,].sum(axis=1)))
+          metrics['EM3'] = float(np.average(input[1][:,80:87,].sum(axis=1)-reconstructed[1][:,80:87,].sum(axis=1)))
           ###EM
-          metrics['EM'] = np.average(float(input[1][:,0:87,].sum(axis=1)-reconstructed[1][:,0:87,].sum(axis=1)))
+          metrics['EM'] = float(np.average(input[1][:,0:87,].sum(axis=1)-reconstructed[1][:,0:87,].sum(axis=1)))
           ###HAD1
-          metrics['HAD1'] = np.average(float(input[1][:,88:91,].sum(axis=1)-reconstructed[1][:,88:91,].sum(axis=1)))
+          metrics['HAD1'] = float(np.average(input[1][:,88:91,].sum(axis=1)-reconstructed[1][:,88:91,].sum(axis=1)))
           ###HAD2
-          metrics['HAD2'] = np.average(float(input[1][:,92:95,].sum(axis=1)-reconstructed[1][:,92:95,].sum(axis=1)))
+          metrics['HAD2'] = float(np.average(input[1][:,92:95,].sum(axis=1)-reconstructed[1][:,92:95,].sum(axis=1)))
           ###HAD3
-          metrics['HAD3'] = np.average(float(input[1][:,96:99,].sum(axis=1)-reconstructed[1][:,96:99,].sum(axis=1)))
+          metrics['HAD3'] = float(np.average(input[1][:,96:99,].sum(axis=1)-reconstructed[1][:,96:99,].sum(axis=1)))
           ###HAD
-          metrics['HAD'] = np.average(float(input[1][:,88:99,].sum(axis=1)-reconstructed[1][:,88:99,].sum(axis=1)))
+          metrics['HAD'] = float(np.average(input[1][:,88:99,].sum(axis=1)-reconstructed[1][:,88:99,].sum(axis=1)))
         elif measure == 'Normalized_DeltaEnergy':
           ###TOTAL
-          metrics['ETotal'] = np.average(float(input[1].sum(axis=1)-reconstructed[1].sum(axis=1))/input[1].sum(axis=1))
+          metrics['ETotal'] = float(np.average(input[1].sum(axis=1)-reconstructed[1].sum(axis=1)/input[1].sum(axis=1)))
           ###PS
-          metrics['PS'] = np.average(float(input[1][:,0:7,].sum(axis=1)-reconstructed[1][:,0:7,].sum(axis=1))/input[1][:,0:7,].sum(axis=1))
+          metrics['PS'] = float(np.average(input[1][:,0:7,].sum(axis=1)-reconstructed[1][:,0:7,].sum(axis=1)/input[1][:,0:7,].sum(axis=1)))
           ###EM1
-          metrics['EM1'] = np.average(float(input[1][:,8:71,].sum(axis=1)-reconstructed[1][:,8:71,].sum(axis=1))/input[1][:,8:71,].sum(axis=1))
+          metrics['EM1'] = float(np.average(input[1][:,8:71,].sum(axis=1)-reconstructed[1][:,8:71,].sum(axis=1)/input[1][:,8:71,].sum(axis=1)))
           ###EM2
-          metrics['EM2'] = np.average(float(input[1][:,72:79,].sum(axis=1)-reconstructed[1][:,72:79,].sum(axis=1))/input[1][:,72:79,].sum(axis=1))
+          metrics['EM2'] = float(np.average(input[1][:,72:79,].sum(axis=1)-reconstructed[1][:,72:79,].sum(axis=1)/input[1][:,72:79,].sum(axis=1)))
           ###EM3
-          metrics['EM3'] = np.average(float(input[1][:,80:87,].sum(axis=1)-reconstructed[1][:,80:87,].sum(axis=1))/input[1][:,80:87,].sum(axis=1))
+          metrics['EM3'] = float(np.average(input[1][:,80:87,].sum(axis=1)-reconstructed[1][:,80:87,].sum(axis=1)/input[1][:,80:87,].sum(axis=1)))
           ###EM
-          metrics['EM'] = np.average(float(input[1][:,0:87,].sum(axis=1)-reconstructed[1][:,0:87,].sum(axis=1))/input[1][:,0:87,].sum(axis=1))
+          metrics['EM'] = float(np.average(input[1][:,0:87,].sum(axis=1)-reconstructed[1][:,0:87,].sum(axis=1)/input[1][:,0:87,].sum(axis=1)))
           ###HAD1
-          metrics['HAD1'] = np.average(float(input[1][:,88:91,].sum(axis=1)-reconstructed[1][:,88:91,].sum(axis=1))/input[1][:,88:91,].sum(axis=1))
+          metrics['HAD1'] = float(np.average(input[1][:,88:91,].sum(axis=1)-reconstructed[1][:,88:91,].sum(axis=1)/input[1][:,88:91,].sum(axis=1)))
           ###HAD2
-          metrics['HAD2'] = np.average(float(input[1][:,92:95,].sum(axis=1)-reconstructed[1][:,92:95,].sum(axis=1))/input[1][:,92:95,].sum(axis=1))
+          metrics['HAD2'] = float(np.average(input[1][:,92:95,].sum(axis=1)-reconstructed[1][:,92:95,].sum(axis=1)/input[1][:,92:95,].sum(axis=1)))
           ###HAD3
-          metrics['HAD3'] = np.average(float(input[1][:,96:99,].sum(axis=1)-reconstructed[1][:,96:99,].sum(axis=1))/input[1][:,96:99,].sum(axis=1))
+          metrics['HAD3'] = float(np.average(input[1][:,96:99,].sum(axis=1)-reconstructed[1][:,96:99,].sum(axis=1)/input[1][:,96:99,].sum(axis=1)))
           ###HAD
-          metrics['HAD'] = np.average(float(input[1][:,88:99,].sum(axis=1)-reconstructed[1][:,88:99,].sum(axis=1))/input[1][:,88:99,].sum(axis=1))
+          metrics['HAD'] = float(np.average(input[1][:,88:99,].sum(axis=1)-reconstructed[1][:,88:99,].sum(axis=1)/input[1][:,88:99,].sum(axis=1)))
       except:
         metrics['ETotal'] = None
         metrics['PS'] = None
@@ -2549,7 +2700,7 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
     #%matplotlib inline
     import matplotlib.pyplot as plt
     plt.style.use('ggplot')
-    cnx = sqlite3.connect('//home/caducovas/run/ringer_new2.db')
+    cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -2568,10 +2719,10 @@ def plot_input_reconstruction_separed(norm1Par=None,reconstruct=None,model_name=
             #print i,cdata.shape
             unnorm_reconstruct.append( cdata * normlist[i])
 
-    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfSignal.fillna(value=nan, inplace=True)
-    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'Normalized_MI' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfBkg.fillna(value=nan, inplace=True)
     sgn=dfSignal.values.astype(np.float32)
@@ -2637,7 +2788,7 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
     #%matplotlib inline
     import matplotlib.pyplot as plt
     plt.style.use('ggplot')
-    cnx = sqlite3.connect('//home/caducovas/run/ringer_new2.db')
+    cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
     beforenorm = norm1Par[0]
     normlist = norm1Par[1]
     afternorm = norm1Par[2]
@@ -2656,10 +2807,10 @@ def plot_input_reconstruction_separed_noErrbar(norm1Par=None,reconstruct=None,mo
             #print i,cdata.shape
             unnorm_reconstruct.append( cdata * normlist[i])
 
-    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Signal' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfSignal.fillna(value=nan, inplace=True)
-    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+    dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Class = 'Background' and Measure = 'KLdiv' and Normed='no' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
     dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
     #dfBkg.fillna(value=nan, inplace=True)
     sgn=dfSignal.values.astype(np.float32)
@@ -2729,7 +2880,7 @@ def plot_input_reconstruction_error(norm1Par=None,reconstruct=None,model_name=No
 
   plt.style.use('ggplot')
 
-  cnx = sqlite3.connect('//home/caducovas/run/ringer_new2.db')
+  cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
   # # Et and Eta indices
   # et_index  = [0, 1, 2,3]
   # etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
@@ -2748,13 +2899,13 @@ def plot_input_reconstruction_error(norm1Par=None,reconstruct=None,model_name=No
       unnorm_reconstruct_val_Data = np.concatenate( unnorm_reconstruct, axis=0 )
       beforenorm_val_Data = np.concatenate( beforenorm, axis=0 )
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='yes' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='yes' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='yes' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='yes' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='yes' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='yes' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
 
   allClasses_MSE=dfAll.values.astype(np.float32)
@@ -3040,7 +3191,7 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
     normalizacao='no'
 
   plt.style.use('ggplot')
-  cnx = sqlite3.connect('//home/caducovas/run/ringer_new2.db')
+  cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
   # Et and Eta indices
   et_index  = [0, 1, 2,3]
   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
@@ -3064,13 +3215,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   #dfBkg.fillna(value=nan, inplace=True)
 
@@ -3078,13 +3229,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   sgn_NMI=dfSignal.values.astype(np.float32)
   bkg_NMI=dfBkg.values.astype(np.float32)
 
-  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # dfAll.fillna(value=nan, inplace=True)
-  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # #dfSignal.fillna(value=nan, inplace=True)
-  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # #dfBkg.fillna(value=nan, inplace=True)
 
@@ -3092,39 +3243,39 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   # sgn_MI=dfSignal.values.astype(np.float32)
   # bkg_MI=dfBkg.values.astype(np.float32)
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
 
   allClasses_Corr=dfAll.values.astype(np.float32)
   sgn_Corr=dfSignal.values.astype(np.float32)
   bkg_Corr=dfBkg.values.astype(np.float32)
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
 
   allClasses_KL=dfAll.values.astype(np.float32)
   sgn_KL=dfSignal.values.astype(np.float32)
   bkg_KL=dfBkg.values.astype(np.float32)
 
-  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # dfAll.fillna(value=nan, inplace=True)
-  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
   # #dfSignal.fillna(value=nan, inplace=True)
-  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
 
   # allClasses_Chi=dfAll.values.astype(np.float32)
@@ -3132,13 +3283,13 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   # bkg_Chi=dfBkg.values.astype(np.float32)
 
 
-  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   dfAll.fillna(value=nan, inplace=True)
-  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
   #dfSignal.fillna(value=nan, inplace=True)
-  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics7 where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+  dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
 
   allClasses_MSE=dfAll.values.astype(np.float32)
@@ -3277,6 +3428,508 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   png_files.append(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
   return png_files
 
+def plot_input_reconstruction_diff_measures2(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False,Normed=False, dirout=None):
+   import sqlite3
+   import pandas as pd
+   from numpy import nan
+   #%matplotlib inline
+   import matplotlib.pyplot as plt
+   png_files=[]
+   if Normed:
+     normalizacao='yes'
+   else:
+     normalizacao='no'
+
+   plt.style.use('ggplot')
+   cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+   # Et and Eta indices
+   et_index  = [0, 1, 2,3]
+   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+
+   eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+   etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+
+   #et_index  = [1,2]
+   #etRange = ['[20, 30]']
+
+   #eta_index = [1,2]
+   #etaRange = ['[0.6, 0.8]']
+
+   #for iet, etrange in zip(et_index, etRange):
+   #  for ieta, etarange in zip(eta_index, etaRange):
+   iet =  etBinIdx
+   etrange = etRange[etBinIdx]
+   ieta = etaBinIdx
+   etarange = etaRange[etaBinIdx]
+       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfBkg.fillna(value=nan, inplace=True)
+
+   allClasses_NMI=dfAll.values.astype(np.float32)
+   sgn_NMI=dfSignal.values.astype(np.float32)
+   bkg_NMI=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfBkg.fillna(value=nan, inplace=True)
+
+   # allClasses_MI=dfAll.values.astype(np.float32)
+   # sgn_MI=dfSignal.values.astype(np.float32)
+   # bkg_MI=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Wasserstein' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Wasserstein' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Wasserstein' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_Wass=dfAll.values.astype(np.float32)
+   sgn_Wass=dfSignal.values.astype(np.float32)
+   bkg_Wass=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_KL=dfAll.values.astype(np.float32)
+   sgn_KL=dfSignal.values.astype(np.float32)
+   bkg_KL=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+
+   # allClasses_Chi=dfAll.values.astype(np.float32)
+   # sgn_Chi=dfSignal.values.astype(np.float32)
+   # bkg_Chi=dfBkg.values.astype(np.float32)
+
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'kolmogorov-smirnov' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'kolmogorov-smirnov' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'kolmogorov-smirnov' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_KS=dfAll.values.astype(np.float32)
+   sgn_KS=dfSignal.values.astype(np.float32)
+   bkg_KS=dfBkg.values.astype(np.float32)
+   #print 'all',allClasses
+   #print 'sgn', sgn
+   #print 'bkg', bkg
+
+   fig, ax = plt.subplots(2,2,figsize=(16,10))
+
+   ####Normalized MI
+
+   ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_NMI, axis=0),yerr=np.std(allClasses_NMI, axis=0), fmt='go-',color='green')
+   ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_NMI, axis=0),yerr=np.std(sgn_NMI, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_NMI, axis=0),yerr=np.std(bkg_NMI, axis=0), fmt='ro-')
+   ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,0].set_title(r'Normalized Mutual Information',fontsize= 20)
+   ax[0,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,0].set_ylabel('Normalized Mutual Information', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_NMI, axis=0), np.mean(bkg_NMI, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####MI
+
+   ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_KS, axis=0),yerr=np.std(allClasses_KS, axis=0), fmt='go-',color='green')
+   ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_KS, axis=0),yerr=np.std(sgn_KS, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_KS, axis=0),yerr=np.std(bkg_KS, axis=0), fmt='ro-')
+   ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,1].set_title(r'Kolmogorov Smirnov Distance',fontsize= 20)
+   ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,1].set_ylabel('Kolmogorov Smirnov', fontsize='xx-large')
+   #ax[0,1].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   #if log_scale:
+   y_position = .9*np.max([np.mean(sgn_KS, axis=0), np.mean(bkg_KS, axis=0)]) + 1e3
+   #else:
+   #  y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####Corr
+
+   ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_Wass, axis=0),yerr=np.std(allClasses_Wass, axis=0), fmt='go-',color='green')
+   ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_Wass, axis=0),yerr=np.std(sgn_Wass, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_Wass, axis=0),yerr=np.std(bkg_Wass, axis=0), fmt='ro-')
+   ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,0].set_title(r'Wasserstein Distance',fontsize= 20)
+   ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,0].set_ylabel('Wasserstein Distance', fontsize='xx-large')
+   ax[1,0].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####KLDiv
+
+   ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
+   ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
+   ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,1].set_title(r'Kullback-Leibler Divergence',fontsize= 20)
+   ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,1].set_ylabel('KL Divergence', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9*np.max([np.mean(sgn_KL, axis=0), np.mean(bkg_KL, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####ChiSquared
+
+ #  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
+ #  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+ #  for i in [7, 71, 79, 87, 91, 95]:
+ #    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+ #  ax[1,1].set_title(r'Chi Squared',fontsize= 20)
+ #  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+ #  ax[1,1].set_ylabel('Chi Squared', fontsize='xx-large')
+ #  #ax[0,0].ylim(ymax=1)
+ #  if log_scale:
+ #    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+ #  else:
+ #    y_position = .9*np.max([np.mean(sgn_Chi, axis=0), np.mean(bkg_Chi, axis=0)])
+ #
+ #  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+ #           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+ #          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+ #    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+   plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+   if Normed:
+     prefix='Normalized '
+   else:
+     prefix=''
+   plt.suptitle(prefix+'Input X Reconstruction - '+model_name+' - '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange), fontsize=24)
+   plt.savefig(dirout+'/measures_2_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   plt.clf()
+   plt.close()
+   png_files.append(dirout+'/measures_2_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   return png_files
+
+def plot_input_reconstruction_diff_measures3(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False,Normed=False, dirout=None):
+   import sqlite3
+   import pandas as pd
+   from numpy import nan
+   #%matplotlib inline
+   import matplotlib.pyplot as plt
+   png_files=[]
+   if Normed:
+     normalizacao='yes'
+   else:
+     normalizacao='no'
+
+   plt.style.use('ggplot')
+   cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+   # Et and Eta indices
+   et_index  = [0, 1, 2,3]
+   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+
+   eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+   etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+
+   #et_index  = [1,2]
+   #etRange = ['[20, 30]']
+
+   #eta_index = [1,2]
+   #etaRange = ['[0.6, 0.8]']
+
+   #for iet, etrange in zip(et_index, etRange):
+   #  for ieta, etarange in zip(eta_index, etaRange):
+   iet =  etBinIdx
+   etrange = etRange[etBinIdx]
+   ieta = etaBinIdx
+   etarange = etaRange[etaBinIdx]
+       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfBkg.fillna(value=nan, inplace=True)
+
+   allClasses_MSE=dfAll.values.astype(np.float32)
+   sgn_MSE=dfSignal.values.astype(np.float32)
+   bkg_MSE=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfBkg.fillna(value=nan, inplace=True)
+
+   # allClasses_MI=dfAll.values.astype(np.float32)
+   # sgn_MI=dfSignal.values.astype(np.float32)
+   # bkg_MI=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'DeltaEnergy' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'DeltaEnergy' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'DeltaEnergy' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_Del=dfAll.values.astype(np.float32)
+   sgn_Del=dfSignal.values.astype(np.float32)
+   bkg_Del=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_DeltaEnergy' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_DeltaEnergy' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_DeltaEnergy' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_NDel=dfAll.values.astype(np.float32)
+   sgn_NDel=dfSignal.values.astype(np.float32)
+   bkg_NDel=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+
+   # allClasses_Chi=dfAll.values.astype(np.float32)
+   # sgn_Chi=dfSignal.values.astype(np.float32)
+   # bkg_Chi=dfBkg.values.astype(np.float32)
+
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_Corr=dfAll.values.astype(np.float32)
+   sgn_Corr=dfSignal.values.astype(np.float32)
+   bkg_Corr=dfBkg.values.astype(np.float32)
+   #print 'all',allClasses
+   #print 'sgn', sgn
+   #print 'bkg', bkg
+
+   fig, ax = plt.subplots(2,2,figsize=(16,10))
+
+   ####Normalized MI
+
+   ax[0,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_MSE, axis=0),yerr=np.std(allClasses_MSE, axis=0), fmt='go-',color='green')
+   ax[0,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_MSE, axis=0),yerr=np.std(sgn_MSE, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_MSE, axis=0),yerr=np.std(bkg_MSE, axis=0), fmt='ro-')
+   ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,0].set_title(r'Reconstruction Error',fontsize= 20)
+   ax[0,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,0].set_ylabel('MSE', fontsize='xx-large')
+   ax[0,0].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####MI
+
+   ax[0,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
+   ax[0,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
+   ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,1].set_title(r'Correlation Coefficient',fontsize= 20)
+   ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,1].set_ylabel('Pearson Correlation coeficient', fontsize='xx-large')
+   #ax[0,1].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   #if log_scale:
+   y_position = .9*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)]) + 1e3
+   #else:
+   #  y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####Corr
+
+   ax[1,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_Del, axis=0),yerr=np.std(allClasses_Del, axis=0), fmt='go-',color='green')
+   ax[1,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_Del, axis=0),yerr=np.std(sgn_Del, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_Del, axis=0),yerr=np.std(bkg_Del, axis=0), fmt='ro-')
+   ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,0].set_title(r'Delta Energy',fontsize= 20)
+   ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,0].set_ylabel('Delta Et', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####KLDiv
+
+   ax[1,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_NDel, axis=0),yerr=np.std(allClasses_NDel, axis=0), fmt='go-',color='green')
+   ax[1,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_NDel, axis=0),yerr=np.std(sgn_NDel, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_NDel, axis=0),yerr=np.std(bkg_NDel, axis=0), fmt='ro-')
+   ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,1].set_title(r'Normalized Delta Energy',fontsize= 20)
+   ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,1].set_ylabel('Normalized Delta Et', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9*np.max([np.mean(sgn_NDel, axis=0), np.mean(bkg_NDel, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####ChiSquared
+
+ #  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
+ #  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+ #  for i in [7, 71, 79, 87, 91, 95]:
+ #    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+ #  ax[1,1].set_title(r'Chi Squared',fontsize= 20)
+ #  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+ #  ax[1,1].set_ylabel('Chi Squared', fontsize='xx-large')
+ #  #ax[0,0].ylim(ymax=1)
+ #  if log_scale:
+ #    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+ #  else:
+ #    y_position = .9*np.max([np.mean(sgn_Chi, axis=0), np.mean(bkg_Chi, axis=0)])
+ #
+ #  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+ #           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+ #          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+ #    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+   plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+   if Normed:
+     prefix='Normalized '
+   else:
+     prefix=''
+   plt.suptitle(prefix+'Input X Reconstruction - '+model_name+' - '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange), fontsize=24)
+   plt.savefig(dirout+'/measures_3_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   plt.clf()
+   plt.close()
+   png_files.append(dirout+'/measures_3_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   return png_files
+
 def mutualInformation_matrix(signal,measure='MI',sklearn=True,kde=False, n_bins=None):
     #from statsmodels.sandbox.distributions.mv_measures import mutualinfo_kde, mutualinfo_binned
     print signal.shape
@@ -3363,6 +4016,11 @@ def plot_MutualInformation(mixtures=None,reconstruction=None,measure='MI',sae=No
         mat = mutualInformation_matrix(mixtures,measure='KL')
         minval=min(mat.flatten())
         maxval=max(mat.flatten())
+    elif measure == 'Wasserstein':
+        mat = mutualInformation_matrix(mixtures,measure='Wasserstein')
+        minval=min(mat.flatten())
+        maxval=max(mat.flatten())
+
     else:
         minval=0
         maxval=1
@@ -3424,7 +4082,7 @@ def plot_measures_2d(norm1Par=None,reconstruct=None,model_name="",layer=None,tim
         r=unnorm_reconstruct_val_Data
         b=beforenorm_val_Data
 
-    fig = plot_MutualInformation(b,r,plot_corr=True)
+    fig = plot_MutualInformation(b,r,measure='MI',plot_corr=True)
     fig.suptitle('MI and Correlation Matrix - Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
     fig.savefig(dirout+'/matrix2d_'+str(layer)+'_'+model_name+'_'+time+'.png')
     fig.clf()
@@ -3459,7 +4117,7 @@ def plot_representation_2d(norm1Par=None,code=None,model_name="",layer=None,time
         r=code_val_Data
         b=afternorm_val_Data
 
-    fig = plot_MutualInformation(b,r,plot_corr=True)
+    fig = plot_MutualInformation(b,r,measure='MI',plot_corr=True)
     fig.suptitle('MI and Correlation Matrix - Input X Representation - '+model_name+' - '+str(layer), fontsize=24)
     fig.savefig(dirout+'/codematrix2d_'+str(layer)+'_'+model_name+'_'+time+'.png')
     fig.clf()

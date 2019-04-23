@@ -32,7 +32,7 @@ class TuningWrapper(Logger):
                                  )
 
     epochs                     = retrieve_kw( kw, 'epochs',                10000                  )
-    maxFail                    = retrieve_kw( kw, 'maxFail',               30                     )
+    maxFail                    = retrieve_kw( kw, 'maxFail',               5                     )
     self.useTstEfficiencyAsRef = retrieve_kw( kw, 'useTstEfficiencyAsRef', False                  )
     self._merged               = retrieve_kw( kw, 'merged',                False                  )
     self._deep                 = retrieve_kw( kw, 'deep',                  False                  )
@@ -55,7 +55,7 @@ class TuningWrapper(Logger):
       from TuningTools.keras_util.callbacks import PerformanceHistory
       self.trainOptions = dict()
       #self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',     RMSprop(lr=0.001, rho=0.9, epsilon=1e-08) )
-      self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',    Adam(lr=0.001,beta_1=0.9,beta_2=0.999,epsilon=1e-08)  )
+      self.trainOptions['optmin_alg']    = retrieve_kw( kw, 'optmin_alg',    Adam(lr=0.005,beta_1=0.9,beta_2=0.999,epsilon=1e-08)  )
       self.trainOptions['costFunction']  = retrieve_kw( kw, 'loss',  'mean_squared_error'  ) # 'binary_crossentropy' #'mean_squared_error' #
       self.trainOptions['metrics']       = retrieve_kw( kw, 'metrics',       ['accuracy', ]          )
       self.trainOptions['shuffle']       = retrieve_kw( kw, 'shuffle',       True                  )
@@ -536,7 +536,7 @@ class TuningWrapper(Logger):
                    , metrics = self.trainOptions['metrics'] )
       # #keras.callbacks.History()
       # #keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
-      model.summary()
+      print model.summary()
       self._model = model
       self._historyCallback.model = model
 
@@ -619,17 +619,22 @@ class TuningWrapper(Logger):
       self._fine_tuning= 'no'
       self._info("Using Keras")
       model = Sequential()
-      model.add( Dense( nodes[0]
-                        , input_dim=nodes[0]
-                        , init='identity'
-                        , trainable=False
-                        , name='dense_last_hl' ) )
-      model.add( Activation('linear') )
-      #model.add( Dense( nodes[1]
-      #                  , input_dim=nodes[0]
-      #                  , init='uniform'
-      #                  , name='dense_last_hl' ) )
+      # model.add( Dense( nodes[0]
+      #                   , input_dim=nodes[0]
+      #                   , init='identity'
+      #                   , trainable=False
+      #                   , name='dense_last_hl' ) )
+      # model.add( Activation('linear') )
+      #model.add( Dense( 20 , input_dim=nodes[0] , init='uniform' ) )
       #model.add( Activation('tanh') )
+
+      model.add( Dense( 5 #nodes[1]
+                        , input_dim=nodes[0]
+                        , init='uniform'
+                        , name='dense_last_hl' ) )
+      model.add( Activation('tanh') )
+
+      #model.add(Dropout(0.5))
       model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
       model.add( Activation('tanh') )
       model.compile( loss=self.trainOptions['costFunction']
@@ -639,6 +644,7 @@ class TuningWrapper(Logger):
       # keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
       self._model = model
       self._historyCallback.model = model
+      print model.summary()
 
   def concatff(self, nodes,empath,hadpath):
     """
@@ -999,24 +1005,29 @@ class TuningWrapper(Logger):
       import datetime
       start_run = time.time()
       import keras
+      nbatch_size = 2048 #self.batchSize
 
-      tbCallBack = keras.callbacks.TensorBoard(log_dir='/home/caducovas/tensorboard/graphs/Discriminator_'+short_name, histogram_freq=10, write_graph=True, write_images=True,write_grads=True,update_freq='epoch')
-
+      tbCallBack = keras.callbacks.TensorBoard(log_dir='/home/caducovas/tensorboard/classError/Discriminator_'+short_name+'_batch_size_'+str(nbatch_size), histogram_freq=30, write_graph=True, write_images=False,write_grads=True,update_freq='batch')
+      checkpoints = keras.callbacks.ModelCheckpoint(fname+'/models/'+short_name+'.h5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 
       print 'WRAPPER DDMF'
       print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
       print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
       print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
       ########################################################
-
+      print self._trnTarget
+      #print 'transform'
+      #self._trnTarget[self._trnTarget==-1] = 0
+      #self._valTarget[self._valTarget==-1] = 0
+      print self._trnTarget
       history = self._model.fit( self._trnData
                                     , self._trnTarget
                                     , epochs          = self.trainOptions['nEpochs']
-                                    , batch_size      = self.batchSize
+                                    , batch_size      = nbatch_size #1024 #self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
-                                    #, callbacks       = [self._earlyStopping, tbCallBack]
-                                    , callbacks       = [self._earlyStopping]
-                                    , verbose         = 2
+                                    , callbacks       = [self._earlyStopping, tbCallBack, checkpoints]
+                                    #, callbacks       = [self._earlyStopping]
+                                    , verbose         = 1
                                     , validation_data = ( self._valData , self._valTarget )
                                     , shuffle         = self.trainOptions['shuffle']
                                     )
@@ -1024,8 +1035,13 @@ class TuningWrapper(Logger):
       end_run = time.time()
       print 'Model '+short_name+' took '+ str(datetime.timedelta(seconds=(end_run - start_run))) +' to finish.'
 
-      (self._model.save(
-              '%s.h5'%(fname+'/models/'+short_name)))
+      import tensorflow as tf
+
+      from keras.models import load_model
+      self._model = load_model(fname+'/models/'+short_name+'.h5')
+
+      #(self._model.save(
+    #          '%s.h5'%(fname+'/models/'+short_name)))
 
       rawDictTempl = { 'discriminator': None,
                        'benchmark': None }
@@ -1069,6 +1085,7 @@ class TuningWrapper(Logger):
           if self._tstData: tstRoc( tstOutput, self._tstTarget )
           #tstRoc( tstOutput, self._tstTarget )
           else: tstRoc( valOutput, self._valTarget )
+          np.savez_compressed(fname+'/results/train_all_target_official'+short_name,self._trnTarget)
           np.savez_compressed(fname+'/results/val_all_target_official'+short_name,self._valTarget)
           # Add rocs to output information
           # TODO Change this to raw object
@@ -1104,6 +1121,7 @@ class TuningWrapper(Logger):
     #import dataset
     #db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
     #table= db['roc'] =
+    #tf.reset_default_graph()
     return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoints,tstPoints,self._fine_tuning,refName
   # end of trainC_Deep
 

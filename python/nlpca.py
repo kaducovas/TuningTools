@@ -99,7 +99,7 @@ class NonLinPCA:
             adamOpt = Adam(lr=0.001,beta_1=0.9,beta_2=0.999,epsilon=1e-08)
             model.compile(loss='mean_squared_error',
                           optimizer=adamOpt,
-                          metrics=['mean_squared_error'])
+                          metrics=['accuracy'])
 
             earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
                                                     patience=10,
@@ -109,14 +109,23 @@ class NonLinPCA:
             import keras
             nlcpca_encoding_name  = 'nlpca_adam_bottleneck_%i_mapping_%i_epochs_sort_%i_etbin_%i_etabin_%i'%(n_nlpcas, n_neurons_mapping,sort,etBinIdx, etaBinIdx)
             tbCallBack = keras.callbacks.TensorBoard(log_dir='/home/caducovas/tensorboard/graphs/'+nlcpca_encoding_name, histogram_freq=10, write_graph=True, write_images=True,write_grads=True,update_freq='epoch')
+
+            import time
+            import datetime
+            start_run = time.time()
+
             init_trn_desc = model.fit(data, data,
                                       nb_epoch=train_info['n_epochs'],
-                                      batch_size=train_info['batch_size'],
+                                      batch_size= 1024, #train_info['batch_size'], #1024
                                       callbacks=[earlyStopping,tbCallBack],
                                       verbose=train_info['train_verbose'],
                                       validation_data=(trgt,
                                                        trgt),
                                       shuffle=True)
+
+            end_run = time.time()
+            print 'Model NLPCA took '+ str(datetime.timedelta(seconds=(end_run - start_run))) +' to finish.'
+
             if np.min(init_trn_desc.history['val_loss']) < best_loss:
                 best_init = i_init
                 best_loss = np.min(init_trn_desc.history['val_loss'])

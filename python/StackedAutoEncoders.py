@@ -389,7 +389,7 @@ class StackedAutoEncoders:
 
             # Train model
             earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
-                                                    patience=self.trn_params.params['patience'],
+                                                    patience= 5, #self.trn_params.params['patience'],
                                                     verbose=self.trn_params.params['train_verbose'],
                                                     mode='auto')
 
@@ -399,7 +399,7 @@ class StackedAutoEncoders:
             ae_encoding_name  = '%s_%i_folds_%s_%s_neurons'%(self.prefix_str, self.n_folds,self.params_str, neurons_str)
             ae_encoding = ae_encoding_name.split('_')
             ae_encoding_string = ae_encoding[0]+'_'+ae_encoding[24]+'_sort_%i_et_%i_eta_%i_layer_%i'%(sort,etBinIdx, etaBinIdx, self._layerNumber)
-            tbCallBack = keras.callbacks.TensorBoard(log_dir='/home/caducovas/tensorboard/graphs/'+ae_encoding_string, histogram_freq=10, write_graph=True, write_images=True,write_grads=True,update_freq='epoch')
+            tbCallBack = keras.callbacks.TensorBoard(log_dir='/home/caducovas/tensorboard/EncodingError/'+ae_encoding_string, histogram_freq=1, write_graph=True, write_images=True,write_grads=True,update_freq='batch')
 
             import time
             import datetime
@@ -407,9 +407,9 @@ class StackedAutoEncoders:
 
             init_trn_desc = model.fit(data, data,
                                       nb_epoch=self.trn_params.params['n_epochs'],
-                                      batch_size=self.trn_params.params['batch_size'],
-                                      callbacks=[earlyStopping, tbCallBack],
-                                      verbose=2, #self.trn_params.params['verbose'],
+                                      batch_size= 1024, #self.trn_params.params['batch_size'],
+                                      callbacks=[earlyStopping], #, tbCallBack],
+                                      verbose=1, #self.trn_params.params['verbose'],
                                       validation_data=(trgt,
                                                        trgt))
 
