@@ -1207,9 +1207,9 @@ class TuningJob(Logger):
     if not ppFile:
       #PCA(level = self.level, energy = 21)] ))
       #NLPCA(level = self.level, nlpcs=21, nmapping=51)] ))
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level ) ] )) #,
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level ) #] )) #,
          #,NLPCA(level = self.level, nlpcs=47, nmapping=71)] ))
-         #,PCA(level = self.level, energy = 70)] )) #,
+         ,PCA(level = self.level, energy = 70)] )) #,
 
          #StackedAutoEncoder(level=self.level,hidden_neurons=[47],aetype='vanilla')] )) #,
          #StackedAutoEncoder(level=self.level,hidden_neurons=[60],aetype='vanilla'),
@@ -1878,6 +1878,8 @@ class TuningJob(Logger):
         #f.close()
 
           bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
+          bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
+          bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='yes').get_string())
 
           # if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
           #   png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
