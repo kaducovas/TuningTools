@@ -2044,7 +2044,7 @@ class TuningJob(Logger):
 
       # #Finished all configurations we had to do
       terminou=time.time()
-      #import datetime as dt
+      import datetime as dt
       totalTime=str(dt.timedelta(seconds=(terminou - comecou)))
       print "Tuning took: "+totalTime
 
