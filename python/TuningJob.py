@@ -1056,7 +1056,9 @@ class TuningJob(Logger):
     else:
       print 'FASTNET'
     #print 'CORE',coreConf()
+    import time
     startTime = datetime.now()
+    comecou=time.time()
     ### Retrieve configuration from input values:
     ## We start with basic information:
     self.level     = retrieve_kw(kw, 'level',           masterLevel()     )
@@ -1202,7 +1204,14 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
+<<<<<<< HEAD
       ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level), StackedAutoEncoder(level=self.level,hidden_neurons=[64],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+=======
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level)] )) #,
+        #NLPCA(level = self.level, nlpcs=47, nmapping=71)] ))
+
+        #] )) #, StackedAutoEncoder(level=self.level,hidden_neurons=[31],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
+>>>>>>> 1e9ebf16ecd660017609c1032272822a6e2e5c28
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1516,7 +1525,7 @@ class TuningJob(Logger):
 
           trnDataN1,valDataN1 = ppChain.getNorm1()
           print "ate aqui foi. CoreConf ==  "+str(coreConf()) #trnDataN1,valDataN1
-          f_tuning=True
+          f_tuning=False
           if f_tuning and coreConf() == 2:
             print 'Warning: trData and valData receiving output of normalization again, regardless of Dimensionality reduction'
             trnData,valData = trnDataN1, valDataN1 #ppChain.getNorm1()
@@ -1524,6 +1533,7 @@ class TuningJob(Logger):
           #@hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
           #@np.savez_compressed(work_path+'weights/'+tuning_folder_name+'_sort_'+str(sort),weights=layers_weights)
           norm1Par = ppChain.getNorm1Parameters()
+          print "Norm1Par received"
 
 
 
@@ -1542,8 +1552,9 @@ class TuningJob(Logger):
           #np.savez_compressed(work_path+'Train_signal_sort'+str(sort),trnData[0])
           #np.savez_compressed(work_path+'Train_bkg_sort'+str(sort),trnData[1])
           #np.savez_compressed(work_path+'Train_sort'+str(sort)+'et_1_eta_1',trn_all)
-          if(sort == 0):
-            time.sleep(160)
+
+          #if(sort == 0):
+          #  time.sleep(160)
 
           if 'PCA' in str(ppChain.shortName()):
             if 'NLPCA' in str(ppChain.shortName()):
@@ -1592,7 +1603,7 @@ class TuningJob(Logger):
 
           if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
             print 'RECONS',reconstruct.keys()
-            time.sleep(int(20*int(sort)))
+            time.sleep(int(2*int(sort)))
             #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
             print 'Delta Energy'
             reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=False)
@@ -1826,7 +1837,7 @@ class TuningJob(Logger):
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 3):
           print "SORTEEEE: "+str(sort)
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
@@ -2024,7 +2035,13 @@ class TuningJob(Logger):
 
           bot.sendMessage('@ringer_tuning','Finished tuning job!')
       # #Finished all configurations we had to do
+      terminou=time.time()
+      import datetime as dt
+      print "Tuning took: "+str(dt.timedelta(seconds=(terminou - comecou)))
       self._info('Finished tuning job!')
+
+      #import os
+      #os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
 
   # end of __call__ member fcn
 
