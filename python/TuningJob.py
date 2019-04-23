@@ -2042,16 +2042,16 @@ class TuningJob(Logger):
             # #@@bot.sendPhoto('@ringer_tuning',dl_png_f)
 
 
-      # #Finished all configurations we had to do
-      terminou=time.time()
-      import datetime as dt
-      totalTime=str(dt.timedelta(seconds=(terminou - comecou)))
-      print "Tuning took: "+totalTime
+          # #Finished all configurations we had to do
+          terminou=time.time()
+          import datetime as dt
+          totalTime=str(dt.timedelta(seconds=(terminou - comecou)))
+          print "Tuning took: "+totalTime
 
-      if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
-        bot.sendMessage('@ringer_tuning','Finished tuning job! Preproc time: '+preprocTime+', Total time: '+totalTime)
-      else:
-        bot.sendMessage('@ringer_tuning','Finished tuning job! Total time: '+totalTime)
+          if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
+            bot.sendMessage('@ringer_tuning','Finished tuning job! Preproc time: '+preprocTime+', Total time: '+totalTime)
+          else:
+            bot.sendMessage('@ringer_tuning','Finished tuning job! Total time: '+totalTime)
 
       self._info('Finished tuning job!')
       import os
