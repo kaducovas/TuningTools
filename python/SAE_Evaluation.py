@@ -563,7 +563,7 @@ def print_metrics(metricsDict):
 def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=None,time=None,sort=None,etBinIdx=None,etaBinIdx=None,phase=None,points=None,fine_tuning=None,report=True):
   from sklearn.metrics         import f1_score, accuracy_score, roc_auc_score, precision_score, recall_score, mean_squared_error
   import dataset
-  db = dataset.connect('sqlite://///home/caducovas/run/ringerLoboc.db')
+  db = dataset.connect('sqlite://///scratch/22061a/caducovas/run/ringerLoboc.db')
   print float(mean_squared_error(labels, predictions)),  roc_auc_score(labels, predictions)
   mse_score = float(mean_squared_error(labels, predictions))
 
@@ -754,7 +754,7 @@ def create_simple_table(model_name,script_time):
   #from SAE_Evaluation import *
   from prettytable import PrettyTable
   import sqlite3
-  cnx=sqlite3.connect('//home/caducovas/run/ringerLoboc.db')
+  cnx=sqlite3.connect('//scratch/22061a/caducovas/run/ringerLoboc.db')
   #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
   df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, round(mse,4) as mse, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where id in (select id from (select max(sp) as maxsp,id from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
   df['Point'] = df['Point'].apply(lambda x: x.split('_')[-1])
@@ -1300,7 +1300,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   from scipy.stats import ks_2samp
   import dataset
   import math
-  db = dataset.connect('sqlite://///home/caducovas/run/ringerLoboc.db')
+  db = dataset.connect('sqlite://///scratch/22061a/caducovas/run/ringerLoboc.db')
   #print point.sp_value
   table = db['reconstruction_metrics']
   metrics = OrderedDict()

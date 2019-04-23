@@ -1204,14 +1204,10 @@ class TuningJob(Logger):
           "configuration."), ValueError)
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
-<<<<<<< HEAD
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level), StackedAutoEncoder(level=self.level,hidden_neurons=[64],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
-=======
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level)] )) #,
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level), #] )) #,
         #NLPCA(level = self.level, nlpcs=47, nmapping=71)] ))
 
-        #] )) #, StackedAutoEncoder(level=self.level,hidden_neurons=[31],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
->>>>>>> 1e9ebf16ecd660017609c1032272822a6e2e5c28
+        StackedAutoEncoder(level=self.level,hidden_neurons=[31],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
       # Now loop over ppFile and add it to our pp list:
       with PreProcArchieve(ppFile) as ppCol: pass
@@ -1842,7 +1838,7 @@ class TuningJob(Logger):
         self._info('File "%s" saved!', savedFile)
         #print(work_path+ppChain.shortName())
         bot = telepot.Bot('578139897:AAEJBs9F21TojbPoXM8SIJtHrckaBLZWkpo')
-        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 3):
+        if(len(os.listdir(outputDir+'/files/'+tuning_folder_name+'/')) == 12):
           print "SORTEEEE: "+str(sort)
           #remove temp file which stores starttime so that all the jobs have the same value
           os.remove(work_path+ppChain.shortName()+".txt")
