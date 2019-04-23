@@ -1880,6 +1880,7 @@ class TuningJob(Logger):
           bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
           bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
           bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='yes').get_string())
+          bot.sendMessage('@ringer_tuning',create_reconstruction_table_complete(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
 
           # if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
           #   png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
