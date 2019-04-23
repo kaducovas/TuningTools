@@ -1700,7 +1700,13 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         metrics['HAD3'] = None
         metrics['HAD'] = None
 
-      table.insert(metrics)
+      locked=1
+      while locked==1:
+        try:
+          table.insert(metrics)
+          locked=0
+        except:
+          time.sleep(10)
 
       metrics = OrderedDict()
       print "SIGNAL"
@@ -1996,7 +2002,13 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         metrics['HAD3'] = None
         metrics['HAD'] = None
 
-      table.insert(metrics)
+      locked=1
+      while locked==1:
+        try:
+          table.insert(metrics)
+          locked=0
+        except:
+          time.sleep(10)
 
       metrics = OrderedDict()
       print "BACKGROUND"
@@ -2290,7 +2302,13 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         metrics['HAD3'] = None
         metrics['HAD'] = None
 
-      table.insert(metrics)
+      locked=1
+      while locked==1:
+        try:
+          table.insert(metrics)
+          locked=0
+        except:
+          time.sleep(10)
   return metrics
 
 def get_reconstructionErrVector(data=None,reconstruct=None):
