@@ -749,6 +749,38 @@ def createClassifierTable(model_name,script_time,Point):
     x.add_row([k,trn[k],val[k]])
 
   return x
+  
+def create_reconstruction_table(model_name,script_time,normed='no'):
+  #from SAE_Evaluation import *
+  from prettytable import PrettyTable
+  import sqlite3
+  from decimal import Decimal
+  cnx=sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+  #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation'",cnx)
+  df = pd.read_sql_query("select measure, ETotal from reconstruction_metrics  where class= 'All' and normed = '"+normed+"' and model = '"+model_name[:-1]+"' and time = '"+script_time+"' order by Measure",cnx)
+  #df = pd.read_sql_query("select point,sort,100*round(sp,4) as sp, 100*round(pd,4) as pd, 100*round(pf,4) as pf, 100*round(f1,4) as f1, 100*round(auc,4) as auc, 100*round(precision,4) as precision,100*round(recall,4) as recall from classifiers where id in (select id from (select max(sp) as maxsp,id from classifiers where model = '"+model_name+"' and time = '"+script_time+"' and phase = 'Validation' group by Point,Model,HL_Neuron,time,sort,etBinIdx,etaBinIdx,phase,fine_tuning))",cnx)
+  #df['ETotal'] = df['ETotal'].apply(lambda x: '%.4E' % Decimal(x))
+  print df
+
+  a = df.groupby(['Measure']).agg({'ETotal':['mean','std']}).values
+  #df_values = np.round(a,2)
+  x = PrettyTable()
+  if normed=='yes':
+      strnorm='(Normed)'
+  else:
+      strnorm=''
+
+  x.field_names = ["Measure"+strnorm, "ETotal"]
+  x.add_row(['Correlation', str(np.format_float_scientific(a[0][0], precision=3))+' '+str(np.format_float_scientific(a[0][1], precision=3))])
+  x.add_row(['DeltaEnergy', str(np.format_float_scientific(a[1][0], precision=3))+' '+str(np.format_float_scientific(a[1][1], precision=3))])
+  x.add_row(['KLDiv', str(np.format_float_scientific(a[2][0], precision=3))+' '+str(np.format_float_scientific(a[2][1], precision=3))])
+  x.add_row(['MI', str(np.format_float_scientific(a[3][0], precision=3))+' '+str(np.format_float_scientific(a[3][1], precision=3))])
+  x.add_row(['MSE', str(np.format_float_scientific(a[4][0], precision=3))+' '+str(np.format_float_scientific(a[4][1], precision=3))])
+  x.add_row(['Norm DeltaEnergy', str(np.format_float_scientific(a[5][1], precision=3))+' '+str(np.format_float_scientific(a[5][1], precision=3))])
+  x.add_row(['Norm MI', str(np.format_float_scientific(a[6][0], precision=3))+' '+str(np.format_float_scientific(a[6][1], precision=3))])
+  x.add_row(['Wasserstein', str(np.format_float_scientific(a[7][0], precision=3))+' '+str(np.format_float_scientific(a[7][1], precision=3))])
+  x.add_row(['KS', str(np.format_float_scientific(a[8][0], precision=3))+' '+str(np.format_float_scientific(a[8][1], precision=3))])
+  return x
 
 def create_simple_table(model_name,script_time):
   #from SAE_Evaluation import *
