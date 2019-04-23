@@ -109,7 +109,7 @@ class NonLinPCA:
             # Train model
             init_trn_desc = model.fit(data, data,
                                       nb_epoch=train_info['n_epochs'],
-                                      batch_size=train_info['batch_size'],
+                                      batch_size= 512, #train_info['batch_size'],
                                       callbacks=[earlyStopping],
                                       verbose=train_info['train_verbose'],
                                       validation_data=(trgt,
