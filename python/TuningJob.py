@@ -1693,11 +1693,16 @@ class TuningJob(Logger):
                   #keras
                   print 'Deepff will be execute using keras and the original inputs after normalization. Is that what you expect???'
                   if f_tuning:
+                      fine='_CLFT_'
+                  else:
+                      fine=''
+                  tb_name = ppChain.shortName()+fine+'_HL_'+str(neuron)+'_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)
+                  if f_tuning:
                     tuningWrapper.deepff([nInputs,neuron,1],hidden_neurons,layers_weights,layers_config)
                   else:
                     tuningWrapper.deepff2([nInputs, neuron,1])
                   #tuningWrapper.newff([nInputs, neuron,1])
-                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep()
+                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep(work_path+'files/'+tuning_folder_name,tb_name)
                   #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
                 else:
                   tuningWrapper.newff([nInputs, neuron,1])

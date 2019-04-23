@@ -639,6 +639,7 @@ class TuningWrapper(Logger):
       # keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
       self._model = model
       self._historyCallback.model = model
+      print model.summary()
 
   def concatff(self, nodes,empath,hadpath):
     """
@@ -964,7 +965,7 @@ class TuningWrapper(Logger):
     return tunedDiscrList, tuningInfo
   # end of trainC_Exp
 
-  def trainC_Deep( self ):
+  def trainC_Deep( self, fname=None, short_name=None  ):
     """
       Train expert feedforward neural network
     """
@@ -994,6 +995,11 @@ class TuningWrapper(Logger):
       #                 'benchmark' : None }
       ##########################################################
       ##APAGAR
+      import keras
+      nbatch_size = 2048 #self.batchSize
+
+      checkpoints = keras.callbacks.ModelCheckpoint(fname+'/models/'+short_name+'.h5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+
       print 'WRAPPER DDMF'
       print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
       print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
@@ -1004,11 +1010,13 @@ class TuningWrapper(Logger):
                                     , epochs          = self.trainOptions['nEpochs']
                                     , batch_size      = 1024 #self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
-                                    , callbacks       = [self._earlyStopping]
+                                    , callbacks       = [self._earlyStopping, checkpoints]
                                     , verbose         = 1
                                     , validation_data = ( self._valData , self._valTarget )
                                     , shuffle         = self.trainOptions['shuffle']
                                     )
+      from keras.models import load_model
+      self._model = load_model(fname+'/models/'+short_name+'.h5')
 
       rawDictTempl = { 'discriminator': None,
                        'benchmark': None }
@@ -1460,5 +1468,3 @@ class TuningWrapper(Logger):
       patterns.append( data[ npCurrent.access( pidx=':', oidx=np.where(target==classTarget)[0]) ] )
       self._debug('Separated pattern %d shape is %r', idx, patterns[idx].shape)
     return patterns
-
-

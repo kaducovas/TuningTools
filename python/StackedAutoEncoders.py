@@ -389,15 +389,15 @@ class StackedAutoEncoders:
 
             # Train model
             earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
-                                                    patience=self.trn_params.params['patience'],
+                                                    patience= 5, #self.trn_params.params['patience'],
                                                     verbose=self.trn_params.params['train_verbose'],
                                                     mode='auto')
 
             init_trn_desc = model.fit(data, data,
                                       nb_epoch=self.trn_params.params['n_epochs'],
-                                      batch_size=self.trn_params.params['batch_size'],
+                                      batch_size= 1024, #self.trn_params.params['batch_size'],
                                       callbacks=[earlyStopping],
-                                      verbose=2, #self.trn_params.params['verbose'],
+                                      verbose=1, #self.trn_params.params['verbose'],
                                       validation_data=(trgt,
                                                        trgt))
             if np.min(init_trn_desc.history['val_loss']) < best_loss:
