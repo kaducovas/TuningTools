@@ -1205,8 +1205,8 @@ class TuningJob(Logger):
     ppFile    = retrieve_kw(kw, 'ppFile', None )
     if not ppFile:
       ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level),
-        #NLPCA(level = self.level, nlpcs=47, nmapping=71)] ))
-        PCA(level = self.level, energy = 70)] ))
+        NLPCA(level = self.level, nlpcs=47, nmapping=71)] ))
+        #PCA(level = self.level, energy = 70)] ))
 
         #StackedAutoEncoder(level=self.level,hidden_neurons=[31],aetype='vanilla')] )) #,MapStd(level=self.level)] )) #StackedAutoEncoder(level=self.level,hidden_neurons=[80])] )) #  ,StackedAutoEncoder(level = self.level,hidden_neurons=[4], caltype='hadcalo'),StackedAutoEncoder(level = self.level,hidden_neurons=[2],caltype='hadcalo')] )) #,StackedAutoEncoder(level = self.level,hidden_neurons=[60]),StackedAutoEncoder(level = self.level,hidden_neurons=[50]),StackedAutoEncoder(level = self.level,hidden_neurons=[40]),StackedAutoEncoder(level = self.level,hidden_neurons=[30]),StackedAutoEncoder(level=self.level,hidden_neurons=[20])] )) #,StackedAutoEncoder(level=self.level,hidden_neurons=[16]),StackedAutoEncoder(level=self.level,hidden_neurons=[14]),StackedAutoEncoder(level=self.level,hidden_neurons=[12]),StackedAutoEncoder(level=self.level,hidden_neurons=[10])])) #] )) #Norm1(level = self.level) ) )
     else:
