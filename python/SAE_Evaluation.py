@@ -1364,6 +1364,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   from scipy.stats import ks_2samp
   import dataset
   import math
+  import time as tm
   db = dataset.connect('sqlite://///scratch/22061a/caducovas/run/ringerLoboc.db')
   #print point.sp_value
   table = db['reconstruction_metrics']
@@ -1706,7 +1707,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           table.insert(metrics)
           locked=0
         except:
-          time.sleep(10)
+          tm.sleep(10)
 
       metrics = OrderedDict()
       print "SIGNAL"
@@ -2008,7 +2009,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           table.insert(metrics)
           locked=0
         except:
-          time.sleep(10)
+          tm.sleep(10)
 
       metrics = OrderedDict()
       print "BACKGROUND"
@@ -2308,7 +2309,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           table.insert(metrics)
           locked=0
         except:
-          time.sleep(10)
+          tm.sleep(10)
   return metrics
 
 def get_reconstructionErrVector(data=None,reconstruct=None):
