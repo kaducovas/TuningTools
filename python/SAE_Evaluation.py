@@ -573,8 +573,13 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   for refName,point in points:
     data = OrderedDict()
     print len(predictions)
-    predictions[predictions >= point.thres_value] = 1
-    predictions[predictions < point.thres_value] = -1
+    if 'log_reg' in model_name:
+      predictions[predictions >= point.thres_value] = 1
+      predictions[predictions < point.thres_value] = 0
+    else:
+      predictions[predictions >= point.thres_value] = 1
+      predictions[predictions < point.thres_value] = -1
+
     print 'debugging report_performance????'
     #print labels
     #print predictions

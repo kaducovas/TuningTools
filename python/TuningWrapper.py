@@ -1134,6 +1134,10 @@ def trainC_Models( self ):
   print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
   print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
   print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
+
+  self._valTarget[self._valTarget == -1] = 0
+  self._trnTarget[self._trnTarget == -1] = 0
+
   ########################################################
   #history = self._model.fit( self._trnData
   #                        , self._trnTarget
