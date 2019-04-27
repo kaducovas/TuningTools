@@ -1207,9 +1207,9 @@ class TuningJob(Logger):
     if not ppFile:
       #PCA(level = self.level, energy = 21)] ))
       #NLPCA(level = self.level, nlpcs=21, nmapping=51)] ))
-      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level ) #] )) #,
+      ppCol = kw.pop( 'ppCol', PreProcChain( [Norm1(level = self.level ) ] )) #,
          #,NLPCA(level = self.level, nlpcs=47, nmapping=71)] ))
-         ,PCA(level = self.level, energy = 70)] )) #,
+         #,PCA(level = self.level, energy = 70)] )) #,
 
          #StackedAutoEncoder(level=self.level,hidden_neurons=[47],aetype='vanilla')] )) #,
          #StackedAutoEncoder(level=self.level,hidden_neurons=[60],aetype='vanilla'),
@@ -1718,7 +1718,7 @@ class TuningJob(Logger):
                     tuningWrapper.deepff2([nInputs, neuron,1])
                   #tuningWrapper.newff([nInputs, neuron,1])
                   cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep(work_path+'files/'+tuning_folder_name,tb_name)
-                  #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
+                  #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning,refName = tuningWrapper.trainC_Models()
                 else:
                   tuningWrapper.newff([nInputs, neuron,1])
                   cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.train_c()
