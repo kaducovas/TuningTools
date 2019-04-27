@@ -1635,10 +1635,10 @@ class TuningJob(Logger):
 
 
 
-            ateaqui=time.time()
-            import datetime as dt
-            preprocTime = str(dt.timedelta(seconds=(ateaqui - comecou)))
-            print "PreProc took: "+preprocTime
+          ateaqui=time.time()
+          import datetime as dt
+          preprocTime = str(dt.timedelta(seconds=(ateaqui - comecou)))
+          print "PreProc took: "+preprocTime
 
 
           ###self._info(hidden_neurons)
