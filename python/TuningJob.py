@@ -1717,8 +1717,8 @@ class TuningJob(Logger):
                   else:
                     tuningWrapper.deepff2([nInputs, neuron,1])
                   #tuningWrapper.newff([nInputs, neuron,1])
-                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep(work_path+'files/'+tuning_folder_name,tb_name)
-                  #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning,refName = tuningWrapper.trainC_Models()
+                  #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep(work_path+'files/'+tuning_folder_name,tb_name)
+                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning,refName = tuningWrapper.trainC_Models()
                 else:
                   tuningWrapper.newff([nInputs, neuron,1])
                   cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.train_c()
@@ -1878,9 +1878,10 @@ class TuningJob(Logger):
         #f.close()
 
           bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
-          bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
-          bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='yes').get_string())
-          bot.sendMessage('@ringer_tuning',create_reconstruction_table_complete(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
+          if('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName()) and 'std' not in str(ppChain.shortName())):
+              bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
+              bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='yes').get_string())
+              bot.sendMessage('@ringer_tuning',create_reconstruction_table_complete(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
 
           # if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
           #   png_files=plot_AE_training(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,work_path+'files/'+tuning_folder_name+'/')
