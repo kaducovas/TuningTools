@@ -1598,7 +1598,7 @@ class TuningJob(Logger):
                 hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
 
-          if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
+          if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName()) and False):
             print 'RECONS',reconstruct.keys()
             time.sleep(int(2*int(sort)))
             #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
@@ -1865,9 +1865,9 @@ class TuningJob(Logger):
         #bot.sendDocument('@ringer_tuning',f)
         #f.close()
           bot.sendMessage('@ringer_tuning',create_simple_table(ppChain.shortName()+"_"+mname,startTime).get_string())
-          bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
-          bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName()+"_"+mname,startTime,normed='yes').get_string())
-          bot.sendMessage('@ringer_tuning',create_reconstruction_table_complete(ppChain.shortName()+"_"+mname,startTime,normed='no').get_string())
+          #bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName(),startTime,normed='no').get_string())
+          #bot.sendMessage('@ringer_tuning',create_reconstruction_table(ppChain.shortName(),startTime,normed='yes').get_string())
+          #bot.sendMessage('@ringer_tuning',create_reconstruction_table_complete(ppChain.shortName(),startTime,normed='no').get_string())
 
 
           # if('AE' in str(ppChain.shortName()) and ('LSTM' not in str(ppChain.shortName()) and 'GRU' not in str(ppChain.shortName()))):
