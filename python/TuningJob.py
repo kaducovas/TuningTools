@@ -1705,8 +1705,8 @@ class TuningJob(Logger):
                   else:
                     tuningWrapper.deepff2([nInputs, neuron,1])
                   #tuningWrapper.newff([nInputs, neuron,1])
-                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep(work_path+'files/'+tuning_folder_name,tb_name)
-                  #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning = tuningWrapper.trainC_Models()
+                  #cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.trainC_Deep(work_path+'files/'+tuning_folder_name,tb_name)
+                  cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,mname,fine_tuning,refName = tuningWrapper.trainC_Models()
                 else:
                   tuningWrapper.newff([nInputs, neuron,1])
                   cTunedDiscr, cTuningInfo,modelHistory,dlModel,valTarget,valOutput,trnTarget,trnOutput,opPoint,tstPoint,fine_tuning,refName = tuningWrapper.train_c()

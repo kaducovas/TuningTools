@@ -1097,140 +1097,148 @@ class TuningWrapper(Logger):
     return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoints,tstPoints,self._fine_tuning,refName
   # end of trainC_Deep
 
-  def trainC_Models( self ):
-    """
-      Train expert feedforward neural network
-    """
-    if coreConf() is TuningToolCores.ExMachina:
+def trainC_Models( self ):
+  """
+   Train expert feedforward neural network
+  """
+  if coreConf() is TuningToolCores.ExMachina:
       self._fatal( "Expert Neural Networks not implemented for ExMachina" )
-    elif coreConf() is TuningToolCores.FastNet:
+  elif coreConf() is TuningToolCores.FastNet:
       self._fatal( "Expert Neural Networks not implemented for FastNet" )
-    elif coreConf() is TuningToolCores.keras:
+  elif coreConf() is TuningToolCores.keras:
       from copy import deepcopy
 
-      # Set batch size:
-      if self.batchMethod is BatchSizeMethod.MinClassSize:
-        self.__batchSize( self._bkgSize if self._sgnSize > self._bkgSize else self._sgnSize )
-      elif self.batchMethod is BatchSizeMethod.HalfSizeSignalClass:
-        self.__batchSize( self._sgnSize // 2 )
-      elif self.batchMethod is BatchSizeMethod.OneSample:
-        self.__batchSize( 1 )
+  #Set batch size:
+  if self.batchMethod is BatchSizeMethod.MinClassSize:
+      self.__batchSize( self._bkgSize if self._sgnSize > self._bkgSize else self._sgnSize )
+  elif self.batchMethod is BatchSizeMethod.HalfSizeSignalClass:
+      self.__batchSize( self._sgnSize // 2 )
+  elif self.batchMethod is BatchSizeMethod.OneSample:
+      self.__batchSize( 1 )
 
-      #references = ['SP','Pd','Pf']
+  #references = ['SP','Pd','Pf']
 
-      # Holder of the discriminators:
-      tunedDiscrList = []
-      tuningInfo = {}
+  # Holder of the discriminators:
+  tunedDiscrList = []
+  tuningInfo = {}
 
-      import sys
-      sys.path.insert(0,'/home/users/caducovas/COC800_DataMining')
-      from analysis_functions import gaussian_naive_bayes,log_reg,perceptron,nearest_neighbours,decision_tree,random_forest, ada_boost,linear_discriminant_analysis,quadratic_discriminant_analysis,svm,linear_svm
-      #for idx, ref in enumerate(references):
-      #rawDictTempl = { 'discriminator' : None,
-      #                 'benchmark' : None }
-      ##########################################################
-      ##APAGAR
-      print 'WRAPPER DDMF'
-      print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
-      print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
-      print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
-      ########################################################
-      #history = self._model.fit( self._trnData
-      #                              , self._trnTarget
-      #                              , epochs          = self.trainOptions['nEpochs']
-      #                              , batch_size      = self.batchSize
-      #                              #, callbacks       = [self._historyCallback, self._earlyStopping]
-      #                              , callbacks       = [self._earlyStopping]
-      #                              , verbose         = 2
-      #                              , validation_data = ( self._valData , self._valTarget )
-      #                              , shuffle         = self.trainOptions['shuffle']
-      #                              )
-      predTest,predTrain,self._model = log_reg(self._trnData,self._trnTarget,self._valData,self._valTarget,compute_threshold=False)
-      mname="log_reg"
-      history = self._model
-      rawDictTempl = { 'discriminator': None,
-                       'benchmark': None }
-      for idx,ref in enumerate(self.references):
-        print self.references[idx]
-        # Retrieve raw network
-        rawDictTempl['discriminator'] = None #self.__discr_to_dict( self._model )
-        rawDictTempl['benchmark'] = self.references[idx]
-        tunedDiscrList.append( deepcopy( rawDictTempl ) )
-      tuningInfo = None #DataTrainEvolution( history ).toRawObj()
+  import sys
+  sys.path.insert(0,'/home/users/caducovas/COC800_DataMining')
+  from analysis_functions import gaussian_naive_bayes,log_reg,perceptron,nearest_neighbours,decision_tree,random_forest, ada_boost,linear_discriminant_analysis,quadratic_discriminant_analysis,svm,linear_svm
+  #for idx, ref in enumerate(references):
+  #rawDictTempl = { 'discriminator' : None,
+  #              'benchmark' : None }
+  ##########################################################
+  ##APAGAR
+  print 'WRAPPER DDMF'
+  print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
+  print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
+  print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
+  ########################################################
+  #history = self._model.fit( self._trnData
+  #                        , self._trnTarget
+  #                        , epochs       = self.trainOptions['nEpochs']
+  #                        , batch_size      = self.batchSize
+  #                        #, callbacks    = [self._historyCallback, self._earlyStopping]
+  #                        , callbacks    = [self._earlyStopping]
+  #                        , verbose      = 2
+  #                        , validation_data = ( self._valData , self._valTarget )
+  #                        , shuffle      = self.trainOptions['shuffle']
+  #                        )
+  predTest,predTrain,self._model = log_reg(self._trnData,self._trnTarget,self._valData,self._valTarget,compute_threshold=False)
+  mname="log_reg"
+  history = self._model
+  rawDictTempl = { 'discriminator': None,
+                'benchmark': None }
+  for idx,ref in enumerate(self.references):
+    print self.references[idx]
+    # Retrieve raw network
+    rawDictTempl['discriminator'] = None #self.__discr_to_dict( self._model )
+    rawDictTempl['benchmark'] = self.references[idx]
+    tunedDiscrList.append( deepcopy( rawDictTempl ) )
+  tuningInfo = None #DataTrainEvolution( history ).toRawObj()
 
-      try:
-        from sklearn.metrics import roc_curve
-      except ImportError:
-        # FIXME Can use previous function that we used here as an alternative
-        raise ImportError("sklearn is not available, please install it.")
+  try:
+    from sklearn.metrics import roc_curve
+  except ImportError:
+    # FIXME Can use previous function that we used here as an alternative
+    raise ImportError("sklearn is not available, please install it.")
 
-      # Retrieve performance:
-      opRoc, tstRoc = Roc(), Roc()
-      for idx, tunedDiscrDict in enumerate(tunedDiscrList):
-        discr = tunedDiscrDict['discriminator']
-        if self.doPerf:
-          self._debug('Retrieving performance...')
-          # propagate inputs:
-          trnOutput = self._model.predict_proba(self._trnData)[:,1]
-          valOutput = self._model.predict_proba(self._valData)
-          tstOutput = self._model.predict_proba(self._tstData)[:,1] #if self._tstData else npCurrent.fp_array([])
-          print 'classes', self._model.classes_
-          print valOutput[:,0],valOutput[:,1]
-          #try:
-          #  allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
-          #  allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
-          #except ValueError:
-          #  allOutput = np.concatenate([trnOutput,valOutput] )
-          #  allTarget = np.concatenate([self._trnTarget,self._valTarget] )
+  # Retrieve performance:
+  opRoc, tstRoc = Roc(), Roc()
+  for idx, tunedDiscrDict in enumerate(tunedDiscrList):
+    opPoints=[]
+    tstPoints=[]
+    refName=[]
+    discr = tunedDiscrDict['discriminator']
+    if self.doPerf:
+      self._debug('Retrieving performance...')
+      # propagate inputs:
+      trnOutput = self._model.predict_proba(self._trnData)[:,1]
+      valOutput = self._model.predict_proba(self._valData)[:,1]
+      tstOutput = self._model.predict_proba(self._tstData)[:,1] if self._tstData else npCurrent.fp_array([])
+      print 'classes', self._model.classes_
 
-          allOutput = np.concatenate([trnOutput,valOutput] )
-          allTarget = np.concatenate([self._trnTarget,self._valTarget] )
-          # Retrieve Rocs:
-          #opRoc(valOutput,self._valTarget) #opRoc( allOutput, allTarget )
+      print trnOutput.shape, valOutput.shape, tstOutput.shape #valOutput[:,0],valOutput[:,1]
+      #try:
+      #  allOutput = np.concatenate([trnOutput,valOutput,tstOutput] )
+      #  allTarget = np.concatenate([self._trnTarget,self._valTarget, self._tstTarget] )
+      #except ValueError:
+      #  allOutput = np.concatenate([trnOutput,valOutput] )
+      #  allTarget = np.concatenate([self._trnTarget,self._valTarget] )
 
-          from sklearn.metrics import roc_curve
-          pfs,pds,ths = roc_curve(allTarget,allOutput,pos_label=1,drop_intermediate=False)
-          print ths,len(ths),len(allTarget),len(allOutput)
+      allOutput = np.concatenate([trnOutput,valOutput] )
+      allTarget = np.concatenate([self._trnTarget,self._valTarget] )
+      # Retrieve Rocs:
+      #opRoc(valOutput,self._valTarget) #opRoc( allOutput, allTarget )
 
-          print trnOutput.shape,valOutput.shape,self._trnTarget.shape,self._valTarget.shape
-          print allOutput.shape, allTarget.shape
+      from sklearn.metrics import roc_curve
+      pfs,pds,ths = roc_curve(allTarget,allOutput,pos_label=1,drop_intermediate=False)
+      print ths,len(ths),len(allTarget),len(allOutput)
 
-          opRoc( allOutput, allTarget )
-          #if self._tstData: tstRoc( tstOutput, self._tstTarget )
-          tstRoc( tstOutput, self._tstTarget )
-          #else: tstRoc( valOutput, self._valTarget )
-          # Add rocs to output information
-          # TODO Change this to raw object
-          tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
-                                            'roc_test' : tstRoc.toRawObj() }
+      print trnOutput.shape,valOutput.shape,self._trnTarget.shape,self._valTarget.shape
+      print allOutput.shape, allTarget.shape
 
-          for ref2 in self.references:
-            opPoint = opRoc.retrieve( ref2 )
-            tstPoint = tstRoc.retrieve( ref2 )
-            # Print information:
-            self._info( 'Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
-                      , ref2.name
-                      , opPoint.sp_value
-                      , opPoint.pd_value
-                      , opPoint.pf_value
-                      , opPoint.thres_value )
-            self._info( 'Test (%s): sp = %f, pd = %f, pf = %f, thres = %f'
-                      , ref2.name
-                      , tstPoint.sp_value
-                      , tstPoint.pd_value
-                      , tstPoint.pf_value
-                      , tstPoint.thres_value )
-      self._info("Finished trainC_Deep")
-    print self.references[0]
-    opPoint=opRoc.retrieve(self.references[0])
-    tstPoint=tstRoc.retrieve(self.references[0])
-    self._debug("Finished trainC_Deep on python side.")
+      opRoc( allOutput, allTarget )
+      if self._tstData: tstRoc( tstOutput, self._tstTarget )
+      #tstRoc( tstOutput, self._tstTarget )
+      else: tstRoc( valOutput, self._valTarget )
+      # Add rocs to output information
+      # TODO Change this to raw object
+      tunedDiscrDict['summaryInfo'] = { 'roc_operation' : opRoc.toRawObj(),
+                                  'roc_test' : tstRoc.toRawObj() }
 
-    #import dataset
-    #db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
-    #table= db['roc'] =
-    return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoint,tstPoint,mname,self._fine_tuning
-  # end of trainC_Deep
+      for ref2 in self.references:
+        opPoint = opRoc.retrieve( ref2 )
+        tstPoint = tstRoc.retrieve( ref2 )
+
+        opPoints.append([ref2.name,opPoint])
+        tstPoints.append([ref2.name,tstPoint])
+        refName.append(ref2.name)
+        # Print information:
+        self._info( 'Operation (%s): sp = %f, pd = %f, pf = %f, thres = %f'
+               , ref2.name
+               , opPoint.sp_value
+               , opPoint.pd_value
+               , opPoint.pf_value
+               , opPoint.thres_value )
+        self._info( 'Test (%s): sp = %f, pd = %f, pf = %f, thres = %f'
+               , ref2.name
+               , tstPoint.sp_value
+               , tstPoint.pd_value
+               , tstPoint.pf_value
+               , tstPoint.thres_value )
+  self._info("Finished trainC_Deep")
+  print self.references[0]
+  opPoint=opRoc.retrieve(self.references[0])
+  tstPoint=tstRoc.retrieve(self.references[0])
+  self._debug("Finished trainC_Deep on python side.")
+  #import dataset
+  #db = dataset.connect('sqlite:////scratch/22061a/caducovas/run/mydatabase.db')
+  #table= db['roc'] =
+  print type(opPoint),type(tstPoint)
+  return tunedDiscrList, tuningInfo, history,self._model,self._valTarget,valOutput,self._trnTarget,trnOutput,opPoints,tstPoints,mname,self._fine_tuning,refName
+ # end of trainC_Deep
 
   def trainC_Deep_concat( self ):
     """
