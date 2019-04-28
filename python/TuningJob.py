@@ -1598,40 +1598,45 @@ class TuningJob(Logger):
                 hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
           gargalo=int(trnData[0].shape[1])
+          reconstruct_gargalo={}
+          for key,value in reconstruct.items():
+            if key == gargalo:
+              reconstruct_gargalo[key]=value
+
           if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
             print 'RECONS',reconstruct.keys()
             time.sleep(int(2*int(sort)))
             #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
             print 'Delta Energy'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='DeltaEnergy',Normed=True)
             print 'Normalized_DeltaEnergy'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_DeltaEnergy',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_DeltaEnergy',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_DeltaEnergy',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_DeltaEnergy',Normed=True)
             print 'Wasserstein'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Wasserstein',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Wasserstein',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Wasserstein',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Wasserstein',Normed=True)
             print 'kolmogorov-smirnov'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='kolmogorov-smirnov',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='kolmogorov-smirnov',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='kolmogorov-smirnov',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='kolmogorov-smirnov',Normed=True)
             print 'Normalized MI'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_MI',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_MI',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_MI',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Normalized_MI',Normed=True)
             print 'MI'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MI',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MI',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MI',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MI',Normed=True)
             print 'KL Div'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='KLdiv',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='KLdiv',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='KLdiv',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='KLdiv',Normed=True)
             #print 'ChiSquared'
-            #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=False)
-            #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=True)
+            #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=False)
+            #reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='chiSquared',Normed=True)
             print 'correlation'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Correlation',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Correlation',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Correlation',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='Correlation',Normed=True)
             print 'MSE'
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MSE',Normed=False)
-            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct[gargalo],model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MSE',Normed=True)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MSE',Normed=False)
+            reconstruct_performance(norm1Par=norm1Par,reconstruct=reconstruct_gargalo,model_name=ppChain.shortName(),time=startTime,sort=sort,etBinIdx=etBinIdx,etaBinIdx=etaBinIdx,phase='Validation',lstm_target=target,measure='MSE',Normed=True)
 
 
 
