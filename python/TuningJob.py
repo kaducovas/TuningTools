@@ -1597,7 +1597,7 @@ class TuningJob(Logger):
                 self._debug('Done tuning pre-processing chain in new dataset including reconstruction error!')
                 hidden_neurons,layers_weights,layers_config = ppChain.getHiddenLayer()
 
-          gargalo=int(trnData.shape[1])
+          gargalo=int(trnData[0].shape[1])
           if (('PCA' in str(ppChain.shortName()) or 'AE' in str(ppChain.shortName())) and 'std' not in str(ppChain.shortName())):
             print 'RECONS',reconstruct.keys()
             time.sleep(int(2*int(sort)))
