@@ -1064,6 +1064,7 @@ def getReconstruct(fname,data,sort):
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
       first_layer = [k for k in list(enc_model.keys()) if str(data[0].shape[1])+'x' in k][0]
       model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=data[0].shape[1], weights=enc_model[first_layer]))
+      model.add(Activation('tanh'))
 
       if(nlayers >1):
         ## Add encoders
@@ -1078,6 +1079,7 @@ def getReconstruct(fname,data,sort):
         model.add(Dense(neuron, weights=dec_model[layer]))
         model.add(Activation('tanh'))
 
+      model.pop()
       print model.summary()
       model.compile('adam','mse')
 
@@ -1167,6 +1169,7 @@ def getCode(fname,norm1Par,sort):
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
       first_layer = [k for k in list(enc_model.keys()) if str(norm1Par[2][0].shape[1])+'x' in k][0]
       model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=norm1Par[2][0].shape[1], weights=enc_model[first_layer]))
+      model.add(Activation('tanh'))
 
       if(nlayers >1):
         ## Add encoders
