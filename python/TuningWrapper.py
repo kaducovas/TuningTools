@@ -619,24 +619,24 @@ class TuningWrapper(Logger):
       self._fine_tuning= 'no'
       self._info("Using Keras")
       model = Sequential()
-      # model.add( Dense( nodes[0]
-      #                   , input_dim=nodes[0]
-      #                   , init='identity'
-      #                   , trainable=False
-      #                   , name='dense_last_hl' ) )
-      # model.add( Activation('linear') )
+      model.add( Dense( nodes[0]
+                        , input_dim=nodes[0]
+                        , init='identity'
+                        , trainable=False
+                        , name='dense_last_hl' ) )
+      model.add( Activation('linear') )
       #model.add( Dense( 20 , input_dim=nodes[0] , init='uniform' ) )
       #model.add( Activation('tanh') )
 
-      model.add( Dense( 5 #nodes[1]
-                        , input_dim=nodes[0]
-                        , init='uniform'
-                        , name='dense_last_hl' ) )
-      model.add( Activation('tanh') )
+      # model.add( Dense( 5 #nodes[1]
+                        # , input_dim=nodes[0]
+                        # , init='uniform'
+                        # , name='dense_last_hl' ) )
+      # model.add( Activation('tanh', name='Activation_last_hl'))
 
       #model.add(Dropout(0.5))
       model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
-      model.add( Activation('tanh') )
+      model.add( Activation('tanh',name='Activation_output'))
       model.compile( loss=self.trainOptions['costFunction']
                        , optimizer = self.trainOptions['optmin_alg']
                        , metrics = self.trainOptions['metrics'] )
@@ -1025,7 +1025,7 @@ class TuningWrapper(Logger):
                                     , epochs          = self.trainOptions['nEpochs']
                                     , batch_size      = nbatch_size #1024 #self.batchSize
                                     #, callbacks       = [self._historyCallback, self._earlyStopping]
-                                    , callbacks       = [self._earlyStopping, tbCallBack, checkpoints]
+                                    , callbacks       = [self._earlyStopping, checkpoints]
                                     #, callbacks       = [self._earlyStopping]
                                     , verbose         = 1
                                     , validation_data = ( self._valData , self._valTarget )
@@ -1165,6 +1165,11 @@ class TuningWrapper(Logger):
     print 'WRAPPER DDMF'
     print type(self._trnData), type(self._trnTarget), type(self._valData), type(self._valTarget), type(self._tstData), type(self._tstTarget)
     print self._trnData.shape, self._trnTarget.shape, self._valData.shape, self._valTarget.shape, self._tstData.shape, self._tstTarget.shape
+    print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
+
+    self._valTarget[self._valTarget==-1] = 0
+    self._trnTarget[self._trnTarget==-1] = 0
+
     print np.unique(self._trnTarget), np.unique(self._valTarget), np.unique(self._tstTarget)
     ########################################################
     #history = self._model.fit( self._trnData

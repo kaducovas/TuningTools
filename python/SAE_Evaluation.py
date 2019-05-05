@@ -575,8 +575,13 @@ def report_performance(labels, predictions, elapsed=0, model_name="",hl_neuron=N
   for refName,point in points:
     data = OrderedDict()
     print len(predictions)
-    predictions[predictions >= point.thres_value] = 1
-    predictions[predictions < point.thres_value] = -1
+    if 'log_reg' in model_name:
+      predictions[predictions >= point.thres_value] = 1
+      predictions[predictions < point.thres_value] = 0
+    else:
+      predictions[predictions >= point.thres_value] = 1
+      predictions[predictions < point.thres_value] = -1
+
     print 'debugging report_performance????'
     #print labels
     #print predictions
@@ -1061,6 +1066,7 @@ def getReconstruct(fname,data,sort):
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
       first_layer = [k for k in list(enc_model.keys()) if str(data[0].shape[1])+'x' in k][0]
       model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=data[0].shape[1], weights=enc_model[first_layer]))
+      model.add(Activation('tanh'))
 
       if(nlayers >1):
         ## Add encoders
@@ -1075,6 +1081,7 @@ def getReconstruct(fname,data,sort):
         model.add(Dense(neuron, weights=dec_model[layer]))
         model.add(Activation('tanh'))
 
+      model.pop()
       print model.summary()
       model.compile('adam','mse')
 
@@ -1164,7 +1171,7 @@ def getCode(fname,norm1Par,sort):
       print "just to make sure it is the first key "+list(enc_model.keys())[0]
       first_layer = [k for k in list(enc_model.keys()) if str(norm1Par[2][0].shape[1])+'x' in k][0]
       model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=norm1Par[2][0].shape[1], weights=enc_model[first_layer]))
-
+      model.add(Activation('tanh'))
       if(nlayers >1):
         ## Add encoders
         for layer in layers_list[1:]:
@@ -1203,6 +1210,134 @@ def getCode(fname,norm1Par,sort):
   return code
   #if K.backend() == 'tensorflow':
   #    K.clear_session()
+
+def getReconstructFT(fname,data,sort,etBinIdx,etaBinIdx,bottleneck):
+  #from SAE_Evaluation import *
+
+  predict_data = {}
+  reconstruct = OrderedDict()
+
+  model = load_model(fname+'/models/fine_tuned_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'.h5')
+
+  afternorm = data
+  print type(afternorm)
+  print len(afternorm)
+  if isinstance(afternorm, (tuple, list,)):
+    predict = []
+    for i, cdata in enumerate(afternorm):
+      print i,cdata.shape
+      model_predict = model.predict(cdata, batch_size=cdata.shape[0], verbose=2)
+      print 'what now?'
+      predict.append(model_predict)
+  print 'Predictions Done'
+
+  reconstruct[bottleneck] = predict
+      #print predict[0].shape,predict[1].shape
+  return reconstruct
+
+def getCodeFT(fname,data,sort,etBinIdx,etaBinIdx,bottleneck):
+    #from SAE_Evaluation import *
+
+    predict_data = {}
+    code = OrderedDict()
+
+    model = load_model(fname+'/models/fine_tuned_sort_'+str(sort)+'_et_'+str(etBinIdx)+'_eta_'+str(etaBinIdx)+'.h5')
+    encoderLayerNum= int((float(len(model.layers))/2)-1)
+    if isinstance(data, (tuple, list,)):
+      predict = []
+      for cdata in data:
+        #self._info(cdata.shape)
+        get_layer_output = K.function([model.layers[0].input],
+                                    [model.layers[encoderLayerNum].output])
+        # Projection of layer
+        proj_all_data = get_layer_output([cdata])[0]
+
+        predict.append(proj_all_data)
+    print 'Predictions Done'
+
+    code[bottleneck] = predict
+        #print predict[0].shape,predict[1].shape
+    return code
+  #if K.backend() == 'tensorflow':
+  #    K.clear_session()
+
+def getSAE_Model(fname,data,sort):
+  #from SAE_Evaluation import *
+
+
+  modelo={}
+  enc_model={}
+  dec_model={}
+
+  #if K.backend() == 'tensorflow':
+  #    K.clear_session()
+
+  with open(fname) as f:
+    content = f.readlines()
+  f.close()
+  layers_list =[(f.split('/')[-1].split('_')[24],f.split('/')[-1].split('_')[33]) for f in content]
+  #layers_list =[f.split('/')[-1].split('_')[24] for f in content]
+  layers,layers_numbers=[x for x,y in sorted(list(set(layers_list)),cmp=layer2number2)],[y for x,y in sorted(list(set(layers_list)),cmp=layer2number2)]
+  #layers=sorted(list(set(layers_list)),cmp=layer2number2)
+  print layers,layers_numbers
+  #dirin='/home/caducovas/DeepRinger/data/run_layer1/adam_80/'
+  #layers = ['100x80','80x60','60x40','40x10']
+  #nsorts=10
+
+  #for i in [len(layers)]:
+  #for i in range(len(layers)):
+  nlayers=len(layers)
+  layers_list=layers #[:nlayers]
+  #print range(len(layers)),nlayers,layers_list
+  predict_data = {} ##predict data junta os sortes
+  #for isort in range(nsorts):
+  for isort in [sort]:
+    enc_model={}
+    dec_model={}
+    print "Sort: "+str(isort)
+    #Itera sobre os layers para adquirir o encoder e o decoder
+    for iLayer,layer in enumerate(layers_list): #Different archtectures (each time one more autoencoder)
+      #print "Reading files of: "+layer
+      neuron = int(layer.split('x')[1])
+      files = [f for f in content if (f.split('/')[-1].split('_')[24] == layer and f.split('/')[-1].split('_')[27] == str(isort) and f.split('/')[-1].split('_')[33] == layers_numbers[iLayer])]
+      ifile=files[0]
+      #print ifile
+      custom_obj={}
+      if 'CAE' in fname:
+        from TuningTools.MetricsLosses import contractive_loss
+        par_list=ifile.split('/')[-1].split('_')
+        custom_obj['contractive_loss']=contractive_loss(int(par_list[24].split('x')[1]),int(par_list[24].split('x')[0]),par_list[10],par_list[13])
+        modelo = load_model(ifile.replace('\n','')+'_model.h5',custom_objects=custom_obj)
+      else:
+        modelo = load_model(ifile.replace('\n','')+'_model.h5')
+        #modelo = load_model(dirin+ifile)
+      enc_model[layer] = modelo.layers[0].get_weights()
+      dec_model[layer] = modelo.layers[2].get_weights()
+
+    #print "Creating the model"
+    print len(data) #[1].shape[1]
+    model = Sequential()
+    print "just to make sure it is the first key "+list(enc_model.keys())[0]
+    first_layer = [k for k in list(enc_model.keys()) if str(data[0].shape[1])+'x' in k][0]
+    model.add(Dense(int(layers_list[0].split('x')[1]), input_dim=data[0].shape[1], weights=enc_model[first_layer]))
+    model.add(Activation('tanh'))
+    if(nlayers >1):
+      ## Add encoders
+      for layer in layers_list[1:]:
+        neuron = int(layer.split('x')[1])
+        model.add(Dense(neuron, weights=enc_model[layer]))
+        model.add(Activation('tanh'))
+    ## Add decoders
+    for layer in reversed(layers_list):
+      print layer
+      neuron = int(layer.split('x')[0])
+      model.add(Dense(neuron, weights=dec_model[layer]))
+      model.add(Activation('tanh'))
+    model.pop()
+    model.add(Activation('linear'))
+    print model.summary()
+
+    return model
 
 def plot_input_reconstruction(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False, dirout=None):
   import sqlite3

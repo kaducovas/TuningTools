@@ -37,7 +37,7 @@ import keras.backend as K
 #num_process = multiprocessing.cpu_count()
 
 class StackedAutoEncoders:
-    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla',dataEncoded='all',layerNumber=None, CVO=None,
+    def __init__(self, params = None, development_flag = False, n_folds = 1, save_path='', prefix_str='RawData',aetype='vanilla',dataEncoded='all',nIteration=9,layerNumber=None, CVO=None,
                  noveltyDetection=False, inovelty = 0):
         self.trn_params       = params
         self.development_flag = development_flag
@@ -51,7 +51,7 @@ class StackedAutoEncoders:
         self._aetype = aetype
         self._dataEncoded = dataEncoded
         self._layerNumber = layerNumber
-
+        self._nIteration = nIteration
         # Distinguish between a SAE for Novelty Detection and SAE for 'simple' Classification
         if noveltyDetection:
             self.CVO          = CVO[inovelty]
@@ -62,6 +62,8 @@ class StackedAutoEncoders:
               self.prefix_str   = prefix_str+'-'+aetype
             else:
               self.prefix_str   = prefix_str+'-'+aetype+'-'+dataEncoded
+            if aetype == 'discriminant':
+              self.prefix_str   = self.prefix_str+'-'+str(nIteration)+'Iter'
 
         # Choose optmizer algorithm
         if self.trn_params.params['optmizerAlgorithm'] == 'SGD':
@@ -111,7 +113,7 @@ class StackedAutoEncoders:
     '''
         Method that returns the output of an intermediate layer.
     '''
-    def getDataProjection(self, data, trgt, hidden_neurons=[80], layer=1, ifold=0,sort=999,etBinIdx=999, etaBinIdx=999):
+    def getDataProjection(self, data, trgt,transformed_data=None, hidden_neurons=[80], layer=1, ifold=0,sort=999,etBinIdx=999, etaBinIdx=999):
         if layer > len(hidden_neurons):
             print "[-] Error: The parameter layer must be less or equal to the size of list hidden_neurons"
             return 1
@@ -137,7 +139,7 @@ class StackedAutoEncoders:
 
             # Check if previous layer model was trained
             if not os.path.exists(file_name):
-                self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:layer], layer=layer, folds_sweep=True)
+                self.trainLayer(data=data, trgt=trgt,transformed_data=transformed_data, ifold=ifold, hidden_neurons = hidden_neurons[:layer], layer=layer, folds_sweep=True)
 
             custom_obj={}
             if self._aetype == 'contractive':
@@ -170,7 +172,7 @@ class StackedAutoEncoders:
 
                 # Check if previous layer model was trained
                 if not os.path.exists(file_name):
-                    self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:ilayer], layer=ilayer, folds_sweep=True)
+                    self.trainLayer(data=data, trgt=trgt,transformed_data=transformed_data, ifold=ifold, hidden_neurons = hidden_neurons[:ilayer], layer=ilayer, folds_sweep=True)
 
                 custom_obj={}
                 if self._aetype == 'contractive':
@@ -191,7 +193,7 @@ class StackedAutoEncoders:
     '''
         Method used to perform the layerwise algorithm to train the SAE
     '''
-    def trainLayer(self, data=None, trgt=None, ifold=0, hidden_neurons = [80], layer=1, folds_sweep=False,
+    def trainLayer(self, data=None, trgt=None,transformed_data=None, ifold=0, hidden_neurons = [80], layer=1, folds_sweep=False,
                    regularizer=None, regularizer_param=None,sort=999,etBinIdx=999, etaBinIdx=999, tuning_folder=None):
         # Change elements equal to zero to one
         for i in range(len(hidden_neurons)):
@@ -335,7 +337,7 @@ class StackedAutoEncoders:
 
                     # Check if previous layer model was trained
                     if not os.path.exists(file_name):
-                        self.trainLayer(data=data, trgt=trgt, ifold=ifold, hidden_neurons = hidden_neurons[:ilayer], layer=ilayer, folds_sweep=True)
+                        self.trainLayer(data=data, trgt=trgt,transformed_data=transformed_data, ifold=ifold, hidden_neurons = hidden_neurons[:ilayer], layer=ilayer, folds_sweep=True)
 
                     custom_obj={}
                     if self._aetype == 'contractive':
@@ -404,36 +406,48 @@ class StackedAutoEncoders:
             import time
             import datetime
             start_run = time.time()
+            if self._aetype == 'discriminant':
+              init_trn_desc = model.fit(data, transformed_data,
+                                        nb_epoch=300, #self.trn_params.params['n_epochs'],
+                                        batch_size= 1024, #self.trn_params.params['batch_size'],
+                                        callbacks=[earlyStopping], #, tbCallBack],
+                                        verbose=1)
 
-            init_trn_desc = model.fit(data, data,
-                                      nb_epoch=self.trn_params.params['n_epochs'],
-                                      batch_size= 1024, #self.trn_params.params['batch_size'],
-                                      callbacks=[earlyStopping], #, tbCallBack],
-                                      verbose=1, #self.trn_params.params['verbose'],
-                                      validation_data=(trgt,
-                                                       trgt))
+            else:
+              init_trn_desc = model.fit(data, data,
+                                        nb_epoch=self.trn_params.params['n_epochs'],
+                                        batch_size= 1024, #self.trn_params.params['batch_size'],
+                                        callbacks=[earlyStopping], #, tbCallBack],
+                                        verbose=1, #self.trn_params.params['verbose'],
+                                        validation_data=(trgt,
+                                                         trgt))
 
             end_run = time.time()
             print 'Model took '+ str(datetime.timedelta(seconds=(end_run - start_run))) +' to finish.'
 
-            if np.min(init_trn_desc.history['val_loss']) < best_loss:
-                best_init = i_init
-                best_loss = np.min(init_trn_desc.history['val_loss'])
+            if self._aetype == 'discriminant':
                 classifier = model
                 trn_desc['epochs'] = init_trn_desc.epoch
-
-                #for imetric in range(len(self.trn_params.params['metrics'])):
-                #    if self.trn_params.params['metrics'][imetric] == 'kullback_leibler_divergence':
-                #        metric = kullback_leibler_divergence
-                #    else:
-                #        metric = self.trn_params.params['metrics'][imetric]
-                #    trn_desc[metric] = init_trn_desc.history[metric]
-                #    trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
-
                 trn_desc['loss'] = init_trn_desc.history['loss']
-                trn_desc['val_losS'] = init_trn_desc.history['val_loss']
-                trn_desc['kullback_leibler_divergence'] = init_trn_desc.history['kullback_leibler_divergence']
-                trn_desc['val_kullback_leibler_divergence'] = init_trn_desc.history['val_kullback_leibler_divergence']
+            else:
+                if np.min(init_trn_desc.history['val_loss']) < best_loss:
+                    best_init = i_init
+                    best_loss = np.min(init_trn_desc.history['val_loss'])
+                    classifier = model
+                    trn_desc['epochs'] = init_trn_desc.epoch
+
+                    #for imetric in range(len(self.trn_params.params['metrics'])):
+                    #    if self.trn_params.params['metrics'][imetric] == 'kullback_leibler_divergence':
+                    #        metric = kullback_leibler_divergence
+                    #    else:
+                    #        metric = self.trn_params.params['metrics'][imetric]
+                    #    trn_desc[metric] = init_trn_desc.history[metric]
+                    #    trn_desc['val_'+metric] = init_trn_desc.history['val_'+metric]
+
+                    trn_desc['loss'] = init_trn_desc.history['loss']
+                    trn_desc['val_losS'] = init_trn_desc.history['val_loss']
+                    trn_desc['kullback_leibler_divergence'] = init_trn_desc.history['kullback_leibler_divergence']
+                    trn_desc['val_kullback_leibler_divergence'] = init_trn_desc.history['val_kullback_leibler_divergence']
 
         model.summary()
         # save model

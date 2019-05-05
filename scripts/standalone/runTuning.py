@@ -2,6 +2,7 @@
 
 from TuningTools.parsers import ArgumentParser, loggerParser, tuningJobParser
 from RingerCore import emptyArgumentsPrintHelp, NotSet, LoggingLevel, devParser
+from TuningTools.PreProc import *
 parser = ArgumentParser(description = 'Tune discriminators using input data.',
                         parents = [tuningJobParser, loggerParser, devParser])
 parser.make_adjustments()
@@ -30,8 +31,8 @@ printArgs( args, logger.debug )
 # Submit job:
 from TuningTools import TuningJob
 tuningJob = TuningJob()
-tuningJob( 
-           args.data, 
+tuningJob(
+           args.data,
            level             = args.output_level,
 					 compress          = args.compress,
 					 outputFileBase    = args.outputFileBase,
@@ -45,6 +46,7 @@ tuningJob(
 					 crossValidShuffle = args.crossValidShuffle,
            # Pre Processing
            ppFile            = args.ppFile,
+           #ppCol              = args.ppFile,
            # Binning configuration
            etBins            = args.et_bins,
            etaBins           = args.eta_bins,
