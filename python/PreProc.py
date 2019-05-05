@@ -2,7 +2,7 @@ __all__ = ['PreProcArchieve', 'PrepObj', 'Projection',  'RemoveMean', 'RingerRp'
            'UndoPreProcError', 'UnitaryRMS', 'FirstNthPatterns', 'KernelPCA',
            'MapStd', 'MapStd_MassInvariant', 'NoPreProc', 'Norm1', 'PCA',
            'PreProcChain', 'PreProcCollection', 'RingerEtaMu', 'RingerFilterMu',
-           'StatReductionFactor','StackedAutoEncoder','LSTMAutoEncoder','NLPCA']
+           'StatReductionFactor','StackedAutoEncoder','LSTMAutoEncoder','NLPCA','SAE_FineTuning']
 
 from RingerCore import ( Logger, LoggerStreamable, checkForUnusedVars
                        , save, load, LimitedTypeList, LoggingLevel, LoggerRawDictStreamer
@@ -899,6 +899,7 @@ class StackedAutoEncoder( PrepObj ):
     self._caltype = retrieve_kw(d,'caltype','allcalo')
     self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
     self._dataEncoded = retrieve_kw(d,'dataEncoded','all') #all, signal, background
+    self._nIterations = retrieve_kw(d,'nIterations',9) #all, signal, background
     PrepObj.__init__( self, d )
     checkForUnusedVars(d, self._warning )
     self._n_inits = n_inits
@@ -997,6 +998,11 @@ class StackedAutoEncoder( PrepObj ):
 
     self._batch_size = min(data[0].shape[0],data[1].shape[0])
 
+    from TuningTools.discriminant_autoencoder import *
+    class_sgn = [1]*data[0].shape[0]
+    class_bkg = [-1]*data[1].shape[0]
+    train_target = np.concatenate((class_sgn, class_bkg))
+
     if self._dataEncoded == 'all':
       if isinstance(data, (tuple, list,)):
         data = np.concatenate( data, axis=npCurrent.odim )
@@ -1012,6 +1018,9 @@ class StackedAutoEncoder( PrepObj ):
         data = data[1]
       if isinstance(val_Data, (tuple, list,)):
         val_Data = val_Data[1]
+
+    if self._aetype == 'discriminant':
+      transformed_data = transform_data(data,train_target,nIteration=self._nIterations)
 
     import numpy
     work_path='/scratch/22061a/caducovas/run/'
@@ -1061,6 +1070,7 @@ class StackedAutoEncoder( PrepObj ):
                               prefix_str=self._caltype,
                               aetype=self._aetype,
                               dataEncoded=self._dataEncoded,
+                              nIteration=self._nIterations,
                               layerNumber=layerNumber
                               )
 
@@ -1071,11 +1081,19 @@ class StackedAutoEncoder( PrepObj ):
 
     #self._info(self._hidden_neurons)
 
-    f, model, trn_desc = SAE.trainLayer(data=data,
-                                        trgt=val_Data,
-                                        ifold=0,
-                                        hidden_neurons=self._hidden_neurons,
-                                        layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder,regularizer=regularizer,regularizer_param=regularizer_param)
+    if self._aetype == 'discriminant':
+      f, model, trn_desc = SAE.trainLayer(data=data,
+                                          transformed_data=transformed_data,
+                                          ifold=0,
+                                          hidden_neurons=self._hidden_neurons,
+                                          layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder,regularizer=regularizer,regularizer_param=regularizer_param)
+    else:
+      f, model, trn_desc = SAE.trainLayer(data=data,
+                                          trgt=val_Data,
+                                          ifold=0,
+                                          hidden_neurons=self._hidden_neurons,
+                                          layer = self._layer,sort=sort,etBinIdx=etBinIdx, etaBinIdx=etaBinIdx, tuning_folder = tuning_folder,regularizer=regularizer,regularizer_param=regularizer_param)
+
     self._trn_desc = trn_desc
     self._weights = model.get_weights()
     self._trn_params = model.get_config()
@@ -1106,6 +1124,8 @@ class StackedAutoEncoder( PrepObj ):
       aetypename = 'Denoising'
     elif self._aetype == 'contractive':
       aetypename = 'Contractive'
+    elif self._aetype == 'discriminant':
+      aetypename = 'Discriminant'+str(self._nIterations)+'Iter'
 
     if self._dataEncoded == 'all':
       encodetypename=''
@@ -1136,6 +1156,8 @@ class StackedAutoEncoder( PrepObj ):
       aetypename = 'D'
     elif self._aetype == 'contractive':
       aetypename = 'C'
+    elif self._aetype == 'discriminant':
+      aetypename = 'Disc'+str(self._nIterations)+'Iter'
 
     if self._dataEncoded == 'all':
       encodetypename=''
@@ -1674,6 +1696,167 @@ class NLPCA( PrepObj ):
     # else:
       # ret = ( data / self._invRMS ) + self._mean
     #
+    return ret
+
+class SAE_FineTuning( PrepObj ):
+  """
+    Fine Tune the SAE.
+  """
+
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_SAEFT',})
+  _cnvObj = RawDictCnv(toProtectedAttrs = {})
+
+
+  def __init__(self,n_inits=1,n_nlpcas=30, hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=30,batch_size=1024,layer=1, d = {}, **kw):
+    d.update( kw ); del kw
+    from RingerCore import retrieve_kw
+    #self._caltype = retrieve_kw(d,'caltype','allcalo')
+    self._n_nlpcas = retrieve_kw(d,'nlpcs',30)
+    self._n_neurons_mapping = retrieve_kw(d,'nmapping',50)
+    #self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
+    #self._dataEncoded = retrieve_kw(d,'dataEncoded','all') #all, signal, background
+    PrepObj.__init__( self, d )
+    checkForUnusedVars(d, self._warning )
+    self._n_inits = n_inits
+
+    #self._n_nlpcas=n_nlpcas
+    #self._n_neurons_mapping=n_neurons_mapping
+
+    self._hidden_activation = hidden_activation
+    self._output_activation = output_activation
+    self._n_epochs = n_epochs
+    self._patience = patience
+    self._batch_size = batch_size
+    self._layer= layer
+    del d
+    self._sort = ''
+    self._etBinIdx = ''
+    self._etaBinIdx = ''
+    self._NLPCA = ''
+    self._trn_params = ''
+    self._trn_desc = ''
+    self._weights = ''
+
+  def takeParams(self, trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder):
+
+  ###trainlayer
+
+    """
+      Perform the layerwise algorithm to train the SAE
+    """
+
+    # TODO...
+    self._sort = sort
+    self._etBinIdx = etBinIdx
+    self._etaBinIdx = etaBinIdx
+    #print(self._caltype)
+
+    import copy
+    data = copy.deepcopy(trnData)
+    val_Data = copy.deepcopy(valData)
+
+    self._info('Training Data Shape: '+str(data[0].shape)+str(data[1].shape))
+    self._info('Validation Data Shape: '+str(val_Data[0].shape)+str(val_Data[1].shape))
+
+    #data = [d[:100] for d in data]
+    #val_Data = [d[:100] for d in val_Data]
+
+    #print "TESTEEEE"+tuning_folder
+
+    self._batch_size = min(data[0].shape[0],data[1].shape[0])
+
+    import numpy
+    work_path='/scratch/22061a/caducovas/run/'
+    results_path = work_path+"StackedAutoEncoder_preproc/"
+
+    #numpy.save(results_path+'val_Data_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0]),val_Data)
+    #trn_params_folder = results_path+'trnparams_sort_'+str(self._sort)+'_nlpcas_'+str(self._n_nlpcas[0])+'.jbl'
+
+    if isinstance(data, (tuple, list,)):
+      data = np.concatenate( data, axis=npCurrent.odim )
+    if isinstance(val_Data, (tuple, list,)):
+      val_Data = np.concatenate( val_Data, axis=npCurrent.odim )
+
+    from SAE_Evaluation import getSAE_Model
+    from keras.models import Sequential
+    from keras.layers.core import Dense, Dropout, Activation
+    from keras.optimizers import SGD,Adam
+    import keras.callbacks as callbacks
+    from keras.utils import np_utils
+    import keras
+
+    # Train Process
+    self._sae_ft = getSAE_Model(results_path+tuning_folder,trnData,self._sort)
+
+    adamOpt = Adam(lr=0.001,beta_1=0.9,beta_2=0.999,epsilon=1e-08)
+    self._sae_ft.compile(loss='mean_squared_error',
+        optimizer=adamOpt,
+        metrics=['accuracy'])
+
+    earlyStopping = callbacks.EarlyStopping(monitor='val_loss',
+                                                    patience=10,
+                                                    verbose=0,
+                                                    mode='auto')
+    checkpoints = keras.callbacks.ModelCheckpoint(work_path+'files/'+tuning_folder+'/models/fine_tuned_sort_'+str(self._sort)+'_et_'+str(self._etBinIdx)+'_eta_'+str(self._etaBinIdx)+'.h5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)
+
+    #nlcpca_encoding_name  = 'nlpca_adam_bottleneck_%i_mapping_%i_epochs_sort_%i_etbin_%i_etabin_%i'%(n_nlpcas, n_neurons_mapping,sort,etBinIdx, etaBinIdx)
+    #tbCallBack = keras.callbacks.TensorBoard(log_dir='/home/caducovas/tensorboard/graphs/'+nlcpca_encoding_name, histogram_freq=10, write_graph=True, write_images=True,write_grads=True,update_freq='epoch')
+    import time
+    import datetime
+    start_run = time.time()
+
+
+    hist = self._sae_ft.fit(data, data,
+                                nb_epoch=5000,
+                                batch_size= 1024, #train_info['batch_size'], #1024
+                                callbacks=[earlyStopping,checkpoints],
+                                verbose=1,
+                                validation_data=(val_Data,
+                                                val_Data),
+                                shuffle=True)
+
+    end_run = time.time()
+    print 'Model SAE with Fine Tuning took '+ str(datetime.timedelta(seconds=(end_run - start_run))) +' to finish.'
+
+    print self._sae_ft.layers
+
+    return self._apply(trnData)
+
+
+
+  def __str__(self):
+    """
+      String representation of the object.
+    """
+    return ("FineTuning")
+
+  def shortName(self):
+    """
+      Short string representation of the object.
+    """
+    return ("FT")
+
+  def _apply(self, data):
+    import keras.backend as K
+    #self._info(pp.shortName())
+    #self._info(self._etBinIdx)
+    #self._info(self._etaBinIdx)
+    ###get data projection
+    #if not self._mean.size or not self._invRMS.size:
+    #  self._fatal("Attempted to apply MapStd before taking its parameters.")
+    encoderLayerNum= int((float(len(self._sae_ft.layers))/2)-1)
+    if isinstance(data, (tuple, list,)):
+      ret = []
+      for cdata in data:
+        #self._info(cdata.shape)
+        get_layer_output = K.function([self._sae_ft.layers[0].input],
+                                    [self._sae_ft.layers[encoderLayerNum].output])
+        # Projection of layer
+        proj_all_data = get_layer_output([cdata])[0]
+
+        ret.append(proj_all_data)
+    #else:
+    #  ret = self._sae_ft.getDataProjection(cdata, cdata, n_inits = self._n_inits, n_nlpcas=self._n_nlpcas, n_neurons_mapping=self._n_neurons_mapping,n_epochs=self._n_epochs,sort=self._sort,etBinIdx=self._etBinIdx, etaBinIdx=self._etaBinIdx)
     return ret
 
 class MapStd_MassInvariant( MapStd ):
@@ -2368,6 +2551,10 @@ class PreProcChain ( Logger ):
         self._layerNumber+=1
         trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder,self._layerNumber)
         valData = pp._apply(valData, self._layerNumber)
+      elif 'FT' in str(pp.shortName()): #pp.shortName()[-2:] == 'AE':
+          trnData,valData = self.getNorm1()
+          trnData = pp.takeParams(trnData,valData,sort,etBinIdx, etaBinIdx,tuning_folder)
+          valData = pp._apply(valData)
       else:
         trnData = pp.takeParams(trnData)
         pp._trn_norm1 = trnData
@@ -2389,8 +2576,8 @@ class PreProcChain ( Logger ):
       if pp.shortName() == 'N1' or pp.shortName() == 'std':
         trnData = pp._trn_norm1
         valData = pp._val_norm1
-        pp._trn_norm1=''
-        pp._val_norm1=''
+        #pp._trn_norm1=''
+        #pp._val_norm1=''
       if 'EM' in str(pp.shortName()):
         emcalo=True
       if 'HAD' in str(pp.shortName()):

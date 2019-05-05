@@ -1576,6 +1576,10 @@ class TuningJob(Logger):
               #np.savez_compressed(work_path+'lstm_reconstruct_'+str(sort)+'et_1_eta_1',reconstruct)
               #np.savez_compressed(work_path+'lstm_Target_'+str(sort)+'et_1_eta_1',target)
               #np.savez_compressed(work_path+'afternorm_'+str(sort)+'et_1_eta_1',norm1Par[2])
+            elif('FT' in str(ppChain.shortName())):
+              reconstruct = getReconstructFT(work_path+'files/'+tuning_folder_name,valDataN1,sort,etBinIdx, etaBinIdx,trnData[0].shape[1])
+              code = getCodeFT(work_path+'files/'+tuning_folder_name,valDataN1,sort,etBinIdx, etaBinIdx,trnData[0].shape[1])
+              target=None
             else:
               reconstruct = getReconstruct(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,valDataN1,sort)
               code = getCode(work_path+'StackedAutoEncoder_preproc/'+tuning_folder_name,norm1Par,sort)
