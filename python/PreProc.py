@@ -1703,7 +1703,7 @@ class SAE_FineTuning( PrepObj ):
     Fine Tune the SAE.
   """
 
-  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_SAEFT',})
+  _streamerObj = LoggerRawDictStreamer(toPublicAttrs = {}, transientAttrs = {'_sae_ft',})
   _cnvObj = RawDictCnv(toProtectedAttrs = {})
 
 
@@ -1732,7 +1732,7 @@ class SAE_FineTuning( PrepObj ):
     self._sort = ''
     self._etBinIdx = ''
     self._etaBinIdx = ''
-    self._NLPCA = ''
+    self._sae_ft = ''
     self._trn_params = ''
     self._trn_desc = ''
     self._weights = ''
