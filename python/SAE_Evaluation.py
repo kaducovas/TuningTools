@@ -3491,6 +3491,509 @@ def plot_input_reconstruction_diff_measures(model_name=None,layer=None,time=None
   png_files.append(dirout+'/measures_'+str(layer)+'_'+model_name+'_'+time+'.png')
   return png_files
 
+def plot_input_reconstruction_diff_measures2(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False,Normed=False, dirout=None):
+   import sqlite3
+   import pandas as pd
+   from numpy import nan
+   #%matplotlib inline
+   import matplotlib.pyplot as plt
+   png_files=[]
+   if Normed:
+     normalizacao='yes'
+   else:
+     normalizacao='no'
+
+   plt.style.use('ggplot')
+   cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+   # Et and Eta indices
+   et_index  = [0, 1, 2,3]
+   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+
+   eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+   etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+
+   #et_index  = [1,2]
+   #etRange = ['[20, 30]']
+
+   #eta_index = [1,2]
+   #etaRange = ['[0.6, 0.8]']
+
+   #for iet, etrange in zip(et_index, etRange):
+   #  for ieta, etarange in zip(eta_index, etaRange):
+   iet =  etBinIdx
+   etrange = etRange[etBinIdx]
+   ieta = etaBinIdx
+   etarange = etaRange[etaBinIdx]
+       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfBkg.fillna(value=nan, inplace=True)
+
+   allClasses_NMI=dfAll.values.astype(np.float32)
+   sgn_NMI=dfSignal.values.astype(np.float32)
+   bkg_NMI=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfBkg.fillna(value=nan, inplace=True)
+
+   # allClasses_MI=dfAll.values.astype(np.float32)
+   # sgn_MI=dfSignal.values.astype(np.float32)
+   # bkg_MI=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Wasserstein' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Wasserstein' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Wasserstein' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_Wass=dfAll.values.astype(np.float32)
+   sgn_Wass=dfSignal.values.astype(np.float32)
+   bkg_Wass=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'KLdiv' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_KL=dfAll.values.astype(np.float32)
+   sgn_KL=dfSignal.values.astype(np.float32)
+   bkg_KL=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+
+   # allClasses_Chi=dfAll.values.astype(np.float32)
+   # sgn_Chi=dfSignal.values.astype(np.float32)
+   # bkg_Chi=dfBkg.values.astype(np.float32)
+
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'kolmogorov-smirnov' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'kolmogorov-smirnov' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'kolmogorov-smirnov' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_KS=dfAll.values.astype(np.float32)
+   sgn_KS=dfSignal.values.astype(np.float32)
+   bkg_KS=dfBkg.values.astype(np.float32)
+   #print 'all',allClasses
+   #print 'sgn', sgn
+   #print 'bkg', bkg
+
+   fig, ax = plt.subplots(2,2,figsize=(16,10))
+
+   ####Normalized MI
+
+   ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_NMI, axis=0),yerr=np.std(allClasses_NMI, axis=0), fmt='go-',color='green')
+   ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_NMI, axis=0),yerr=np.std(sgn_NMI, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_NMI, axis=0),yerr=np.std(bkg_NMI, axis=0), fmt='ro-')
+   ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,0].set_title(r'Normalized Mutual Information',fontsize= 20)
+   ax[0,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,0].set_ylabel('Normalized Mutual Information', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_NMI, axis=0), np.mean(bkg_NMI, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####MI
+
+   ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_KS, axis=0),yerr=np.std(allClasses_KS, axis=0), fmt='go-',color='green')
+   ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_KS, axis=0),yerr=np.std(sgn_KS, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_KS, axis=0),yerr=np.std(bkg_KS, axis=0), fmt='ro-')
+   ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,1].set_title(r'Kolmogorov Smirnov Distance',fontsize= 20)
+   ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,1].set_ylabel('Kolmogorov Smirnov', fontsize='xx-large')
+   #ax[0,1].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   #if log_scale:
+   y_position = .9*np.max([np.mean(sgn_KS, axis=0), np.mean(bkg_KS, axis=0)]) + 1e3
+   #else:
+   #  y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####Corr
+
+   ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_Wass, axis=0),yerr=np.std(allClasses_Wass, axis=0), fmt='go-',color='green')
+   ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_Wass, axis=0),yerr=np.std(sgn_Wass, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,0].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_Wass, axis=0),yerr=np.std(bkg_Wass, axis=0), fmt='ro-')
+   ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,0].set_title(r'Wasserstein Distance',fontsize= 20)
+   ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,0].set_ylabel('Wasserstein Distance', fontsize='xx-large')
+   ax[1,0].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####KLDiv
+
+   ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(allClasses_KL, axis=0),yerr=np.std(allClasses_KL, axis=0), fmt='go-',color='green')
+   ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(sgn_KL, axis=0),yerr=np.std(sgn_KL, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,1].errorbar(np.arange(allClasses_NMI.shape[1]), np.mean(bkg_KL, axis=0),yerr=np.std(bkg_KL, axis=0), fmt='ro-')
+   ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,1].set_title(r'Kullback-Leibler Divergence',fontsize= 20)
+   ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,1].set_ylabel('KL Divergence', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9*np.max([np.mean(sgn_KL, axis=0), np.mean(bkg_KL, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####ChiSquared
+
+ #  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
+ #  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+ #  for i in [7, 71, 79, 87, 91, 95]:
+ #    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+ #  ax[1,1].set_title(r'Chi Squared',fontsize= 20)
+ #  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+ #  ax[1,1].set_ylabel('Chi Squared', fontsize='xx-large')
+ #  #ax[0,0].ylim(ymax=1)
+ #  if log_scale:
+ #    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+ #  else:
+ #    y_position = .9*np.max([np.mean(sgn_Chi, axis=0), np.mean(bkg_Chi, axis=0)])
+ #
+ #  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+ #           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+ #          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+ #    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+   plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+   if Normed:
+     prefix='Normalized '
+   else:
+     prefix=''
+   plt.suptitle(prefix+'Input X Reconstruction - '+model_name+' - '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange), fontsize=24)
+   plt.savefig(dirout+'/measures_2_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   plt.clf()
+   plt.close()
+   png_files.append(dirout+'/measures_2_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   return png_files
+
+def plot_input_reconstruction_diff_measures3(model_name=None,layer=None,time=None, etBinIdx=None,etaBinIdx=None,log_scale=False,Normed=False, dirout=None):
+   import sqlite3
+   import pandas as pd
+   from numpy import nan
+   #%matplotlib inline
+   import matplotlib.pyplot as plt
+   png_files=[]
+   if Normed:
+     normalizacao='yes'
+   else:
+     normalizacao='no'
+
+   plt.style.use('ggplot')
+   cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+   # Et and Eta indices
+   et_index  = [0, 1, 2,3]
+   etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
+
+   eta_index = [0, 1, 2, 3, 4,5,6,7,8]
+   etaRange = ['[0, 0.6]','[0.6, 0.8]','[0.8, 1.15]','[1.15, 1.37]','[1.37, 1.52]','[1.52, 1.81]','[1.81, 2.01]','[2.01, 2.37]','[2.37, 2.47]']
+
+   #et_index  = [1,2]
+   #etRange = ['[20, 30]']
+
+   #eta_index = [1,2]
+   #etaRange = ['[0.6, 0.8]']
+
+   #for iet, etrange in zip(et_index, etRange):
+   #  for ieta, etarange in zip(eta_index, etaRange):
+   iet =  etBinIdx
+   etrange = etRange[etBinIdx]
+   ieta = etaBinIdx
+   etarange = etaRange[etaBinIdx]
+       #sgn = data_file['signalPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+       #bkg = data_file['backgroundPatterns_etBin_%i_etaBin_%i' %(iet, ieta)]
+   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MSE' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfBkg.fillna(value=nan, inplace=True)
+
+   allClasses_MSE=dfAll.values.astype(np.float32)
+   sgn_MSE=dfSignal.values.astype(np.float32)
+   bkg_MSE=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'MI' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfBkg.fillna(value=nan, inplace=True)
+
+   # allClasses_MI=dfAll.values.astype(np.float32)
+   # sgn_MI=dfSignal.values.astype(np.float32)
+   # bkg_MI=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'DeltaEnergy' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'DeltaEnergy' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'DeltaEnergy' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_Del=dfAll.values.astype(np.float32)
+   sgn_Del=dfSignal.values.astype(np.float32)
+   bkg_Del=dfBkg.values.astype(np.float32)
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_DeltaEnergy' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_DeltaEnergy' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Normalized_DeltaEnergy' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_NDel=dfAll.values.astype(np.float32)
+   sgn_NDel=dfSignal.values.astype(np.float32)
+   bkg_NDel=dfBkg.values.astype(np.float32)
+
+   # dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # dfAll.fillna(value=nan, inplace=True)
+   # dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+   # #dfSignal.fillna(value=nan, inplace=True)
+   # dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'chiSquared' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   # dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase'],axis=1)
+
+   # allClasses_Chi=dfAll.values.astype(np.float32)
+   # sgn_Chi=dfSignal.values.astype(np.float32)
+   # bkg_Chi=dfBkg.values.astype(np.float32)
+
+
+   dfAll = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'All' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfAll=dfAll.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   dfAll.fillna(value=nan, inplace=True)
+   dfSignal = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Signal' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"'  and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfSignal=dfSignal.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+   #dfSignal.fillna(value=nan, inplace=True)
+   dfBkg = pd.read_sql_query("SELECT * FROM reconstruction_metrics where time > 201809000000 and Measure = 'Correlation' and Class = 'Background' and Normed='"+str(normalizacao)+"' and layer = '"+str(layer)+"' and Model= '"+model_name+"' and time = '"+time+"'", cnx)
+   dfBkg=dfBkg.drop(labels=['id','Class','Layer','Model','time','Measure','Normed','sort','etBinIdx','etaBinIdx','phase','ETotal','PS','EM1','EM2','EM3','EM','HAD1','HAD2','HAD3','HAD'],axis=1)
+
+   allClasses_Corr=dfAll.values.astype(np.float32)
+   sgn_Corr=dfSignal.values.astype(np.float32)
+   bkg_Corr=dfBkg.values.astype(np.float32)
+   #print 'all',allClasses
+   #print 'sgn', sgn
+   #print 'bkg', bkg
+
+   fig, ax = plt.subplots(2,2,figsize=(16,10))
+
+   ####Normalized MI
+
+   ax[0,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_MSE, axis=0),yerr=np.std(allClasses_MSE, axis=0), fmt='go-',color='green')
+   ax[0,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_MSE, axis=0),yerr=np.std(sgn_MSE, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_MSE, axis=0),yerr=np.std(bkg_MSE, axis=0), fmt='ro-')
+   ax[0,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,0].set_title(r'Reconstruction Error',fontsize= 20)
+   ax[0,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,0].set_ylabel('MSE', fontsize='xx-large')
+   ax[0,0].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####MI
+
+   ax[0,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_Corr, axis=0),yerr=np.std(allClasses_Corr, axis=0), fmt='go-',color='green')
+   ax[0,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_Corr, axis=0),yerr=np.std(sgn_Corr, axis=0), fmt='D-', color='cornflowerblue')
+   ax[0,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_Corr, axis=0),yerr=np.std(bkg_Corr, axis=0), fmt='ro-')
+   ax[0,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[0,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[0,1].set_title(r'Correlation Coefficient',fontsize= 20)
+   ax[0,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[0,1].set_ylabel('Pearson Correlation coeficient', fontsize='xx-large')
+   #ax[0,1].set_yscale('log')
+   #ax[0,0].ylim(ymax=1)
+   #if log_scale:
+   y_position = .9*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)]) + 1e3
+   #else:
+   #  y_position = .9*np.max([np.mean(sgn_MSE, axis=0), np.mean(bkg_MSE, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[0,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####Corr
+
+   ax[1,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_Del, axis=0),yerr=np.std(allClasses_Del, axis=0), fmt='go-',color='green')
+   ax[1,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_Del, axis=0),yerr=np.std(sgn_Del, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,0].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_Del, axis=0),yerr=np.std(bkg_Del, axis=0), fmt='ro-')
+   ax[1,0].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,0].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,0].set_title(r'Delta Energy',fontsize= 20)
+   ax[1,0].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,0].set_ylabel('Delta Et', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9 #*np.max([np.mean(sgn_Corr, axis=0), np.mean(bkg_Corr, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,0].text(x,y,text, fontsize=15, rotation=90)
+
+   ####KLDiv
+
+   ax[1,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(allClasses_NDel, axis=0),yerr=np.std(allClasses_NDel, axis=0), fmt='go-',color='green')
+   ax[1,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(sgn_NDel, axis=0),yerr=np.std(sgn_NDel, axis=0), fmt='D-', color='cornflowerblue')
+   ax[1,1].errorbar(np.arange(allClasses_MSE.shape[1]), np.mean(bkg_NDel, axis=0),yerr=np.std(bkg_NDel, axis=0), fmt='ro-')
+   ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+   for i in [7, 71, 79, 87, 91, 95]:
+     ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+   ax[1,1].set_title(r'Normalized Delta Energy',fontsize= 20)
+   ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+   ax[1,1].set_ylabel('Normalized Delta Et', fontsize='xx-large')
+   #ax[0,0].ylim(ymax=1)
+   if log_scale:
+     y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+   else:
+     y_position = .9*np.max([np.mean(sgn_NDel, axis=0), np.mean(bkg_NDel, axis=0)])
+
+   for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+            (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+           (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+     ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+
+   ####ChiSquared
+
+ #  ax[1,1].errorbar(np.arange(100), np.mean(allClasses_Chi, axis=0),yerr=np.std(allClasses_Chi, axis=0), fmt='go-',color='green')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(sgn_Chi, axis=0),yerr=np.std(sgn_Chi, axis=0), fmt='D-', color='cornflowerblue')
+ #  ax[1,1].errorbar(np.arange(100), np.mean(bkg_Chi, axis=0),yerr=np.std(bkg_Chi, axis=0), fmt='ro-')
+ #  ax[1,1].legend(['All','Signal','Background'], loc='best', fontsize='medium')
+ #  for i in [7, 71, 79, 87, 91, 95]:
+ #    ax[1,1].axvline(i, color='gray', linestyle='--', linewidth=.8)
+
+ #  ax[1,1].set_title(r'Chi Squared',fontsize= 20)
+ #  ax[1,1].set_xlabel('#Rings', fontsize='xx-large')
+ #  ax[1,1].set_ylabel('Chi Squared', fontsize='xx-large')
+ #  #ax[0,0].ylim(ymax=1)
+ #  if log_scale:
+ #    y_position = .9#*np.max([np.mean(sgn, axis=0), np.mean(bkg, axis=0)]) + 1e3
+ #  else:
+ #    y_position = .9*np.max([np.mean(sgn_Chi, axis=0), np.mean(bkg_Chi, axis=0)])
+ #
+ #  for x,y,text in [(2,y_position,r'PS'), (8,y_position,r'EM1'),
+ #           (76,y_position,r'EM2'),(80,y_position,r'EM3'),
+ #          (88,y_position,r'HAD1'), (92,y_position,r'HAD2'), (96,y_position,r'HAD3'),]:
+ #    ax[1,1].text(x,y,text, fontsize=15, rotation=90)
+   plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+   if Normed:
+     prefix='Normalized '
+   else:
+     prefix=''
+   plt.suptitle(prefix+'Input X Reconstruction - '+model_name+' - '+str(layer)+' - $E_T$={} $\eta$={}'.format(etrange,etarange), fontsize=24)
+   plt.savefig(dirout+'/measures_3_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   plt.clf()
+   plt.close()
+   png_files.append(dirout+'/measures_3_'+str(layer)+'_'+model_name+'_'+time+'.png')
+   return png_files
+
+
 def mutualInformation_matrix(signal,measure='MI',sklearn=True,kde=False, n_bins=None):
     #from statsmodels.sandbox.distributions.mv_measures import mutualinfo_kde, mutualinfo_binned
     print signal.shape
