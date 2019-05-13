@@ -3504,7 +3504,7 @@ def plot_input_reconstruction_diff_measures2(model_name=None,layer=None,time=Non
      normalizacao='no'
 
    plt.style.use('ggplot')
-   cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+   cnx = sqlite3.connect('//scratch/22061a/caducovas/run/ringerLoboc.db')
    # Et and Eta indices
    et_index  = [0, 1, 2,3]
    etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
@@ -3755,7 +3755,7 @@ def plot_input_reconstruction_diff_measures3(model_name=None,layer=None,time=Non
      normalizacao='no'
 
    plt.style.use('ggplot')
-   cnx = sqlite3.connect('//home/caducovas/run/ringerMLlab.db')
+   cnx = sqlite3.connect('//scratch/22061a/caducovas/run/ringerLoboc.db')
    # Et and Eta indices
    et_index  = [0, 1, 2,3]
    etRange = ['[15, 20]','[20, 30]','[30, 40]','[40, 50000]']
