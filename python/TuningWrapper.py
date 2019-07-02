@@ -520,7 +520,7 @@ class TuningWrapper(Logger):
         last_hl = hidden_neurons[i_hn]
       model.add( Dense( last_hl
                        #, input_dim=nodes[0]
-                       , init='identity'
+                       , kernel_initializer='identity'
                        , trainable=False
                        , name='dense_last_hl' ) )
       model.add( Activation('linear') )
@@ -529,7 +529,7 @@ class TuningWrapper(Logger):
       #                , init='uniform'
       #                , name='dense_last_hl' ) )
       #model.add( Activation('tanh') )
-      model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
+      model.add( Dense( nodes[2], kernel_initializer='uniform', name='dense_output' ) )
       model.add( Activation('tanh') )
       model.compile( loss=self.trainOptions['costFunction']
                    , optimizer = self.trainOptions['optmin_alg']
@@ -627,10 +627,10 @@ class TuningWrapper(Logger):
       #model.add( Activation('linear') )
       model.add( Dense( nodes[1]
                         , input_dim=nodes[0]
-                        , init='uniform'
+                        , kernel_initializer='uniform'
                         , name='dense_last_hl' ) )
       model.add( Activation('tanh') )
-      model.add( Dense( nodes[2], init='uniform', name='dense_output' ) )
+      model.add( Dense( nodes[2], kernel_initializer='uniform', name='dense_output' ) )
       model.add( Activation('tanh') )
       model.compile( loss=self.trainOptions['costFunction']
                        , optimizer = self.trainOptions['optmin_alg']
