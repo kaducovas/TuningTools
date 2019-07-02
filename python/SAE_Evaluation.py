@@ -1502,6 +1502,8 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   import dataset
   import math
   import time as tm
+  import warnings
+  warnings.filterwarnings("error")
   db = dataset.connect('sqlite://///scratch/22061a/caducovas/run/ringerLoboc.db')
   #print point.sp_value
   table = db['reconstruction_metrics']
@@ -1509,6 +1511,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
   beforenorm = norm1Par[0]
   normlist = norm1Par[1]
   afternorm = norm1Par[2]
+
   #measure=#Normalized_MI,MI,KLdiv,chiSquared,Correlation
   for layer in reconstruct.keys():
     print 'LAYER: '+str(layer)
@@ -1588,7 +1591,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
             score = None
           metrics[str(anel+1)] = score
           #print score
-        except:
+        except RuntimeWarning:
           print 'Anel '+str(anel)+' apresenta erros de calculo'
           metrics[str(anel+1)] = None
           #print ks_2samp(input_val_Data[:,anel],reconstruct_val_Data[:,anel])
@@ -1826,7 +1829,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD3'] = float(np.average(input_val_Data[:,96:99,].sum(axis=1)-reconstruct_val_Data[:,96:99,].sum(axis=1)/input_val_Data[:,96:99,].sum(axis=1)))
           ###HAD
           metrics['HAD'] = float(np.average(input_val_Data[:,88:99,].sum(axis=1)-reconstruct_val_Data[:,88:99,].sum(axis=1)/input_val_Data[:,88:99,].sum(axis=1)))
-      except:
+      except RuntimeWarning:
         metrics['ETotal'] = None
         metrics['PS'] = None
         metrics['EM1'] = None
@@ -1843,7 +1846,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         try:
           table.insert(metrics)
           locked=0
-        except:
+        except RuntimeWarning:
           tm.sleep(10)
 
       metrics = OrderedDict()
@@ -1893,7 +1896,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = float(score)
-        except:
+        except RuntimeWarning:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
 
@@ -2128,7 +2131,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD3'] = float(np.average(input[0][:,96:99,].sum(axis=1)-reconstructed[0][:,96:99,].sum(axis=1)/input[0][:,96:99,].sum(axis=1)))
           ###HAD
           metrics['HAD'] = float(np.average(input[0][:,88:99,].sum(axis=1)-reconstructed[0][:,88:99,].sum(axis=1)/input[0][:,88:99,].sum(axis=1)))
-      except:
+      except RuntimeWarning:
         metrics['ETotal'] = None
         metrics['PS'] = None
         metrics['EM1'] = None
@@ -2145,7 +2148,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         try:
           table.insert(metrics)
           locked=0
-        except:
+        except RuntimeWarning:
           tm.sleep(10)
 
       metrics = OrderedDict()
@@ -2193,7 +2196,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           if math.isnan(score):
             score = None
           metrics[str(anel+1)] = float(score)
-        except:
+        except RuntimeWarning:
           print 'Anel '+str(anel)+' apresenta erros de calculo.'
           metrics[str(anel+1)] = None
 
@@ -2428,7 +2431,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
           metrics['HAD3'] = float(np.average(input[1][:,96:99,].sum(axis=1)-reconstructed[1][:,96:99,].sum(axis=1)/input[1][:,96:99,].sum(axis=1)))
           ###HAD
           metrics['HAD'] = float(np.average(input[1][:,88:99,].sum(axis=1)-reconstructed[1][:,88:99,].sum(axis=1)/input[1][:,88:99,].sum(axis=1)))
-      except:
+      except RuntimeWarning:
         metrics['ETotal'] = None
         metrics['PS'] = None
         metrics['EM1'] = None
@@ -2445,7 +2448,7 @@ def reconstruct_performance(norm1Par=None,reconstruct=None,model_name="",time=No
         try:
           table.insert(metrics)
           locked=0
-        except:
+        except RuntimeWarning:
           tm.sleep(10)
   return metrics
 
@@ -2556,7 +2559,7 @@ def plot_pdfs(norm1Par=None,reconstruct=None,model_name="",time=None,sort=None,e
                                           )
                         at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
                         axs[i,j].add_artist(at)
-                    except:
+                    except RuntimeWarning:
                         print "Deu ruim no anel:"+str(rings+1)
                     rings+=1
         plt.suptitle('Input X Reconstruction - '+model_name+' - '+str(layer), fontsize=24)
