@@ -2105,7 +2105,10 @@ class TuningJob(Logger):
 
       self._info('Finished tuning job!')
       import os
-      os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
+      import glob
+      #os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
+      #os.remove('/scratch/22061a/caducovas/SAE3/job.hn0010.s000'+str(sort)+'.il0000.iu0004.pic')
+      os.remove(glob.glob("/scratch/22061a/caducovas/SAE3/job.hn0010.s000"+str(sort)+".*.pic")[0])
 
   # end of __call__ member fcn
 
