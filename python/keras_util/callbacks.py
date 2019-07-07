@@ -3,7 +3,7 @@ __all__ = ['PerformanceHistory']
 import keras.callbacks as callbacks
 from collections import OrderedDict
 
-from RingerCore import Logger
+from Gaugi import Logger
 from TuningTools.Neural import Roc
 
 #class DefaultProgBar(keras.callbacks.Callback, Logger):
@@ -24,7 +24,7 @@ class PerformanceHistory(callbacks.History, Logger):
     self.tstRoc     = Roc()
     self.references = references
     self.display    = display
- 
+
   def on_train_begin(self, logs={}):
     callbacks.History.on_train_begin(self, logs)
 
@@ -57,4 +57,3 @@ class PerformanceHistory(callbacks.History, Logger):
     else:
       if not(self.display) or epoch % self.display:
         self._info("Finished tuning, performances are: %s", str(sorted(logs.items()))[1:-1])
-

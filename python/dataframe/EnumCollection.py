@@ -1,7 +1,7 @@
 __all__ = [ 'FilterType',  'Reference', 'RingerOperation', 'Target',
     'BaseInfo','PileupReference', 'Dataset', 'Detector', 'Dataframe']
 
-from RingerCore import EnumStringification
+from Gaugi import EnumStringification
 
 class Dataframe(EnumStringification):
   """
@@ -291,5 +291,3 @@ class PileupReference(EnumStringification):
   avgmu = 0
   NumberOfVertices = 1
   nvtx = 1
-
-

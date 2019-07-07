@@ -1,12 +1,12 @@
 __all__ = ['crossValStatsMonParser']
 
-from RingerCore import ArgumentParser, BooleanStr, NotSet
+from Gaugi import ArgumentParser, BooleanStr, NotSet
 
 ################################################################################
 # Create cross valid monitoring job parser file related objects
 ################################################################################
 
-crossValStatsMonParser = ArgumentParser(add_help = False, 
+crossValStatsMonParser = ArgumentParser(add_help = False,
                                         description = 'Retrieve cross-validation-monitoring information performance.',
                                         conflict_handler = 'resolve')
 
@@ -39,12 +39,11 @@ optArgs.add_argument('--doShortSlides', default=False, type=BooleanStr,
 optArgs.add_argument('--reference', default=None,
                      help = "The reference string to be used.")
 
-optArgs.add_argument('--output', '-o', default="report", 
+optArgs.add_argument('--output', '-o', default="report",
                      help = "the output file path to the data"
                      )
 
 
-optArgs.add_argument('--choicesfile', '-c', default=None, 
+optArgs.add_argument('--choicesfile', '-c', default=None,
                      help = "the .mat file with the neuron choices "
                      )
-

@@ -1,8 +1,7 @@
 __all__ = [ 'hasExmachina', 'hasFastnet', 'hasKeras', 'TuningToolCores'
           , 'AvailableTuningToolCores', 'CoreConfiguration', 'coreConf'
           , 'NumpyConfiguration', 'npCurrent'
-          , 'DataframeConfiguration' , 'dataframeConf'
-          , 'TuningToolsGit']
+          , 'DataframeConfiguration' , 'dataframeConf']
 
 import os, pkgutil
 
@@ -10,11 +9,11 @@ hasExmachina = bool( pkgutil.find_loader( 'exmachina' )      )
 hasFastnet   = bool( pkgutil.find_loader( 'libTuningTools' ) )
 hasKeras     = bool( pkgutil.find_loader( 'keras' )          )
 
-from RingerCore import ( EnumStringification, npConstants, Configure
+from Gaugi import ( EnumStringification, npConstants, Configure
                        , EnumStringificationOptionConfigure, Holder
-                       , NotSet, ArgumentError, GitConfiguration )
+                       , NotSet, ArgumentError )
 
-TuningToolsGit = GitConfiguration(  'TuningToolsGit', __file__, tagArgStr = '--tuning-tools-info')
+#TuningToolsGit = GitConfiguration(  'TuningToolsGit', __file__, tagArgStr = '--tuning-tools-info')
 
 class TuningToolCores( EnumStringification ):
   _ignoreCase = True
@@ -33,7 +32,7 @@ class AvailableTuningToolCores( EnumStringification ):
     ret = TuningToolCores.retrieve( val )
     if not cls.tostring( ret ):
       raise ValueError("TuningTool core %s is not available in the current system." % TuningToolCores.tostring( ret ))
-    return ret 
+    return ret
 
 class _ConfigureCoreFramework( EnumStringificationOptionConfigure ):
   """
@@ -67,7 +66,7 @@ class _ConfigureCoreFramework( EnumStringificationOptionConfigure ):
       self.core = self.default()
 
   def default( self ):
-    if hasFastnet: 
+    if hasFastnet:
       core = TuningToolCores.FastNet
     elif hasKeras:
       core = TuningToolCores.keras
@@ -99,7 +98,7 @@ class _ConfigureCoreFramework( EnumStringificationOptionConfigure ):
     if self.core is TuningToolCores.FastNet:
       from libTuningTools import TuningToolPyWrapper as RawWrapper
       import sys, os
-      class TuningToolPyWrapper( RawWrapper, object ): 
+      class TuningToolPyWrapper( RawWrapper, object ):
         def __init__( self
                     , level
                     , useColor = not(int(os.environ.get('RCM_GRID_ENV',0)) or not(sys.stdout.isatty()))
@@ -116,10 +115,10 @@ class _ConfigureCoreFramework( EnumStringificationOptionConfigure ):
 
         @multiStop.setter
         def multiStop(self, value):
-          if value: 
+          if value:
             self._doMultiStop = True
             self.useAll()
-          else: 
+          else:
             self._doMultiStop = False
             self.useSP()
 

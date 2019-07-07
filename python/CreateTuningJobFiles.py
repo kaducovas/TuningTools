@@ -1,9 +1,9 @@
 __all__ = ['TuningJobConfigArchieve', 'CreateTuningJobFiles', 'createTuningJobFiles']
 
-from RingerCore.LoopingBounds import *
-from RingerCore.LoopingBounds import SeqLoopingBounds, SeqLoopingBoundsCollection, transformToSeqBounds
+from Gaugi.LoopingBounds import *
+from Gaugi.LoopingBounds import SeqLoopingBounds, SeqLoopingBoundsCollection, transformToSeqBounds
 
-from RingerCore import Logger, checkForUnusedVars, save, load, mkdir_p, retrieve_kw
+from Gaugi import Logger, checkForUnusedVars, save, load, mkdir_p, retrieve_kw
 
 class TuningJobConfigArchieve( Logger ):
   """
@@ -96,16 +96,16 @@ class TuningJobConfigArchieve( Logger ):
     try:
       if type(jobConfig) is dict:
         if jobConfig['type'] != self._type:
-          self._fatal(("Input jobConfig file is not from jobConfig " 
+          self._fatal(("Input jobConfig file is not from jobConfig "
               "type."))
-        # Read configuration file to retrieve pre-processing, 
+        # Read configuration file to retrieve pre-processing,
         if jobConfig['version'] == 1:
           neuronBounds = MatlabLoopingBounds( jobConfig['neuronBounds'] )
           sortBounds   = PythonLoopingBounds( jobConfig['sortBounds']   )
           initBounds   = PythonLoopingBounds( jobConfig['initBounds']   )
         else:
           self._fatal("Unknown job configuration version")
-      elif type(jobConfig) is list: # zero version file (without versioning 
+      elif type(jobConfig) is list: # zero version file (without versioning
         # control):
         neuronBounds  = MatlabLoopingBounds( [jobConfig[0], jobConfig[0]] )
         sortBounds    = MatlabLoopingBounds( jobConfig[1] )
@@ -116,12 +116,12 @@ class TuningJobConfigArchieve( Logger ):
       self._fatal(("Couldn't read configuration file '%s': Reason:"
           "\n\t %s" % (self._filePath, e)))
     return neuronBounds, sortBounds, initBounds
-    
+
   def __exit__(self, exc_type, exc_value, traceback):
     # Remove bounds
-    self.neuronBounds = None 
-    self.sortBounds = None 
-    self.initBounds = None 
+    self.neuronBounds = None
+    self.sortBounds = None
+    self.initBounds = None
 
 
 
@@ -148,8 +148,8 @@ class CreateTuningJobFiles(Logger):
       elif len(jobTuple) == 0:
         self._fatal("Retrieved empty window.")
       else:
-        jobWindowList += MatlabLoopingBounds(jobTuple[0], 
-                                             varIncr, 
+        jobWindowList += MatlabLoopingBounds(jobTuple[0],
+                                             varIncr,
                                              jobTuple[-1])
     return jobWindowList
 
@@ -171,7 +171,7 @@ class CreateTuningJobFiles(Logger):
     nInitsPerJob   = retrieve_kw( kw, 'nInitsPerJob',          100            )
     compress       = retrieve_kw( kw, 'compress',              True           )
     prefix         = retrieve_kw( kw, 'prefix'  ,             'job'           )
-  
+
     if 'level' in kw: self.level = kw.pop('level')
     # Make sure that bounds variables are LoopingBounds objects:
     if not isinstance( neuronBounds, SeqLoopingBounds ):
@@ -207,10 +207,10 @@ class CreateTuningJobFiles(Logger):
 
     # Create the windows in which each job will loop upon:
     neuronJobsWindowList = \
-        CreateTuningJobFiles._retrieveJobLoopingBoundsCol( neuronBounds, 
+        CreateTuningJobFiles._retrieveJobLoopingBoundsCol( neuronBounds,
                                                            nNeuronsPerJob )
     sortJobsWindowList = \
-        CreateTuningJobFiles._retrieveJobLoopingBoundsCol( sortBounds, 
+        CreateTuningJobFiles._retrieveJobLoopingBoundsCol( sortBounds,
                                                            nSortsPerJob )
     initJobsWindowList = \
         CreateTuningJobFiles._retrieveJobLoopingBoundsCol( \
@@ -224,13 +224,13 @@ class CreateTuningJobFiles(Logger):
           self._debug(('Retrieved following job configuration '
               '(bounds.vec) : '
               '[ neuronBounds=%s, sortBounds=%s, initBounds=%s]'),
-              neuronWindowBounds.formattedString('hn'), 
-              sortWindowBounds.formattedString('s'), 
+              neuronWindowBounds.formattedString('hn'),
+              sortWindowBounds.formattedString('s'),
               initWindowBounds.formattedString('i'))
-          fulloutput = '{outputFolder}/{prefix}.{neuronStr}.{sortStr}.{initStr}'.format( 
-                        outputFolder = outputFolder, 
+          fulloutput = '{outputFolder}/{prefix}.{neuronStr}.{sortStr}.{initStr}'.format(
+                        outputFolder = outputFolder,
                         prefix = prefix,
-                        neuronStr = neuronWindowBounds.formattedString('hn'), 
+                        neuronStr = neuronWindowBounds.formattedString('hn'),
                         sortStr = sortWindowBounds.formattedString('s'),
                         initStr = initWindowBounds.formattedString('i') )
           savedFile = TuningJobConfigArchieve( fulloutput,
@@ -241,4 +241,3 @@ class CreateTuningJobFiles(Logger):
                             savedFile )
 
 createTuningJobFiles = CreateTuningJobFiles()
-

@@ -869,7 +869,7 @@ def create_simple_table(model_name,script_time):
 
 def plot_Roc(fname,dirout, model_name=""):
   import os
-  from RingerCore import load
+  from Gaugi import load
   from sklearn.metrics import roc_curve, auc
   history_files=[x for x in os.listdir(fname) if x.endswith(".pic.gz")]
   png_files=[]

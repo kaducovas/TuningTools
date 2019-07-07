@@ -1,7 +1,7 @@
 
 __all__ = ['PlotObjects', 'Summary', 'Performance', 'Discriminant']
 
-from RingerCore import Logger
+from Gaugi import Logger
 
 class PlotObjects( Logger ):
   """
@@ -10,46 +10,46 @@ class PlotObjects( Logger ):
   from ROOT import TEnv, TGraph, TCanvas, TParameter, gROOT, kTRUE
   gROOT.SetBatch(kTRUE)
 
-  #Helper names 
-  _paramNames = [ 'mse_stop', 
-                  'sp_stop', 
-                  'det_stop', 
-                  'fa_stop' 
+  #Helper names
+  _paramNames = [ 'mse_stop',
+                  'sp_stop',
+                  'det_stop',
+                  'fa_stop'
                   ]
-  _graphNames = [ 'mse_trn', 
-                  'mse_val', 
+  _graphNames = [ 'mse_trn',
+                  'mse_val',
                   'mse_tst',
-                  'bestsp_point_sp_val', 
-                  'bestsp_point_det_val', 
+                  'bestsp_point_sp_val',
+                  'bestsp_point_det_val',
                   'bestsp_point_fa_val',
-                  'bestsp_point_sp_tst', 
-                  'bestsp_point_det_tst', 
+                  'bestsp_point_sp_tst',
+                  'bestsp_point_det_tst',
                   'bestsp_point_fa_tst',
-                  'det_point_sp_val', 
-                  'det_point_det_val', 
+                  'det_point_sp_val',
+                  'det_point_det_val',
                   'det_point_fa_val', # det_point_det_val is det_fitted
-                  'det_point_sp_tst', 
-                  'det_point_det_tst', 
-                  'det_point_fa_tst', 
-                  'fa_point_sp_val', 
-                  'fa_point_det_val', 
+                  'det_point_sp_tst',
+                  'det_point_det_tst',
+                  'det_point_fa_tst',
+                  'fa_point_sp_val',
+                  'fa_point_det_val',
                   'fa_point_fa_val', # fa_point_fa_val is fa_fitted
-                  'fa_point_sp_tst', 
-                  'fa_point_det_tst', 
-                  'fa_point_fa_tst',  
-                  'roc_tst', 
+                  'fa_point_sp_tst',
+                  'fa_point_det_tst',
+                  'fa_point_fa_tst',
+                  'roc_tst',
                   'roc_operation'
                   ]
 
   def __init__(self, name ):
 
-    Logger.__init__( self )  
+    Logger.__init__( self )
     self._obj = list()
     self._boundValues = None
     self._bestIdx = 0
     self._worstIdx = 0
     self._name = name
-  
+
 
   def retrieve(self, rawObj, pathList):
     #Create dictonarys with diff memory locations
@@ -70,14 +70,14 @@ class PlotObjects( Logger ):
     gROOT.SetBatch(kTRUE)
     obj = TGraph()
     rawObj.GetObject( path+'/'+graphName, obj)
-    self._obj[idx][graphName] = obj 
-    
+    self._obj[idx][graphName] = obj
+
   #Private method:
   def __retrieve_param(self, rawObj, idx, path, paramName ):
     from ROOT import TParameter
     obj = TParameter("double")()
     rawObj.GetObject( path+'/'+paramName, obj)
-    self._obj[idx][paramName] = int(obj.GetVal()) 
+    self._obj[idx][paramName] = int(obj.GetVal())
 
   @property
   def best(self):
@@ -157,7 +157,7 @@ class PlotObjects( Logger ):
 
 
 class Summary(Logger):
-  
+
   def __init__(self, benchmarkName, rawObj):
     Logger.__init__(self)
     self._summary = rawObj
@@ -215,7 +215,7 @@ class Summary(Logger):
       return self.rawBenchmark()['signal_efficiency']['etBin']
 
   def etaBinIdx(self):
-    try: 
+    try:
       return self.rawBenchmark()['_etaBinIdx']
     except:
       return self.rawBenchmark()['signal_efficiency']['etaBin']
@@ -251,7 +251,7 @@ class Discriminant(object):
 class Performance(object):
 
   def __init__(self, tuning, operation, benchmark):
-    
+
     self._reference = benchmark['reference']
     try:
       self._values = {
@@ -302,6 +302,3 @@ class Performance(object):
 #            (self._rawOp['det']*100,self._rawOp['sp']*100,self._rawOp['fa']*100)
 #
 #
-
-
-

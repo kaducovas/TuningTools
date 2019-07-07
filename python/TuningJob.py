@@ -3,14 +3,14 @@ __all__ = ['TunedDiscrArchieve', 'TunedDiscrArchieveCol', 'ReferenceBenchmark',
            'fixLoopingBoundsCol', 'ChooseOPMethod', 'getEfficiencyKeyAndLabel']
 import numpy as np
 import ROOT
-from RingerCore                   import ( Logger, LoggerStreamable, LoggingLevel
+from Gaugi                   import ( Logger, LoggerStreamable, LoggingLevel
                                          , RawDictCnv, LoggerRawDictStreamer, LoggerLimitedTypeListRDS, RawDictStreamer
                                          , save, load, EnumStringification
                                          , checkForUnusedVars, NotSet, csvStr2List, retrieve_kw
                                          , traverse, LimitedTypeList, RawDictStreamable
                                          , LimitedTypeStreamableList, masterLevel
-                                         , ProjectGit )
-from RingerCore.LoopingBounds     import *
+                                         )
+from Gaugi.LoopingBounds     import *
 
 from TuningTools.PreProc          import *
 from TuningTools.SubsetGenerator  import *
@@ -63,8 +63,8 @@ class TunedDiscrArchieveRDS( LoggerRawDictStreamer ):
     self.deepCopyKey(raw, 'tunedDiscr')
     raw['tunedDiscr']   = transformToRawDiscr( raw['tunedDiscr'] )
     #raw['__version'] = obj._version
-    import TuningTools, RingerCore
-    raw['RingerCore__version__'], raw['TuningTools__version__'] = RingerCore.__version__, TuningTools.__version__
+    import TuningTools, Gaugi
+    raw['Gaugi__version__'], raw['TuningTools__version__'] = Gaugi.__version__, TuningTools.__version__
     parent__version__ = ProjectGit.tag
     raw['Project__version__'] = parent__version__
     return LoggerRawDictStreamer.treatDict(self, obj, raw)
@@ -251,7 +251,7 @@ class TunedDiscrArchieve( LoggerStreamable ):
     """
     Save the TunedDiscrArchieve object to disk.
     """
-    from RingerCore import keyboard
+    from Gaugi import keyboard
     #keyboard()
     return save( self.toRawObj(), filePath, compress = compress )
 
@@ -286,8 +286,8 @@ class TunedDiscrArchieve( LoggerStreamable ):
       TuningTools.Neural.Layer = TuningTools.Neural.OldLayer
       TuningTools.Neural.Neural = TuningTools.Neural.OldNeural
       import sys
-      import RingerCore.util
-      sys.modules['FastNetTool.util'] = RingerCore.util
+      import Gaugi.util
+      sys.modules['FastNetTool.util'] = Gaugi.util
       sys.modules['FastNetTool.Neural'] = TuningTools.Neural
       rawObjCol = load( filePath, **kwArgs )
       TuningTools.Neural.Layer = cLayer
@@ -504,7 +504,7 @@ class ReferenceBenchmark(EnumStringification, LoggerStreamable):
       * allowLargeDeltas [True]: When set to true and no value is within the operation bounds,
        then it will use operation closer to the reference.
     """
-    from RingerCore import calcSP
+    from Gaugi import calcSP
     LoggerStreamable.__init__(self, kw)
     self._allowLargeDeltas = kw.pop('allowLargeDeltas', True  )
     self._etBinIdx  = retrieve_kw( kw, 'etBinIdx', None )
@@ -905,7 +905,7 @@ def fixPPCol( var, nSorts = 1, nEta = 1, nEt = 1, level = None ):
     elif depth == 3:
       var = [var]
     # We also want to be sure that they are in correct type and correct size:
-    from RingerCore import inspect_list_attrs
+    from Gaugi import inspect_list_attrs
     var = inspect_list_attrs(var, 3, PreProcChain,      tree_types = tree_types,                                level = level   )
     var = inspect_list_attrs(var, 2, PreProcCollection, tree_types = tree_types, dim = nSorts, name = "nSorts",                 )
     var = inspect_list_attrs(var, 1, PreProcCollection, tree_types = tree_types, dim = nEta,   name = "nEta",                   )
@@ -1003,7 +1003,7 @@ class TuningJob(Logger):
             wants to run the job only for the specified bin index.
             In case a list is specified, it is transformed into a
             MatlabLoopingBounds, read its documentation on:
-              http://nbviewer.jupyter.org/github/wsfreund/RingerCore/blob/master/readme.ipynb#LoopingBounds
+              http://nbviewer.jupyter.org/github/wsfreund/Gaugi/blob/master/readme.ipynb#LoopingBounds
             for more details.
         - etaBins [None]: The eta bins to use within this job. Check etBins
           help for more information.
@@ -1045,10 +1045,10 @@ class TuningJob(Logger):
           SP when set to True. Uses only SP when set to False.
     """
     from TuningTools import TuningToolsGit
-    from RingerCore import RingerCoreGit
+    from Gaugi import GaugiGit
     TuningToolsGit.ensure_clean()
-    RingerCoreGit.ensure_clean()
-    from RingerCore import OMP_NUM_THREADS
+    GaugiGit.ensure_clean()
+    from Gaugi import OMP_NUM_THREADS
     self._info( 'OMP_NUM_THREADS is set to: %d', OMP_NUM_THREADS )
     import gc, os.path
     from copy import deepcopy
@@ -2150,11 +2150,11 @@ class TunedDiscrArchieveCol( Logger ):
 
   def __init__( self, *args, **kw ):
     Logger.__init__(self, kw)
-    from RingerCore.LimitedTypeList import _LimitedTypeList____init__
+    from Gaugi.LimitedTypeList import _LimitedTypeList____init__
     _LimitedTypeList____init__(self, *args)
 
   def toRawObj(self):
-    from RingerCore.RawDictStreamable import _RawDictStreamable__toRawObj
+    from Gaugi.RawDictStreamable import _RawDictStreamable__toRawObj
     rawDict = _RawDictStreamable__toRawObj(self)
     # Expand items to be files:
     for idx, item in enumerate(rawDict['items']):

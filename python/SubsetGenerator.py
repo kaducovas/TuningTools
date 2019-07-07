@@ -2,7 +2,7 @@
 __all__ = [ "SubsetGeneratorArchieve", "SubsetGeneratorPatterns", "SubsetGeneratorCollection"
           , "Cluster", "GMMCluster","SomCluster","fixSubsetCol" ]
 
-from RingerCore import ( Logger, LoggerStreamable, checkForUnusedVars, save
+from Gaugi import ( Logger, LoggerStreamable, checkForUnusedVars, save
                        , load, printArgs, traverse, retrieve_kw
                        , EnumStringification, RawDictCnv
                        , LoggerRawDictStreamer, LimitedTypeStreamableList )
@@ -24,7 +24,7 @@ def tensor_frobenius_argmin( data, code_book, block_size = 10000, logger = None 
   """
   nevents = data.shape[0]
   if nevents > block_size:
-    from RingerCore import progressbar
+    from Gaugi import progressbar
     nblocks = nevents/block_size
     d = np.zeros((nevents,))
     remainder = nevents % block_size
@@ -181,7 +181,7 @@ class SubsetGeneratorPatterns ( Logger ):
   _acceptedTypes = (Subset,)
 
   def __init__(self, *args, **kw):
-    from RingerCore.LimitedTypeList import _LimitedTypeList____init__
+    from Gaugi.LimitedTypeList import _LimitedTypeList____init__
     _LimitedTypeList____init__(self, *args)
     Logger.__init__(self, kw)
     self._dependentPatterns = []
@@ -318,7 +318,7 @@ def fixSubsetCol( var, nSorts = 1, nEta = 1, nEt = 1, level = None ):
     elif depth == 3:
       var = [var]
     # We also want to be sure that they are in correct type and correct size:
-    from RingerCore import inspect_list_attrs
+    from Gaugi import inspect_list_attrs
     var = inspect_list_attrs(var, 3, SubsetGeneratorPatterns  , tree_types = tree_types,                                level = level   )
     var = inspect_list_attrs(var, 2, SubsetGeneratorCollection, tree_types = tree_types, dim = nSorts, name = "nSorts",                 )
     var = inspect_list_attrs(var, 1, SubsetGeneratorCollection, tree_types = tree_types, dim = nEta,   name = "nEta",                   )

@@ -1,7 +1,7 @@
 __all__ = ['TuningWrapper']
 
 import numpy as np
-from RingerCore import ( Logger, LoggingLevel, NotSet, checkForUnusedVars
+from Gaugi import ( Logger, LoggingLevel, NotSet, checkForUnusedVars
                        , retrieve_kw )
 from TuningTools.coreDef      import coreConf, npCurrent, TuningToolCores
 from TuningTools.TuningJob    import ReferenceBenchmark,   ReferenceBenchmarkCollection, BatchSizeMethod

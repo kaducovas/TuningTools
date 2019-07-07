@@ -41,11 +41,11 @@ from . import parsers
 __all__.extend( parsers.__all__              )
 from parsers import *
 # plots sub-package modules
-from . import monitoring
-__all__.extend( monitoring.__all__           )
-from monitoring import *
+#from . import monitoring
+#__all__.extend( monitoring.__all__           )
+#from monitoring import *
 
-from RingerCore import masterLevel
+from Gaugi import masterLevel
 masterLevel.mute( 'StoreGate'                )
 
-__version__ = TuningToolsGit.tag
+#__version__ = TuningToolsGit.tag

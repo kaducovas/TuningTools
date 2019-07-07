@@ -2,7 +2,7 @@ __all__ = [ 'DataTrainEvolution', 'Layer', 'Neural', 'NeuralCollection'
           , 'Neural']
 
 import numpy as np
-from RingerCore import LimitedTypeList, checkForUnusedVars, Logger, NotSet, RawDictStreamable
+from Gaugi import LimitedTypeList, checkForUnusedVars, Logger, NotSet, RawDictStreamable
 from TuningTools.TuningJob import ReferenceBenchmark
 from TuningTools.coreDef import npCurrent
 
@@ -14,44 +14,44 @@ class DataTrainEvolution:
   """
   def __init__(self, train=None, full_data=False):
     #Slim data
-    self.mse_trn        = list()  
-    self.mse_val        = list()  
-    self.mse_tst        = list()  
-    
-    self.bestsp_point_sp_val     = list()  
-    self.bestsp_point_det_val    = list()  
-    self.bestsp_point_fa_val     = list()  
-    self.bestsp_point_sp_tst     = list()  
-    self.bestsp_point_det_tst    = list()  
-    self.bestsp_point_fa_tst     = list()  
-    self.det_point_sp_val        = list()  
-    self.det_point_det_val       = list()  
-    self.det_point_fa_val        = list()  
-    self.det_point_sp_tst        = list()  
-    self.det_point_det_tst       = list()  
-    self.det_point_fa_tst        = list()  
-    self.fa_point_sp_val         = list()  
-    self.fa_point_det_val        = list()  
-    self.fa_point_fa_val         = list()  
-    self.fa_point_sp_tst         = list()  
-    self.fa_point_det_tst        = list()  
-    self.fa_point_fa_tst         = list()  
+    self.mse_trn        = list()
+    self.mse_val        = list()
+    self.mse_tst        = list()
+
+    self.bestsp_point_sp_val     = list()
+    self.bestsp_point_det_val    = list()
+    self.bestsp_point_fa_val     = list()
+    self.bestsp_point_sp_tst     = list()
+    self.bestsp_point_det_tst    = list()
+    self.bestsp_point_fa_tst     = list()
+    self.det_point_sp_val        = list()
+    self.det_point_det_val       = list()
+    self.det_point_fa_val        = list()
+    self.det_point_sp_tst        = list()
+    self.det_point_det_tst       = list()
+    self.det_point_fa_tst        = list()
+    self.fa_point_sp_val         = list()
+    self.fa_point_det_val        = list()
+    self.fa_point_fa_val         = list()
+    self.fa_point_sp_tst         = list()
+    self.fa_point_det_tst        = list()
+    self.fa_point_fa_tst         = list()
 
     #Train evolution information
-    is_best_mse    = list() 
-    is_best_sp     = list() 
-    is_best_det    = list() 
-    is_best_fa     = list()  
- 
+    is_best_mse    = list()
+    is_best_sp     = list()
+    is_best_det    = list()
+    is_best_fa     = list()
+
     if full_data:
-      self.num_fails_mse  = list() 
-      self.num_fails_sp   = list() 
-      self.num_fails_det  = list() 
-      self.num_fails_fa   = list() 
-      self.stop_mse       = list() 
-      self.stop_sp        = list()    
-      self.stop_det       = list() 
-      self.stop_fa        = list() 
+      self.num_fails_mse  = list()
+      self.num_fails_sp   = list()
+      self.num_fails_det  = list()
+      self.num_fails_fa   = list()
+      self.stop_mse       = list()
+      self.stop_sp        = list()
+      self.stop_det       = list()
+      self.stop_fa        = list()
 
     #Get train evolution information from TrainDatapyWrapper
     if train is not None:
@@ -59,7 +59,7 @@ class DataTrainEvolution:
       if coreConf() is TuningToolCores.FastNet:
         self.maxEpoch = len(train)
         for i in range(len(train)):
-          
+
           self.mse_trn.append              ( train[i].mseTrn               )
           self.mse_val.append              ( train[i].mseVal               )
           self.mse_tst.append              ( train[i].mseTst               )
@@ -70,21 +70,21 @@ class DataTrainEvolution:
           self.bestsp_point_sp_tst.append  ( train[i].bestsp_point_sp_tst  )
           self.bestsp_point_det_tst.append ( train[i].bestsp_point_det_tst )
           self.bestsp_point_fa_tst.append  ( train[i].bestsp_point_fa_tst  )
-   
+
           self.det_point_sp_val.append     ( train[i].det_point_sp_val     )
           self.det_point_det_val.append    ( train[i].det_point_det_val    )
           self.det_point_fa_val.append     ( train[i].det_point_fa_val     )
           self.det_point_sp_tst.append     ( train[i].det_point_sp_tst     )
           self.det_point_det_tst.append    ( train[i].det_point_det_tst    )
           self.det_point_fa_tst.append     ( train[i].det_point_fa_tst     )
-   
+
           self.fa_point_sp_val.append      ( train[i].fa_point_sp_val      )
           self.fa_point_det_val.append     ( train[i].fa_point_det_val     )
           self.fa_point_fa_val.append      ( train[i].fa_point_fa_val      )
           self.fa_point_sp_tst.append      ( train[i].fa_point_sp_tst      )
           self.fa_point_det_tst.append     ( train[i].fa_point_det_tst     )
           self.fa_point_fa_tst.append      ( train[i].fa_point_fa_tst      )
-          
+
           is_best_mse.append               ( train[i].isBestMse            )
           is_best_sp.append                ( train[i].isBestSP             )
           is_best_det.append               ( train[i].isBestDet            )
@@ -123,7 +123,7 @@ class DataTrainEvolution:
           self.det_point_sp_val     = train.history[[pd_key for pd_key in pd_keys if pd_key.endswith('sp_value')][0]]
           self.det_point_det_val    = train.history[[pd_key for pd_key in pd_keys if pd_key.endswith('pd_value')][0]]
           self.det_point_fa_val     = train.history[[pd_key for pd_key in pd_keys if pd_key.endswith('pf_value')][0]]
-   
+
         if pf_keys:
           self.fa_point_sp_val      = train.history[[pf_key for pf_key in pf_keys if pf_key.endswith('sp_value')][0]]
           self.fa_point_det_val     = train.history[[pf_key for pf_key in pf_keys if pf_key.endswith('pd_value')][0]]
@@ -140,7 +140,7 @@ class DataTrainEvolution:
       l.reverse()
       return len(l) - 1 - l.index(value)
     except ValueError:
-      return len(l) - 1 
+      return len(l) - 1
 
 
 class Layer:
@@ -154,7 +154,7 @@ class Layer:
   def __call_func(self, Y):
     if self.func == 'tansig':  return self.__tansig(Y)
     if self.func == 'sigmoid': return self.__sigmoid(Y)
- 
+
   def __sigmoid(self, x):
     return (1 / (1 + np.exp(-x)))
 
@@ -165,10 +165,10 @@ class Layer:
     B = self.b * np.ones((1, X.shape[1]))
     Y = np.dot(self.W,X)+B
     return self.__call_func(Y)
- 
+
   def get_w_array(self):
     return np.array(np.reshape(self.W, (1,self.W.shape[0]*self.W.shape[1])))[0]
- 
+
   def get_b_array(self):
     return np.array(np.reshape(self.b, (1,self.b.shape[0]*self.b.shape[1])))[0]
 
@@ -184,7 +184,7 @@ class Neural:
   """
   def __init__(self, name):
     self._name    = name
-    self._nodes   = list()        
+    self._nodes   = list()
     self._layers  = list()
     self._nLayers = 0
 
@@ -197,7 +197,7 @@ class Neural:
       is a list with the same length of the input
     '''
     Y = []
-    for l in range(len(self._nodes) - 1): 
+    for l in range(len(self._nodes) - 1):
       if l == 0: Y = self._layers[l](input)
       else: Y = self._layers[l](Y)
     return Y
@@ -261,7 +261,7 @@ class Neural:
 
     #Retrieve nodes information
     self._nLayers = fastnetObj.getNumLayes()
-    for layer in range(self._nLayers): 
+    for layer in range(self._nLayers):
       self._nodes.append( fastnetObj.getNumNodes(layer) )
     #Alloc zeros
     for layer in range(len(self._nodes) - 1):
@@ -312,7 +312,7 @@ class Roc(object):
   """
   __metaclass__ = RawDictStreamable
 
-  def __init__( self ): 
+  def __init__( self ):
     pass
 
   def __call__( self, y_score, y_true = NotSet ):

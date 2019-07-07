@@ -2,7 +2,7 @@ __all__ = [ 'RetrieveCoreFramework', 'coreFrameworkParser'
           , 'RetrieveDataFramework', 'dataframeParser'
           ]
 
-from RingerCore import argparse, ArgumentParser, NotSet
+from Gaugi import argparse, ArgumentParser, NotSet
 from TuningTools.coreDef import coreConf, AvailableTuningToolCores, dataframeConf
 
 class RetrieveCoreFramework( argparse.Action ):
@@ -54,4 +54,3 @@ if not hasattr(argparse.Namespace, 'data_framework'):
     dataframeConf.set( val )
 
   argparse.Namespace.data_framework = property( _getDataFramework, _setDataFramework )
-

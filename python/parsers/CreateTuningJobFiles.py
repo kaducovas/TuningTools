@@ -1,6 +1,6 @@
 __all__ = ['JobFileTypeCreation', 'tuningJobFileParser']
 
-from RingerCore import (ArgumentParser, BooleanStr, get_attributes
+from Gaugi import (ArgumentParser, BooleanStr, get_attributes
                        , NotSet, EnumStringification)
 
 from TuningTools.CrossValid import CrossValidMethod
@@ -17,7 +17,7 @@ class JobFileTypeCreation( EnumStringification ):
   ppFile = 3
 tuningJobFileParser = ArgumentParser( add_help = False,
                         description = 'Create files used by TuningJob.' )
-tuningJobFileParser.add_argument('fileType', 
+tuningJobFileParser.add_argument('fileType',
                      choices = get_attributes(JobFileTypeCreation, onlyVars = True, getProtected = False),
                      nargs='+',
                      help = """Which kind of files to create. You can choose one
@@ -27,13 +27,13 @@ tuningJobFileParser.add_argument('--compress', type=BooleanStr,
     help = "Whether to compress files or not."
        )
 ################################################################################
-jobConfig = tuningJobFileParser.add_argument_group( "JobConfig Files Creation Options", 
+jobConfig = tuningJobFileParser.add_argument_group( "JobConfig Files Creation Options",
                                        """Change configuration for
                                        job config files creation.""")
-jobConfig.add_argument('-oJConf', '--jobConfiFilesOutputFolder', 
-                       default = NotSet, 
+jobConfig.add_argument('-oJConf', '--jobConfiFilesOutputFolder',
+                       default = NotSet,
                        help = "The job config files output folder.")
-jobConfig.add_argument('--neuronBounds', nargs='+', type=int, default = NotSet,  
+jobConfig.add_argument('--neuronBounds', nargs='+', type=int, default = NotSet,
                         help = """
                             Input a sequential bounded list to be used as the
                             neuron job range, the arguments should have the
@@ -55,16 +55,16 @@ jobConfig.add_argument('--nInits', nargs='?', type=int, default = NotSet,
                        help = "The number of initilizations of the discriminator.")
 jobConfig.add_argument('--nNeuronsPerJob', type=int, default = NotSet,
                         help = "The number of hidden layer neurons per job.")
-jobConfig.add_argument('--nSortsPerJob', type=int, default = NotSet,  
+jobConfig.add_argument('--nSortsPerJob', type=int, default = NotSet,
                        help = "The number of sorts per job.")
-jobConfig.add_argument('--nInitsPerJob', type=int, default = NotSet,  
+jobConfig.add_argument('--nInitsPerJob', type=int, default = NotSet,
                         help = "The number of initializations per job.")
 ################################################################################
-crossConfig = tuningJobFileParser.add_argument_group( "CrossValid File Creation Options", 
+crossConfig = tuningJobFileParser.add_argument_group( "CrossValid File Creation Options",
                                          """Change configuration for CrossValid
                                          file creation.""")
-crossConfig.add_argument('-outCross', '--crossValidOutputFile', 
-                       default = 'crossValid', 
+crossConfig.add_argument('-outCross', '--crossValidOutputFile',
+                       default = 'crossValid',
                        help = "The cross validation output file.")
 crossConfig.add_argument('-m','--method', default = NotSet, type=CrossValidMethod,
                          help = "The Cross-Validation method."
@@ -87,8 +87,8 @@ crossConfig.add_argument('-ntst','--nTest',  type=int, default = NotSet,
 crossConfig.add_argument('-seed', type=int, default = NotSet,
                          help = "The seed value for generating CrossValid object.")
 ################################################################################
-ppConfig = tuningJobFileParser.add_argument_group( "PreProc File Creation Options", 
-                                      """Change configuration for pre-processing 
+ppConfig = tuningJobFileParser.add_argument_group( "PreProc File Creation Options",
+                                      """Change configuration for pre-processing
                                       file creation. These options will only
                                       be taken into account if job fileType is
                                       set to "ppFile" or "all".""")
@@ -101,7 +101,7 @@ ppConfig.add_argument('-ppCol', type=str,
                              string will be parsed by python and created using
                              the available pre-processings on
                              TuningTools.PreProc.py file.
-                             
+
                              This string can have classes from the PreProc
                              module initialized with determined values. E.g.:
 

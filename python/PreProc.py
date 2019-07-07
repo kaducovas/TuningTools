@@ -4,10 +4,10 @@ __all__ = ['PreProcArchieve', 'PrepObj', 'Projection',  'RemoveMean', 'RingerRp'
            'PreProcChain', 'PreProcCollection', 'RingerEtaMu', 'RingerFilterMu',
            'StatReductionFactor','StackedAutoEncoder','LSTMAutoEncoder','NLPCA','SAE_FineTuning']
 
-from RingerCore import ( Logger, LoggerStreamable, checkForUnusedVars
+from Gaugi import ( Logger, LoggerStreamable, checkForUnusedVars
                        , save, load, LimitedTypeList, LoggingLevel, LoggerRawDictStreamer
                        , LimitedTypeStreamableList, RawDictStreamer, RawDictCnv )
-#from RingerCore import LimitedTypeListRDC, LoggerLimitedTypeListRDS, \
+#from Gaugi import LimitedTypeListRDC, LoggerLimitedTypeListRDS, \
 #                       LimitedTypeListRDS
 from TuningTools.coreDef import npCurrent
 import numpy as np
@@ -910,7 +910,7 @@ class StackedAutoEncoder( PrepObj ):
 
   def __init__(self,n_inits=1,hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
-    from RingerCore import retrieve_kw
+    from Gaugi import retrieve_kw
     self._hidden_neurons = retrieve_kw(d,'hidden_neurons',[80])
     self._caltype = retrieve_kw(d,'caltype','allcalo')
     self._aetype = retrieve_kw(d,'aetype','vanilla') #VANILLA, SPARSE, DENOISING, CONTRACTIVE
@@ -1235,7 +1235,7 @@ class LSTMAutoEncoder( PrepObj ):
 
   def __init__(self,n_inits=1,units=16,bidirection=False,layers=1, hidden_neurons=180,model_name="ringer_N1_et1_eta1",global_step=None,batch_size=1000,layer=1, d = {}, **kw):
     d.update( kw ); del kw
-    from RingerCore import retrieve_kw
+    from Gaugi import retrieve_kw
     from audeep.backend.training.base import BaseFeatureLearningWrapper
     from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
     from audeep.backend.models.rnn_base import CellType, RNNArchitecture
@@ -1328,7 +1328,7 @@ class LSTMAutoEncoder( PrepObj ):
     from cliff.command import Command
     from audeep.backend.data.export import export_ringer_tfrecords
     from audeep.backend.models.rnn_base import CellType, RNNArchitecture
-    from RingerCore import retrieve_kw
+    from Gaugi import retrieve_kw
     from audeep.backend.training.base import BaseFeatureLearningWrapper
     from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
     import tensorflow as tf
@@ -1475,7 +1475,7 @@ class LSTMAutoEncoder( PrepObj ):
     return (self._model_shortname+"_AE_%d" % self._hidden_neurons)
 
   def _apply(self, data,layerNumber):
-    from RingerCore import retrieve_kw
+    from Gaugi import retrieve_kw
     from audeep.backend.training.base import BaseFeatureLearningWrapper
     from audeep.backend.training.time_autoencoder import TimeAutoencoderWrapper
     #import numpy as np
@@ -1537,7 +1537,7 @@ class NLPCA( PrepObj ):
 
   def __init__(self,n_inits=1,n_nlpcas=30, n_neurons_mapping=50, hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=30,batch_size=200,layer=1, d = {}, **kw):
     d.update( kw ); del kw
-    from RingerCore import retrieve_kw
+    from Gaugi import retrieve_kw
     #self._caltype = retrieve_kw(d,'caltype','allcalo')
     self._n_nlpcas = retrieve_kw(d,'nlpcs',30)
     self._n_neurons_mapping = retrieve_kw(d,'nmapping',50)
@@ -1727,7 +1727,7 @@ class SAE_FineTuning( PrepObj ):
 
   def __init__(self,n_inits=1,n_nlpcas=30, hidden_activation='tanh',output_activation='linear',n_epochs=5000,patience=30,batch_size=1024,layer=1, d = {}, **kw):
     d.update( kw ); del kw
-    from RingerCore import retrieve_kw
+    from Gaugi import retrieve_kw
     #self._caltype = retrieve_kw(d,'caltype','allcalo')
     self._n_nlpcas = retrieve_kw(d,'nlpcs',30)
     self._n_neurons_mapping = retrieve_kw(d,'nmapping',50)
@@ -2518,7 +2518,7 @@ class PreProcChain ( Logger ):
   _acceptedTypes = (PrepObj,)
 
   def __init__(self, *args, **kw):
-    from RingerCore.LimitedTypeList import _LimitedTypeList____init__
+    from Gaugi.LimitedTypeList import _LimitedTypeList____init__
     _LimitedTypeList____init__(self, *args)
     Logger.__init__(self, kw)
 

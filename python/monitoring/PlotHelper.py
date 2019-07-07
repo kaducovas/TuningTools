@@ -277,7 +277,7 @@ def PlotDiscriminants( objects, best=0, worst=0, outname=None, nsgn=2500,nbkg=10
   canvas2.SetLogy()
   canvas3.SetLogy()
 
-  from RingerCore.util import Roc_to_histogram
+  from Gaugi.util import Roc_to_histogram
   from ROOT import TH1F
   for idx in plots.getBoundValues():
     roc = plots.getCurve('roc_operation',idx)
@@ -349,8 +349,3 @@ def PlotRocs( objects, best=0, worst=0, reference=None, eps=.05, outname=None,
   SetXaxisRanges(canvas,xmin,xmax)
   SetYaxisRanges(canvas,ymin,ymax)
   #@@canvas.SaveAs(outname+'_'+key+'.pdf')
-
-
-
-
-

@@ -7,7 +7,7 @@ import numpy as np
 
 from TuningTools.TuningJob import ReferenceBenchmark
 from TuningTools.coreDef import npCurrent
-from RingerCore import keyboard
+from Gaugi import keyboard
 
 
 try:
@@ -76,20 +76,19 @@ class Roc( gof.Op ):
     #print spVal, pdVal, pfVal, threshold
     output_storage[0][0] = np.array( [spVal, pdVal, pfVal, threshold], dtype=npCurrent.fp_dtype )
 
-class Efficiencies( object ): 
+class Efficiencies( object ):
 
   def __init__( self, reference ):
     self.roc = Roc( reference )
 
-  def false_alarm_probability(self, y_true, y_pred): 
+  def false_alarm_probability(self, y_true, y_pred):
     return self.roc(y_true, y_pred)[2]
 
-  def detection_probability(self, y_true, y_pred): 
+  def detection_probability(self, y_true, y_pred):
     return self.roc(y_true, y_pred)[1]
 
-  def sp_index(self, y_true, y_pred): 
+  def sp_index(self, y_true, y_pred):
     return self.roc(y_true, y_pred)[0]
 
-  def threshold(self, y_true, y_pred): 
+  def threshold(self, y_true, y_pred):
     return self.roc(y_true, y_pred)[3]
-
