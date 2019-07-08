@@ -23,7 +23,23 @@ from prettytable import PrettyTable
 from datetime import datetime
 from SAE_Evaluation import *
 import time
-#import keras
+
+###Allow only the amount of GPU memory needed
+#0 = all messages are logged (default behavior) ; #1 = INFO messages are not printed ; #2 = INFO and WARNING messages are not printed ; #3 = INFO, WARNING, and ERROR messages are not printed
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+from keras.backend.tensorflow_backend import set_session
+import tensorflow as tf
+tf.logging.set_verbosity(tf.logging.FATAL)
+config = tf.ConfigProto(log_device_placement=False)
+config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
+config.log_device_placement = True  # to log device placement (on which device the operation ran)
+
+
+
+
+sess = tf.Session(config=config)
+
+set_session(sess)  # set this TensorFlow session as the default session for Keras
 
 class TunedDiscrArchieveRDS( LoggerRawDictStreamer ):
   """
